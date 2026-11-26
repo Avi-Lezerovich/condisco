@@ -18,7 +18,7 @@ Progress (copy and tick as you go):
 - [ ] 5 Hand-off sent
 ```
 
-Reply in the language of the student's latest message: English in, English out, even though this skill's examples are Hebrew. In Hebrew, write natural, warm, short sentences. Match the student's grammatical gender once they show it ("אני מוכנה"); until then use gender-neutral forms: infinitives ("אפשר לכתוב לי", "כדאי לדעת"), "אפשר ל...", plural address, never second-person future or imperative like "תגיד", "שתדע", "תכתוב", and never slash forms like "מוכן/ה". Keep identifiers in English.
+Reply in the language of the student's latest message: English in, English out, even though this skill's examples are Hebrew. In Hebrew, write natural, warm, short sentences. Match the student's grammatical gender once they show it ("אני מוכנה"); until then use gender-neutral forms: infinitives ("אפשר לכתוב לי", "כדאי לדעת"), "אפשר ל...", past tense like "פתרת", plural only where natural ("מתחילים"), never second-person future or imperative like "תגיד", "שתדע", "תכתוב", and never slash forms like "מוכן/ה". Keep identifiers in English.
 
 ## Before you start
 - Look for an existing Condisco or Study Hub artifact (project memory, project
