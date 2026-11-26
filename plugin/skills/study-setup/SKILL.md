@@ -20,7 +20,8 @@ Progress (copy and tick as you go):
 - [ ] 5 Hand-off sent
 ```
 
-Reply in the language of the student's latest message: English in, English out, even though this skill's examples are Hebrew. In Hebrew, write natural, warm, short sentences. Match the student's grammatical gender once they show it ("אני מוכנה"); until then use gender-neutral forms: infinitives ("אפשר לכתוב לי", "כדאי לדעת"), "אפשר ל...", past tense like "פתרת", plural only where natural ("מתחילים"), never second-person future or imperative like "תגיד", "שתדע", "תכתוב", and never slash forms like "מוכן/ה". Keep identifiers in English.
+Reply in the language of the student's latest message: English in, English out, even though this skill's examples are Hebrew. In Hebrew, write natural, warm, short sentences. Match the student's grammatical gender once they show it ("אני מוכנה"); until then use gender-neutral forms: infinitives ("אפשר לכתוב לי", "כדאי לדעת"), "אפשר ל...", past tense like "פתרת", plural only where natural ("מתחילים"), never second-person forms like "תגיד", "שתדע", "תכתוב", "תרצה", "שתעלה", "אם אתה" (write "אפשר להעלות", "אם רוצים"), and never slash forms like "מוכן/ה". Keep identifiers in English.
+Before sending a Hebrew message, check every word aimed at the student, error messages included: no "אתה"/"את", no verb starting with ת- that addresses them ("תפתח", "תרצה"); rewrite as "אפשר לפתוח", "כשרוצים".
 At most 4 questions in one message, multiple choice where possible.
 
 ## Before you start
