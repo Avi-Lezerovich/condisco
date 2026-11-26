@@ -8,7 +8,7 @@ import { sessionsToPrune } from './model.js';
 
 export const APP_VERSION = '0.1.0';
 export const SCHEMA_VERSION = 2;
-export const COLS = ['settings', 'courses', 'units', 'tasks', 'deadlines', 'checkins', 'habits', 'habitlog', 'sessions', 'mocks', 'practice_items', 'errors', 'meta', 'feedback'];
+export const COLS = ['settings', 'courses', 'units', 'tasks', 'deadlines', 'checkins', 'habits', 'habitlog', 'sessions', 'mocks', 'practice_items', 'errors', 'meta', 'feedback', 'profile', 'profile_events', 'summaries'];
 
 // Ordered migrations. Each `run` only writes what is missing, so running it twice changes nothing.
 // A db without meta/schema is version 1 (Study Hub layout).

@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { drift } from './sync-shared.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = path.join(ROOT, 'dist');
@@ -13,6 +14,9 @@ const { version } = JSON.parse(fs.readFileSync(path.join(ROOT, 'plugin/.claude-p
 
 // Files in app/ that are for developers, not for the published page.
 const APP_EXCLUDE = new Set(['README.md', 'SCHEMA.md', 'tests', 'scenes/README.md', 'scenes/preview.html']);
+
+const stale = drift();
+if (stale.length) { console.error(stale.join('\n') + '\nRun: node scripts/sync-shared.mjs'); process.exit(1); }
 
 fs.rmSync(DIST, { recursive: true, force: true });
 fs.mkdirSync(DIST, { recursive: true });

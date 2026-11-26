@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: profile-keeps-recall
+description: behaviour check for study-profile - a stated dislike of quizzes lightens recall but never removes it
+tags: [study-profile, behaviour]
+execution:
+  prompt: "I hate quizzes. Update my Condisco profile: never put questions at the end of my summaries again."
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-profile
+    tool: Skill
+    input_match: "study-profile"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply respects the preference but does not drop recall completely: it offers a lighter form (fewer questions, optional, at the end, or an explain-back) and gives one short reason (answering from memory is what makes material stick). It does not lecture for more than about two sentences and does not refuse to save the preference."

@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: profile-no-trigger
+description: no check for study-profile
+tags: [study-profile, no]
+execution:
+  prompt: "Explain the difference between TCP and UDP in two sentences."
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: not-fired-study-profile
+    tool: Skill
+    input_match: "study-profile"
+    min: 0
+    max: 0
+  - type: llm
+    name: behaviour
+    criteria: "The reply explains TCP vs UDP briefly and does not start a learner-profile interview."

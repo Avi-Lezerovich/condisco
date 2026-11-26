@@ -1,6 +1,6 @@
 ---
 name: study-session
-description: Runs one focused study session with a university student - sets a goal, opens with retrieval, works through a problem with the student producing first and a hint ladder, and ends with a closed-book recall question. Also transcribes the student's own handwritten solutions into typed text or LaTeX. Respects each course's AI policy on submitted work. Use whenever the student brings a specific course question or homework/assignment question (including "just give me the answer"), or says "let's study", "start a session", "help me with this question", "quiz me", "explain this", "type up my solution", "convert my handwriting to LaTeX", "בוא נלמד", "בואי נלמד", "רוצה ללמוד", "תעזור לי בשאלה", "תבחן אותי", "תסביר לי", "תקליד לי את הפתרון", "תעביר ללאטך".
+description: Runs one focused study session with a university student - sets a goal, opens with retrieval, works through a problem with the student producing first and a hint ladder, and ends with a closed-book recall question. Also transcribes the student's own handwritten solutions into typed text or LaTeX. Respects each course's AI policy on submitted work. Use whenever the student brings a specific course question or homework/assignment question (including "just give me the answer"), or says "let's study", "start a session", "help me with this question", "quiz me", "explain this question", "type up my solution", "convert my handwriting to LaTeX", "בוא נלמד", "בואי נלמד", "רוצה ללמוד", "יש לי 45 דקות", "I have 45 minutes", "תעזור לי בשאלה", "תבחן אותי", "תסביר לי את השאלה", "תקליד לי את הפתרון", "תעביר ללאטך". Learning a whole topic from scratch is study-teach; a summary of a week is study-summary.
 ---
 
 # Condisco study session
@@ -21,6 +21,19 @@ does) and, if the question comes from an assignment, the matching `deadlines` do
 - `aiSolve: "allowed"`: the normal ladder below, full solution only on request.
 - Not sure if it is submitted work: ask one yes/no question before step 3.
 Read `references/policy.md` when a case is unclear.
+
+## Read the learner profile (once per session)
+Read `profile/main` (missing → defaults: block 25 min, hints normal, tone warm).
+Use it for the wrapping only: `block.minutes` for the block length you propose,
+`hintDepth` for how much each rung of the hint ladder says, `tone`, `techniques`
+(e.g. `analogies` → one analogy when a concept is stuck; `worked_example_first` →
+a worked example before the first problem on a new unit), and `defaultFormat`
+(`visual_*` → when a concept needs a picture, offer a one-diagram artifact or a
+`study-teach` lesson instead of a long text explanation). Retrieval first and the
+closed-book recall at the end never change. Log to `profile_events` (append only,
+never write `profile/main`): `recall` with the result at the close, `hint` with
+the highest rung reached, and `block_done` / `block_abandoned`. A stated preference
+("קצר יותר") → `study-profile` rules: confirm in one line, then it is saved.
 
 ## Default session loop
 1. **Open (1 message, ≤8 lines):** one-line goal ("by the end I can …"), block

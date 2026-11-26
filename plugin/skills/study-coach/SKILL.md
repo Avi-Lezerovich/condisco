@@ -50,6 +50,19 @@ from memory alone.
 - Ask one question: anything changed (new dates, course dropped)?
 - Unverified dates found anywhere → list them as "לא מאומת" and ask the student to confirm.
 - No sync in 7+ days (`settings/main.lastSync`) → offer `study-sync` ("סנכרון עכשיו") in one line; never run it unasked.
+- Learner profile: read `profile/main` and the last 7 days of `profile_events`. Build
+  proposals only with the rules in `study-profile` ("Weekly proposals"): at most one
+  line per field, "שמתי לב ש-X, אז Y. להשאיר?". Changes are saved through
+  `study-profile` after a yes, never silently. Delete `profile_events` older than 180 days.
+
+## Profile in the daily plan
+Read `profile/main` with the other data (missing → defaults): block length from
+`block.minutes`, a lighter plan when `load: "light"` (fewer tasks, minimum versions
+first, no new topics). A unit studied this week without a summary may get one line
+offering `study-summary`; at most once a day. On the 2nd or 3rd evening check-in
+after setup (`profile.interviewAt`), add one optional question about current
+constraints (reserve duty, work, health, family, "בלי לפרט"); its answer goes
+to `study-profile` and is never quoted back unprompted.
 
 ## Rules
 - Never invent content, dates or grades; unverified → "לא מאומת" with its source.

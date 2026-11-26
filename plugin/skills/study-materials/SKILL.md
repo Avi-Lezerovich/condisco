@@ -1,6 +1,6 @@
 ---
 name: study-materials
-description: Connects a university student's course materials in Google Drive to their Condisco app - finds each course's lecture, recitation and exercise files, writes one short summary per unit with its Drive fileId, and refreshes only files that changed. Use when the student says "connect my Drive", "summarize my course materials", "update my units from Drive", "what's in lecture 5", "I added new slides", "תחבר את הדרייב", "תסכם לי את החומרים", "תעדכן יחידות מהדרייב", "העליתי חומר חדש", "מה יש בהרצאה 5".
+description: Connects a university student's course materials in Google Drive to their Condisco app - finds each course's lecture, recitation and exercise files, writes one short summary per unit with its Drive fileId, and refreshes only files that changed. Use when the student says "connect my Drive", "index my course materials", "update my units from Drive", "what's in lecture 5", "I added new slides", "תחבר את הדרייב", "תסרוק את החומרים בדרייב", "תעדכן יחידות מהדרייב", "העליתי חומר חדש", "מה יש בהרצאה 5". A full study summary of a week, lecture or topic is study-summary.
 ---
 
 # Condisco materials (Google Drive)
@@ -33,6 +33,8 @@ gender-neutral forms, never slash forms. Keep identifiers in English.
   `x` summary). Match by number in the file name ("הרצאה 5", "Lecture05", "Tirgul 3").
 - Existing unit without `fileId` → propose the match. Existing `fileId` that
   points elsewhere → ask before changing it.
+- A file or folder name with a week number ("שבוע 5", "Week05") → propose `week`
+  on the matched units, so "summarize week 5" finds them (`study-summary`).
 - File with no unit → propose a new unit doc `{courseId, kind, num, title,
   status: "not_started", fileId, fileName}`. Title from the file's own heading,
   else its name. Never mark status above `not_started` for a new unit.

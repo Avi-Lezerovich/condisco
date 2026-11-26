@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: profile-trigger-he
+description: trigger check for study-profile
+tags: [study-profile, trigger]
+execution:
+  prompt: "מסמכי טקסט רגילים משעממים אותי. אני אוהב סיכומים שהם ויזואליים, עם איורים ושרטוטים. תזכור את זה."
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-profile
+    tool: Skill
+    input_match: "study-profile"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply treats this as a preference to save in the learner profile: it confirms in a short line what it will save (visual summaries, plain text documents bore the student), or explains it needs the Condisco app to save it. It does NOT label the student a 'visual learner' or claim that matching a learning style improves learning. It does not lecture at length."

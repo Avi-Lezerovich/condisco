@@ -21,7 +21,7 @@ Screenshots use the fictional sample data from `?mock=1`.
 2. Download `condisco-<version>.zip` from the latest [release](../../releases/latest) (or the file you were sent). Do not unzip it.
 3. In claude.ai (browser or desktop app): **Customize > Plugins > Add > Upload plugin**, and choose the ZIP.
 4. Open a new project, start a chat, and write **להתקין לי Condisco** (or "set up Condisco").
-5. Answer four short questions. At the end you see `בדיקת db: עברה ✓` and a link to your private Condisco app. Bookmark it.
+5. Condisco publishes your private app (`בדיקת db: עברה ✓`), reads your courses and syllabi from Moodle (read only) or from uploaded syllabi, and asks four short questions plus three about how you like to learn. Bookmark the app link.
 
 Full guide: [Hebrew](docs/pilot-guide.md) · [English](docs/install.md). Something wrong? See [troubleshooting](docs/pilot-guide.md#אם-משהו-לא-עובד), or write **פידבק על Condisco** in any chat.
 
@@ -29,7 +29,8 @@ Full guide: [Hebrew](docs/pilot-guide.md) · [English](docs/install.md). Somethi
 
 | Path | What it is |
 |---|---|
-| [`plugin/`](plugin/) | The Claude plugin `condisco`: seven skills (`study-setup`, `study-coach`, `study-session`, `exam-mode`, `study-materials`, `study-sync`, `study-feedback`) and their evals. |
+| [`plugin/`](plugin/) | The Claude plugin `condisco`: ten skills (`study-setup`, `study-profile`, `study-coach`, `study-session`, `study-teach`, `study-summary`, `exam-mode`, `study-materials`, `study-sync`, `study-feedback`) and their evals. |
+| [`kit/`](kit/) | The visual kit: one Hebrew RTL page template and its design rules, copied into `study-summary` and `study-teach` by `npm run sync:shared`. |
 | [`app/`](app/) | The Condisco web app: a claude.ai artifact with an owner-only database. Hebrew, RTL, mobile first, no build step. |
 | [`app/scenes/`](app/scenes/) | 31 procedural SVG landscapes for the desktop idle screen. |
 | [`app/audio/`](app/audio/) | Eight recordings for focus blocks (piano, rain, stream, forest, sea). All are CC0 or public domain except `sea.mp3` (CC BY 3.0, Luftrum). See [sources and licenses](app/audio/LICENSES.md) and [NOTICE](NOTICE.md). |
@@ -42,8 +43,8 @@ The app has one source, `app/`. The plugin ships a copy of it under `skills/stud
 ## How it works
 
 1. The student uploads the plugin ZIP to claude.ai and says "להתקין לי Condisco" (or "set up Condisco").
-2. `study-setup` asks four short questions, publishes the app as a private artifact with its own database, saves settings and courses, and runs a database self-test.
-3. From then on the other skills read and write that database: `study-coach` for the daily plan and evening check-in, `study-session` for a study session (retrieval first, a hint ladder, a closed-book recall question at the end), `exam-mode` for backward exam plans and timed mocks from real past exams, `study-materials` for one-line summaries of each unit's Google Drive file, and `study-sync` for a read-only "sync now" of Moodle and Piazza.
+2. `study-setup` publishes the app as a private artifact with its own database, runs a database self-test, reads the courses and syllabi from Moodle (read only, through Claude in Chrome) or from uploaded syllabi, and saves them after the student confirms. `study-profile` then asks four short questions and three about how the student likes to learn, and keeps the learner profile (`profile/main`) that every skill reads.
+3. From then on the other skills read and write that database: `study-coach` for the daily plan and evening check-in, `study-session` for a study session (retrieval first, a hint ladder, a closed-book recall question at the end), `exam-mode` for backward exam plans and timed mocks from real past exams, `study-materials` for one-line summaries of each unit's Google Drive file, `study-sync` for a read-only "sync now" of Moodle and Piazza, `study-summary` for a summary of a week, unit or topic in the student's preferred form (by default a visual page with diagrams and a recall quiz), and `study-teach` for a short visual lesson on a topic, ending with an explain-back.
 4. The app shows Today, Gaps, Deadlines, Check-in and Settings (an Exams tab is built but hidden for now; `?exam=1` shows it), plus a focus timer with breathing, music and a desktop idle screen.
 
 The data model is in [`app/SCHEMA.md`](app/SCHEMA.md).
@@ -66,9 +67,11 @@ URL options: `?mock=1` fake database with sample data, `?mock=empty` first-run s
 
 | Command | What it does |
 |---|---|
-| `npm test` | Static checks, unit tests and every browser suite. |
+| `npm test` | Static checks, unit tests, the kit test and every browser suite. |
 | `npm run check` | Every JS file parses, JSON is valid, the plugin manifest and skills are complete, every scene and audio file in the manifests exists. |
 | `npm run test:unit` | Pure tests: focus engine, Leitner boxes, mocks, priority, pruning, migrations, Gaps rules. |
+| `npm run test:kit` | The visual kit page on a phone and a desktop, light and dark: no horizontal scroll, figures ≤ 480 units with titles, no hard-coded colours, stepper and quiz work. |
+| `npm run sync:shared` | Copies the shared skill files (kit, schema, Moodle rules) into every skill that uses them. `npm run check` fails when a copy drifts. |
 | `npm run test:browser [suite...]` | Playwright suites against the mock app: `smoke today gaps-ui checkin focus timer breath idle sound exam layout`. |
 | `npm run build:plugin` | Builds `dist/condisco-<version>.zip`, ready to upload. |
 

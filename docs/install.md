@@ -8,16 +8,19 @@ Hebrew version: [pilot-guide.md](pilot-guide.md).
 - **Settings > Capabilities > Code execution** turned on.
 
 ## Steps
-1. Download `condisco-0.3.2.zip` from the latest release (or use the file you were sent). Do not unzip it.
+1. Download `condisco-0.4.0.zip` from the latest release (or use the file you were sent). Do not unzip it.
 2. In claude.ai: **Customize > Plugins > Add > Upload plugin**, and choose the ZIP.
 3. Create a new project called "Study" and open a chat in it.
 4. Write: **set up Condisco** (or **להתקין לי Condisco**).
-5. Answer four short questions: your name, your courses, when you like to study, and where your materials are.
-6. Have syllabi? Upload them. Claude fills in exam dates and each course's AI rules from them. Anything unclear is marked "unverified".
-7. At the end you see `db check: passed ✓` and a link to your Condisco app. Open it once and bookmark it.
+5. Claude publishes your private Condisco app and checks that it saves data: you see `db self-test: pass` and a link. Open it once and bookmark it.
+6. Claude reads your courses and syllabi from Moodle, read only (needs Claude in Chrome and you logged in to Moodle). Without Chrome, upload the syllabi. You confirm what was found; anything unclear is marked "unverified".
+7. Four short questions (how to address you, how solid each course feels, time per week, what you need most), then three about how you like to learn, with two tiny samples to pick from.
 
 ## Try in the first week
 - In the morning: **what should I study today?**
+- A week's summary: **summarize week 5 in <course>**. A visual page with a concept map, diagrams, a worked example and a short quiz, built only from your files.
+- A topic you don't get: **teach me <topic>**. A short visual lesson that ends with you explaining it back.
+- Change how Condisco teaches you: **what do you know about me?**, or just say "shorter" or "more examples".
 - When you sit down: **I want to study <course>, I have 45 minutes**
 - In the evening: **evening check-in**
 - Before an exam: **exam mode for <course>, the exam is on <date>**

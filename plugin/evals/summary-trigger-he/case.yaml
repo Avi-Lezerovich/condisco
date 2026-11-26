@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: summary-trigger-he
+description: trigger check for study-summary
+tags: [study-summary, trigger]
+execution:
+  prompt: "תסכם לי את שבוע 5 בהסתברות"
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-summary
+    tool: Skill
+    input_match: "study-summary"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "No course files or Condisco app are available in this test. The reply does not present invented 'week 5' course content as if it came from the student's course. It asks for the week's files (upload or Google Drive) or says it cannot find the Condisco app or materials, in a short reply. Offering a clearly labelled general-background version is fine."

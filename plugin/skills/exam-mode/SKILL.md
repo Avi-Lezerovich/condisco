@@ -42,6 +42,10 @@ Timed mocks fall on T-18, T-10, T-6 and T-3 (never T-1 or exam day). If the plan
 starts inside the diagnose phase after T-18, the baseline mock is today.
 Fewer than 21 days left: start at the matching phase, compress, and say what is
 dropped.
+Summaries: in the diagnose phase, offer once an exam summary sheet of the whole
+course built by `study-summary` (kind `exam`, in the profile's format), and link
+existing `summaries/*` of weak units instead of rebuilding them. A summary is a
+map for review, never a substitute for the mocks and retrieval above.
 
 **Writing the plan (after a yes):** the plan's tasks get `source: "exam:<examId>"`
 (examId = the deadline id, or `<courseId>-final` / `<courseId>-mid` for a course date)

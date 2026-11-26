@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: profile-trigger-en
+description: trigger check for study-profile
+tags: [study-profile, trigger]
+execution:
+  prompt: "What does Condisco know about how I like to learn? Show me my learning profile."
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-profile
+    tool: Skill
+    input_match: "study-profile"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply tries to read the student's Condisco learner profile, or says plainly that it cannot find the Condisco app or a saved profile and offers setup or the short interview. It does not invent preferences the student never stated."
