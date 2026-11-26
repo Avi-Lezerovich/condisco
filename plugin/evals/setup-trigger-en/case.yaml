@@ -15,4 +15,4 @@ graders:
     arm: with-only
   - type: llm
     name: behaviour
-    criteria: "The reply begins the Condisco setup flow and asks no more than 4 short questions; it does not publish anything or write data before the student answers. If this session has no artifact or db tools, it is enough that the reply says setup needs them and names publishing the private app as the first step."
+    criteria: "The reply begins the Condisco setup flow: it says the private app is published first, then the courses are read from Moodle or uploaded syllabi, then a short interview. Any message asks no more than 4 short questions. It does not invent courses, dates or grades. If this session has no artifact or db tools, it is enough that the reply says setup needs them and names publishing the private app as the first step."
