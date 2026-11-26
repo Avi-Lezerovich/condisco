@@ -1,6 +1,6 @@
 ---
 name: study-setup
-description: Sets up Condisco for a university student - publishes the private Condisco study app as an artifact with an owner-only database, runs a database self-test, reads the student's courses and syllabi from Moodle (read-only) or from uploaded syllabi, lets the student confirm them, and then hands over to the short study-profile interview. Use when the student says "set up Condisco", "install Condisco", "start Condisco", "התקן Condisco", "להתקין לי Condisco", "אני רוצה להתקין את Condisco", "תגדיר לי את Condisco", "להתחיל עם Condisco", or has just installed the plugin and asks what to do first.
+description: Sets up Condisco for a university student - publishes the private Condisco study app as an artifact with an owner-only database, runs a database self-test, reads the student's courses and syllabi from Moodle (read-only) or from uploaded syllabi, lets the student confirm them, and then hands over to the short study-profile interview. Use when the student says "set up Condisco", "install Condisco", "start Condisco", "התקן Condisco", "להתקין לי Condisco", "אני רוצה להתקין את Condisco", "תגדיר לי את Condisco", "להתחיל עם Condisco", or has just installed the plugin and asks what to do first. Also re-checks that an existing app and its database work. Not for a single course, deadline or check-in change, which other Condisco skills handle.
 ---
 
 # Condisco setup
@@ -10,7 +10,17 @@ own `db`, readable and writable by Claude from chat, filled with the student's
 real courses. The student types as little as possible: Condisco reads what it can,
 the student confirms. About 10 minutes of their time.
 
-Reply in the student's language (Hebrew if they write Hebrew). In Hebrew, write natural, warm, short sentences. Match the student's grammatical gender once they show it ("אני מוכנה"); until then use gender-neutral forms (infinitives, "אפשר ל...", past tense like "פתרת"), never slash forms like "מוכן/ה". Keep identifiers in English.
+Progress (copy and tick as you go):
+```
+- [ ] 0 No existing Condisco / Study Hub artifact
+- [ ] 1 App published with db
+- [ ] 2 db seeded, self-test line reported
+- [ ] 3 Courses read and confirmed
+- [ ] 4 Profile interview done
+- [ ] 5 Hand-off sent
+```
+
+Reply in the language of the student's latest message: English in, English out, even though this skill's examples are Hebrew. In Hebrew, write natural, warm, short sentences. Match the student's grammatical gender once they show it ("אני מוכנה"); until then use gender-neutral forms: infinitives ("אפשר לכתוב לי", "כדאי לדעת"), "אפשר ל...", past tense like "פתרת", plural only where natural ("מתחילים"), never second-person future or imperative like "תגיד", "שתדע", "תכתוב", and never slash forms like "מוכן/ה". Keep identifiers in English.
 At most 4 questions in one message, multiple choice where possible.
 
 ## Before you start
@@ -18,6 +28,7 @@ At most 4 questions in one message, multiple choice where possible.
   instructions, or the artifact list). If one exists, do NOT publish a second one:
   say which one you found and offer to run only the self-test (step 2) on it, or
   only the parts that are missing (courses in step 3, interview in step 4).
+  A Study Hub db is fine to reuse: the app migrates it to the Condisco layout when it opens.
 - Custom skills and artifact storage need a paid plan (Pro or higher) and code
   execution turned on. If the skill folder or tools are missing, say so in one line.
 - If the student already wrote their courses, name or times in the first message,
@@ -75,12 +86,17 @@ the syllabus files, or paste the course list. Then read them the same way.
 **3c. Confirm.** Show what was found in at most 6 lines per message: one line per
 course (name · exam date · AI rule · source file), anything unclear marked
 "לא מאומת". The student confirms, fixes or adds courses. Only then write:
-- `courses/{slug}`: `{name, code?, order, color, examDate?, midtermDate?, grading?,
-  mandatoryHw?, aiSolve, aiSolveVerified, aiSolveSource?, moodleUrl?}`.
+- `courses/{id}`: `{name, code?, order, color, examDate?, examVerified?, midtermDate?, grading?,
+  mandatoryHw?, aiSolve, aiSolveVerified, aiSolveSource?, moodleUrl?}`. `order` from 1
+  in the student's order; dates are `YYYY-MM-DD`; `examVerified: true` only for a date
+  the syllabus states or the student confirms. The id is the name in lowercase ASCII,
+  non-letters → `-`, at most 12 characters, with `2`, `3`… added on a clash (the app's
+  own rule, e.g. `calculus-1`); a name with no Latin letters gets `c`, `c2`….
   The AI rule: `aiSolve: "forbidden"` unless the syllabus plainly allows AI to
   solve graded work; `aiSolveVerified: true` only when the student confirmed it
   from the syllabus. No rule found → `"forbidden"`, unverified, and say so in one sentence.
-- Exam and homework dates → `deadlines/*` with `source: "<syllabus file>"`,
+- Exam and homework dates → `deadlines/{id}` (`courseId`, `title`, `kind`, `due`,
+  `status: "open"`) with `source: "<syllabus file>"`,
   `graded` per kind, `verified: true` only for items the student confirmed,
   else `verified: false`. Course pages and announcements never create a verified date.
 Setup is the only place a scan may create courses (`study-sync` never does).

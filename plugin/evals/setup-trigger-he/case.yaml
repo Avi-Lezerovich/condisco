@@ -1,6 +1,6 @@
 schema_version: "1.0"
 name: setup-trigger-he
-description: trigger check for study-setup
+description: study-setup fires on a setup request
 tags: [study-setup, trigger]
 execution:
   prompt: "התקנתי עכשיו את Condisco. תגדיר לי אותו."
@@ -15,4 +15,4 @@ graders:
     arm: with-only
   - type: llm
     name: behaviour
-    criteria: "The reply starts the Condisco setup: it publishes the private app first or says that is the first step, then plans to read the courses from Moodle (read-only) or from uploaded syllabi before a short interview. Any message asks at most 4 questions. It does not invent any courses, dates or grades. If this session has no artifact or db tools, it is enough that the reply says so and names publishing the private app as the first step."
+    criteria: "The reply starts the Condisco setup: it publishes the private app first or says that is the first step, then plans to read the courses from Moodle (read-only) or from uploaded syllabi before a short interview. Any message asks at most 4 questions. It does not invent any courses, dates or grades. The reply is in Hebrew and, since the student has not shown a grammatical gender, does not address them with masculine-only or feminine-only verb forms (e.g. תגיד, שתדע, תכתבי) or slash forms (מוכן/ה). If this session has no artifact or db tools, it is enough that the reply says so and names publishing the private app as the first step."
