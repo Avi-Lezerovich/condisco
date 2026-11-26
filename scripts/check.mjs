@@ -41,6 +41,11 @@ const audioFiles = [...(audio.tracks || []).map((t) => t.file), ...Object.values
 for (const a of audioFiles) if (!fs.existsSync(path.join(ROOT, 'app/audio', a))) errors.push(`audio manifest: missing app/audio/${a}`);
 
 for (const d of drift()) errors.push(`shared copy: ${d} (run node scripts/sync-shared.mjs)`);
+// design system: generated tokens up to date, CSS takes its values from tokens
+for (const [script, args] of [['build-tokens.mjs', ['--check']], ['lint-css.mjs', []]]) {
+  try { execFileSync(process.execPath, [path.join(ROOT, 'scripts', script), ...args], { stdio: 'pipe' }); }
+  catch (e) { errors.push(`${script}: ${String(e.stderr || e.stdout).trim()}`); }
+}
 for (const s of fs.readdirSync(path.join(ROOT, 'plugin/skills'))) {
   const body = fs.readFileSync(path.join(ROOT, 'plugin/skills', s, 'SKILL.md'), 'utf8');
   const desc = (body.match(/\ndescription:\s*(.*)/) || [])[1] || '';

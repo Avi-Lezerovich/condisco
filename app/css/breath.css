@@ -1,26 +1,12 @@
 /* breath: owned by the breath thread. Loaded after the main <style> in index.html, so rules here override it. */
 /* Breathing screen: a lake at dawn in light mode, a night lake in dark mode. The orb fills the guide ring on the
    inhales and sinks on the long exhale; a ripple spreads on each exhale; a thin ring fills as the session goes. */
-#focus.calm{
-  --calm-ink:#1d2a36;--calm-mute:#4f6070;--calm-line:rgba(29,42,54,.18);--calm-on:rgba(76,122,160,.16);--calm-on-line:rgba(76,122,160,.55);
-  --calm-ring:rgba(76,122,160,.42);--calm-guide:rgba(76,122,160,.28);--calm-track:rgba(29,42,54,.08);--calm-prog:rgba(76,122,160,.55);
-  --orb-a:#ffffff;--orb-b:#cfe3f1;--orb-c:#86b2d2;--orb-d:#5b8db4;--orb-glow:rgba(120,170,210,.30);--orb-shade:rgba(30,60,90,.18);
-  background:radial-gradient(120% 70% at 50% 0%,#fbf3e8 0%,#eef0f2 42%,#d9e4ee 100%);color:var(--calm-ink)}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]) #focus.calm{
-  --calm-ink:#e4edf3;--calm-mute:#a6bacb;--calm-line:rgba(228,237,243,.22);--calm-on:rgba(158,199,226,.22);--calm-on-line:rgba(158,199,226,.6);
-  --calm-ring:rgba(158,199,226,.45);--calm-guide:rgba(158,199,226,.22);--calm-track:rgba(228,237,243,.08);--calm-prog:rgba(158,199,226,.55);
-  --orb-a:#d9ecf6;--orb-b:#8fc0dc;--orb-c:#4b88b0;--orb-d:#2f6489;--orb-glow:rgba(143,192,220,.30);--orb-shade:rgba(12,32,52,.35);
-  background:radial-gradient(130% 75% at 50% 0%,#24415a 0%,#162a3b 45%,#0f1b27 100%)}}
-:root[data-theme=dark] #focus.calm{
-  --calm-ink:#e4edf3;--calm-mute:#a6bacb;--calm-line:rgba(228,237,243,.22);--calm-on:rgba(158,199,226,.22);--calm-on-line:rgba(158,199,226,.6);
-  --calm-ring:rgba(158,199,226,.45);--calm-guide:rgba(158,199,226,.22);--calm-track:rgba(228,237,243,.08);--calm-prog:rgba(158,199,226,.55);
-  --orb-a:#d9ecf6;--orb-b:#8fc0dc;--orb-c:#4b88b0;--orb-d:#2f6489;--orb-glow:rgba(143,192,220,.30);--orb-shade:rgba(12,32,52,.35);
-  background:radial-gradient(130% 75% at 50% 0%,#24415a 0%,#162a3b 45%,#0f1b27 100%)}
+/* palette (colours, ground) lives in app/ds/palettes.css */
 #focus.calm .hint,#focus.calm .bleft,#focus.calm .bsub{color:var(--calm-mute)}
 #focus.calm .btn{border-color:var(--calm-line);color:var(--calm-ink);background:transparent}
-#focus.calm .btn.primary{background:#e6c25c;color:#1f1b08;border-color:#e6c25c}
+#focus.calm .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 #focus.calm .btn.on{background:var(--calm-on);color:var(--calm-ink);border-color:var(--calm-on-line)}
-#focus.calm .btn small{opacity:.75;font-size:12px;margin-inline-start:4px}
+#focus.calm .btn small{opacity:.75;font-size:var(--fs-label);margin-inline-start:4px}
 #focus.calm .steps i{background:var(--calm-line)}#focus.calm .steps i.on{background:var(--calm-on-line)}
 
 .breath{display:grid;place-items:center;gap:6px;padding:6px 0 2px}
@@ -43,13 +29,13 @@
 .ring{position:absolute;inset:0;margin:auto;width:76%;height:76%;border-radius:50%;border:1.5px solid var(--calm-ring);opacity:0;pointer-events:none}
 .ring.go{animation:ripple 6.4s cubic-bezier(.2,.6,.3,1) forwards}
 @keyframes ripple{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.32);opacity:0}}
-.cue{font-family:var(--f-d);font-size:clamp(26px,7vw,32px);text-align:center;min-height:1.3em}
-.bsub{font-size:15px;text-align:center;min-height:1.5em}
-.bleft{font-family:var(--f-d);font-size:15px;direction:ltr;text-align:center;font-variant-numeric:tabular-nums;opacity:.85;margin-top:4px}
-.bset{display:grid;gap:var(--s2);margin-top:var(--s2)}
-.bwhy{max-width:520px;margin:var(--s3) auto 0;font-size:14px;color:var(--calm-mute)}
+.cue{font-family:var(--font-display);font-size:clamp(26px,7vw,32px);text-align:center;min-height:1.3em}
+.bsub{font-size:var(--fs-small);text-align:center;min-height:1.5em}
+.bleft{font-family:var(--font-display);font-size:var(--fs-small);direction:ltr;text-align:center;font-variant-numeric:tabular-nums;opacity:.85;margin-top:4px}
+.bset{display:grid;gap:var(--space-2);margin-top:var(--space-2)}
+.bwhy{max-width:520px;margin:var(--space-3) auto 0;font-size:var(--fs-small);color:var(--calm-mute)}
 .bwhy summary{cursor:pointer;text-align:center;list-style:none;text-decoration:underline;text-underline-offset:3px}
 .bwhy summary::-webkit-details-marker{display:none}
-.bwhy p{margin:var(--s2) 0 0;line-height:1.6}
+.bwhy p{margin:var(--space-2) 0 0;line-height:1.6}
 @media(prefers-reduced-motion:reduce){.orb{transform:scale(.8)!important}}
-.bsnd{flex-wrap:wrap;gap:var(--s3);align-items:center}
+.bsnd{flex-wrap:wrap;gap:var(--space-3);align-items:center}

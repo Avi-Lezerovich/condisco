@@ -2,6 +2,20 @@
 
 All notable changes to Condisco. Versions follow the plugin version in `plugin/.claude-plugin/plugin.json`.
 
+## [Unreleased] - 0.5.0-dev
+
+UI/UX overhaul, part 1: the Condisco Design System in code. No behaviour change.
+
+### App
+- One design system: `app/ds/tokens.css` is generated from the design-system artifact's tokens (scripts/build-tokens.mjs); 11 type styles replace 25 font sizes, 5 radii replace 14, every colour is a token.
+- New shell: bottom tab bar under 600px, navigation rail from 600px (iPad, phone landscape, half-window laptop), two-column Today from 1024px, content max 1200px on large and fullscreen screens. The 300px scene band and floating header become a 176px band (216px from 1024px) with the greeting on its edge.
+- Colour roles: cobalt is the one primary action (also on the next-up card), yellow only for done states and habits; warnings are clay instead of red; course names are ink with a course-colour dot.
+- Targets of at least 44px and no text under 12.5px on every screen.
+- `scripts/lint-css.mjs` (in `npm run check`) blocks raw colours, px font sizes and radii, and physical left/right in app CSS. `tests/matrix.mjs` checks 10 device sizes in light and dark.
+
+### Visual kit
+- The summary template takes its colour block from the same tokens (`DS:TOKENS` markers), so summaries and the app can no longer drift.
+
 ## [0.4.0] - 2026-11-26
 
 Learning bundle: personal summaries and lessons, built on a learner profile.

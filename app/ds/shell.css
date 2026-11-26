@@ -1,0 +1,76 @@
+/* Condisco shell: scene band, header, navigation (tab bar < 600px, rail from 600px), toast, mini timer.
+   Window classes (layout.md): compact < 600 · medium 600–1023 · expanded 1024–1439 · large ≥ 1440. */
+.wrap{position:relative;z-index:1;max-width:720px;margin:0 auto;padding-block:var(--space-3) 0;
+  padding-left:max(var(--space-4),env(safe-area-inset-left,0px));padding-right:max(var(--space-4),env(safe-area-inset-right,0px))}
+
+/* scene band: today's scene, static and soft, fading into the page; the greeting sits on its lower edge */
+.horizon{position:absolute;inset:0 0 auto;height:var(--band);overflow:hidden;z-index:0;pointer-events:none;background:linear-gradient(180deg,var(--scene-sky),var(--bg))}
+.horizon svg{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity var(--dur-scene) ease}
+.horizon.ready svg{opacity:1}
+.horizon::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 0%,transparent 40%,color-mix(in srgb,var(--bg) 55%,transparent) 72%,var(--bg) 100%)}
+
+/* header row on the band: brand (phone only), date, scenes button */
+.top{display:flex;align-items:center;gap:var(--space-3);min-height:var(--target);padding-top:env(safe-area-inset-top,0px)}
+.mark{width:32px;height:32px;flex:none;border-radius:var(--radius-sm);box-shadow:0 2px 10px -4px var(--sh-2)}
+.brand{font-family:var(--font-display);font-size:var(--fs-title-3);letter-spacing:.2px;text-shadow:0 1px 12px var(--bg)}
+.top .date{margin-inline-start:auto;color:var(--ink);font-size:var(--fs-small);font-weight:600;white-space:nowrap;padding:var(--space-1) var(--space-3);border-radius:var(--radius-pill);background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.ambbtn{display:inline-flex;align-items:center;gap:var(--space-2)}
+.ambbtn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.top .ambbtn{border:0;background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:var(--radius-pill)}
+/* greeting: bottom edge on the band's lower edge (band − header − greeting height) */
+.hello{font-size:clamp(30px,7.5vw,var(--fs-greeting));line-height:var(--lh-greeting);margin:calc(var(--band) - var(--target) - var(--space-3) - 1.08em - var(--space-4)) 2px var(--space-5);text-shadow:0 1px 18px var(--bg)}
+
+/* navigation: bottom tab bar (compact) */
+nav.tabs{position:fixed;inset-inline:0;bottom:0;z-index:5;display:grid;grid-template-columns:repeat(var(--tabs,6),minmax(0,1fr));gap:var(--space-1);
+  background:color-mix(in srgb,var(--surface) 90%,transparent);backdrop-filter:blur(16px) saturate(1.3);-webkit-backdrop-filter:blur(16px) saturate(1.3);border-top:1px solid var(--line);
+  padding-block:var(--space-1) calc(var(--space-1) + env(safe-area-inset-bottom,0px));padding-left:max(var(--space-2),env(safe-area-inset-left,0px));padding-right:max(var(--space-2),env(safe-area-inset-right,0px))}
+nav.tabs a{min-height:56px;display:grid;place-items:center;align-content:center;gap:2px;text-decoration:none;color:var(--ink-2);font-weight:700;font-size:var(--fs-label);line-height:var(--lh-label);border-radius:var(--radius-sm);padding:var(--space-1) 0;text-align:center;transition:color var(--dur-2),background-color var(--dur-2)}
+nav.tabs svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform var(--dur-2) var(--ease-out)}
+nav.tabs a[aria-current=page]{color:var(--accent);background:var(--accent-soft)}
+nav.tabs a[aria-current=page] svg{transform:translateY(-1px);stroke-width:2.1}
+nav.tabs .rail-mark{display:none}
+body.setup nav.tabs{display:none}
+
+/* toast, loading, mini timer */
+.toast{position:fixed;bottom:calc(var(--tabbar) + var(--space-3) + env(safe-area-inset-bottom,0px));inset-inline:var(--space-4);max-width:520px;margin:auto;background:var(--ink);color:var(--bg);padding:var(--space-3) var(--space-4);
+  border-radius:var(--radius-md);font-size:var(--fs-small);font-weight:600;box-shadow:var(--shadow-2);opacity:0;transform:translateY(6px);transition:opacity var(--dur-2),transform var(--dur-2);pointer-events:none;z-index:50}
+.toast.show{opacity:1;transform:none}
+.skel{height:72px;margin:10px 0;border-radius:var(--radius-md);background:var(--surface-sunk);animation:p 1.2s ease-in-out infinite alternate}
+#mini[hidden]{display:none}
+#mini{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--tabbar) + var(--space-3) + env(safe-area-inset-bottom,0px));z-index:6;display:grid;grid-template-columns:auto auto;gap:2px var(--space-3);align-items:baseline;min-width:200px;min-height:var(--target-lg);
+  padding:10px 18px 12px;border-radius:var(--radius-md);border:1px solid var(--hero-line);background:var(--surface-deep);color:var(--ink-on-deep);box-shadow:var(--shadow-2)}
+.mini-ph{font-size:var(--fs-caption);font-weight:700;opacity:.85}
+.mini-t{font-family:var(--font-display);font-size:var(--fs-number);line-height:1;direction:ltr;font-variant-numeric:tabular-nums;justify-self:end}
+.mini-bar{grid-column:1/-1;height:3px;border-radius:2px;background:color-mix(in srgb,var(--ink-on-deep) 18%,transparent);overflow:hidden;margin-top:6px}
+.mini-bar i{display:block;height:100%;width:0;background:var(--win)}
+#mini.brk .mini-bar i{background:var(--break)}
+
+/* phone: the brand name gives way to the date */
+@media(max-width:519px){.brand{display:none}.ambbtn{display:none}}
+
+/* medium and up: navigation rail at inline-start (right in Hebrew), brand mark on top */
+@media(min-width:600px){
+  body{padding-bottom:var(--space-6);padding-inline-start:var(--rail)}
+  .wrap{padding-block-start:var(--space-4)}
+  body nav.tabs{top:0;bottom:0;inset-inline-start:0;inset-inline-end:auto;width:var(--rail);grid-template-columns:1fr;grid-auto-rows:72px;align-content:start;gap:var(--space-2);
+    padding:calc(var(--space-4) + env(safe-area-inset-top,0px)) var(--space-2) calc(var(--space-4) + env(safe-area-inset-bottom,0px));padding-inline-start:max(var(--space-2),env(safe-area-inset-right,0px));
+    border-top:0;border-inline-end:1px solid var(--line);background:var(--surface);overflow-y:auto;scrollbar-width:none}
+  nav.tabs .rail-mark{display:grid;place-items:center;height:56px;margin-bottom:var(--space-3)}
+  nav.tabs .rail-mark svg{width:36px;height:36px;border-radius:var(--radius-sm);stroke:none}
+  .top .mark{display:none}
+  body .toast{bottom:var(--space-6)}
+  #mini{bottom:var(--space-6);left:calc(50% - var(--rail) / 2)}
+}
+/* expanded: wider content, taller band */
+@media(min-width:1024px){
+  :root{--band:216px}
+  .wrap{max-width:var(--content);padding-left:max(var(--space-6),env(safe-area-inset-left,0px));padding-right:max(var(--space-6),env(safe-area-inset-right,0px))}
+}
+/* short screens (phone landscape): a thin band, a smaller greeting */
+@media(max-height:500px) and (min-width:600px){
+  :root{--band:120px}
+  .hello{font-size:var(--fs-title-1)}
+  body nav.tabs{grid-auto-rows:62px;gap:var(--space-1);padding-top:calc(var(--space-2) + env(safe-area-inset-top,0px))}
+  nav.tabs .rail-mark{display:none}
+  nav.tabs a{min-height:56px}
+}

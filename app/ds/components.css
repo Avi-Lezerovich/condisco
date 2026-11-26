@@ -1,0 +1,111 @@
+/* Condisco components (design system v1): button, chip/pill, segmented, card, next-up card, timeline, fields,
+   notes and empty states, tags. Tokens only. Screen files in css/ may compose these, never restyle their colours. */
+
+/* Button: one .primary (cobalt) per view; .on = done (yellow, a win); quiet = low-commitment */
+.btn{min-height:var(--target);min-width:var(--target);border:1px solid var(--line-strong);background:transparent;border-radius:var(--radius-sm);padding:0 var(--space-4);
+  font-size:var(--fs-small);font-weight:700;white-space:nowrap;transition:transform var(--dur-1) var(--ease-out),background-color var(--dur-2),border-color var(--dur-2),color var(--dur-2),box-shadow var(--dur-2)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.on{background:var(--win);color:var(--win-ink);border-color:var(--win)}
+.btn.quiet{border-color:transparent}
+.btn:disabled{opacity:.55}
+.btn:active,.tool:active,.pill:active,.chk:active,.day:active,.st:active{transform:scale(.97)}
+@media(hover:hover){.btn:not(.primary):not(.on):hover{background:var(--accent-soft)}.btn.primary:hover{box-shadow:0 6px 18px -8px var(--accent)}}
+/* small actions inside cards and rows: pill shaped, still a 44px row */
+.card .acts .btn,.rev .acts .btn,.sg .btn,.dl .acts .btn{min-height:var(--target);border-radius:var(--radius-pill);padding:0 var(--space-4);font-size:var(--fs-small)}
+.card .acts .btn.on{box-shadow:0 4px 14px -6px var(--win)}
+.acts{display:flex;gap:var(--space-2);flex-wrap:wrap;margin-top:var(--space-3)}
+
+/* Chip (habit toggle): pressed = a win */
+.pill{flex:none;min-height:var(--target);border-radius:var(--radius-pill);border:1px solid var(--line);background:var(--surface);padding:0 var(--space-4) 0 var(--space-3);display:flex;gap:var(--space-2);align-items:center;
+  font-size:var(--fs-small);box-shadow:0 1px 2px var(--sh-1);transition:transform var(--dur-1) var(--ease-out),background-color var(--dur-2)}
+.pill .ck{width:20px;height:20px;border-radius:50%;border:2px solid var(--line-strong);display:grid;place-items:center;flex:none}
+.pill .ck svg{width:12px;height:12px;opacity:0}
+.pill small{color:var(--ink-2);font-size:var(--fs-caption)}
+.pill[aria-pressed=true]{background:var(--win);border-color:var(--win);color:var(--win-ink)}
+.pill[aria-pressed=true] .ck{border-color:var(--win-ink);background:var(--win-ink);animation:pop .35s ease-out}
+.pill[aria-pressed=true] .ck svg{opacity:1;stroke:var(--win)}
+.pill[aria-pressed=true] small{color:var(--win-ink);opacity:.75}
+
+/* Segmented control (view toggles) */
+.toggle{display:inline-flex;gap:var(--space-1);margin:0 0 var(--space-3);padding:var(--space-1);background:var(--surface-sunk);border-radius:var(--radius-md);box-shadow:0 1px 2px var(--sh-1)}
+.toggle .btn{border:0;min-height:40px}
+.toggle .btn.on{background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
+
+/* Card */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow-1)}
+.card-sec{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md);padding:var(--space-4);display:grid;gap:var(--space-3);box-shadow:var(--shadow-1)}
+.card-sec h3{font-size:var(--fs-title-2)}
+.t-title{font-weight:700;font-size:var(--fs-title-3);line-height:var(--lh-title-3)}
+.meta{display:flex;flex-wrap:wrap;gap:2px var(--space-3);color:var(--ink-2);font-size:var(--fs-small);margin-top:2px}
+/* course names stay ink; the course colour is the dot */
+.meta .cn{color:var(--ink);font-weight:700}
+.meta .cn::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-inline-end:6px;vertical-align:1px}
+.cdot{width:12px;height:12px;border-radius:4px;background:var(--c)}
+
+/* Next-up card: the one raised card per screen */
+.next{background:radial-gradient(120% 140% at 100% 0%,color-mix(in srgb,var(--c,var(--accent)) 22%,transparent),transparent 60%),var(--surface-deep);color:var(--ink-on-deep);
+  border-radius:var(--radius-lg);padding:var(--space-4) var(--space-5);margin-bottom:var(--space-4);position:relative;overflow:hidden;border:1px solid var(--hero-line);box-shadow:var(--shadow-2)}
+.next::after{content:"";position:absolute;inset-inline-start:0;top:0;bottom:0;width:6px;background:var(--c,var(--accent))}
+.next .lbl{font-size:var(--fs-caption);opacity:.78}
+.next h2{font-size:clamp(22px,5.2vw,var(--fs-title-1));margin:var(--space-1) 0 var(--space-2);color:var(--ink-on-deep)}
+.next .row{display:flex;flex-wrap:wrap;gap:6px var(--space-4);align-items:baseline;font-size:var(--fs-small);opacity:.9}
+.next .cd{font-family:var(--font-display);font-size:var(--fs-number);line-height:1;white-space:nowrap}
+.next .cdw{display:inline-flex;gap:var(--space-2)}
+.next .min{margin-top:var(--space-2);font-size:var(--fs-small);opacity:.85}
+.next .acts{margin-top:var(--space-3)}
+.next .btn{border-color:color-mix(in srgb,var(--ink-on-deep) 32%,transparent);color:var(--ink-on-deep)}
+.next .btn.primary{background:var(--accent-on-deep);color:var(--surface-deep);border-color:var(--accent-on-deep);box-shadow:0 8px 22px -10px var(--accent-on-deep)}
+.next .btn.on{background:var(--win);color:var(--win-ink);border-color:var(--win)}
+.next.calm{background:var(--surface);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow-1)}
+.next.calm::after{display:none}.next.calm h2{color:var(--ink)}
+
+/* Timeline: time · node in the course colour · card; the now-line is the only coral */
+.tl{position:relative;padding:var(--space-1) 0}
+.tl::before{content:"";position:absolute;inset-inline-start:79px;top:12px;bottom:12px;width:2px;background:var(--line)}
+.slot{display:grid;grid-template-columns:64px 32px minmax(0,1fr);align-items:start;padding:var(--space-2) 0}
+.slot .time{font-family:var(--font-display);font-size:var(--fs-title-3);text-align:end;padding-top:12px;direction:ltr;white-space:nowrap;font-variant-numeric:tabular-nums}
+.slot .node{position:relative;height:100%}
+.slot .node i{position:absolute;inset-inline-start:9px;top:16px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:3px solid var(--c)}
+.slot.done .node i,.slot.min .node i{background:var(--c)}
+.slot.skipped .node i{border-style:dashed;opacity:.6}
+.slot.is-next .card{border-color:var(--c);border-inline-start-width:5px}
+.slot.done .t-title{text-decoration:line-through;text-decoration-thickness:2px;color:var(--ink-2)}
+.slot.min .t-title,.slot.skipped .t-title{color:var(--ink-2)}
+.slot.just .node i{animation:pop .35s ease-out}
+.slot.just .card{animation:glow 1s ease-out}
+@keyframes glow{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--win) 70%,transparent),var(--shadow-1)}100%{box-shadow:0 0 0 14px transparent,var(--shadow-1)}}
+.nowline{display:grid;grid-template-columns:64px 32px minmax(0,1fr);align-items:center;margin:2px 0}
+.nowline span{font-family:var(--font-display);color:var(--now);text-align:end;font-size:var(--fs-small);direction:ltr}
+.nowline i{justify-self:center;width:12px;height:12px;border-radius:50%;background:var(--now);box-shadow:0 0 0 4px color-mix(in srgb,var(--now) 22%,transparent)}
+.nowline hr{border:0;height:2px;background:var(--now);margin:0;opacity:.8}
+.ifthen,.minv{font-size:var(--fs-small);margin-top:6px;color:var(--ink-2)}
+.ifthen b,.minv b{color:var(--ink);font-weight:700}
+.recall{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);font-size:var(--fs-small);color:var(--ink-2)}
+.recall .btn{min-height:var(--target);font-size:var(--fs-small);padding:0 var(--space-3);border-radius:var(--radius-pill)}
+/* win burst on the timeline node (the one celebratory moment) */
+.burst{position:absolute;inset-inline-start:16px;top:23px;width:0;height:0}
+.burst i{position:absolute;left:-3px;/* phys-ok: rotation centre */top:-3px;width:6px;height:6px;border-radius:50%;background:var(--win);opacity:0;animation:burst .75s var(--ease-out) forwards;transform:rotate(calc(var(--i) * 45deg))}
+.burst i:nth-child(odd){background:var(--c);width:5px;height:5px}
+@keyframes burst{0%{opacity:1;transform:rotate(calc(var(--i) * 45deg)) translateY(0) scale(1)}100%{opacity:0;transform:rotate(calc(var(--i) * 45deg)) translateY(-26px) scale(.4)}}
+
+/* Tags and badges */
+.tag{display:inline-block;background:var(--win);color:var(--win-ink);font-size:var(--fs-label);font-weight:800;border-radius:var(--radius-xs);padding:1px 7px;margin-inline-end:6px;vertical-align:2px}
+.miss{display:inline-block;background:var(--win);color:var(--win-ink);font-size:var(--fs-label);font-weight:800;border-radius:var(--radius-xs);padding:0 6px;margin-inline-start:6px}
+.badge{display:inline-block;font-size:var(--fs-label);border:1px dashed var(--ink-2);color:var(--ink-2);border-radius:var(--radius-xs);padding:0 6px;margin-inline-start:6px;white-space:nowrap;font-weight:600}
+
+/* Fields */
+textarea,input.f,select.f{font:var(--fs-body)/1.5 var(--font-text);color:var(--ink);background:var(--bg);border:1px solid var(--line-strong);border-radius:var(--radius-sm);padding:10px 12px;width:100%}
+textarea{min-height:68px;resize:vertical}
+input.f,select.f{min-height:var(--target)}
+.row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-3)}
+.row2 label,.card-sec>label{display:grid;gap:var(--space-1);font-size:var(--fs-small);color:var(--ink-2)}
+.card-sec label small{font-size:var(--fs-caption)}
+
+/* Notes and empty states */
+.note{background:light-dark(color-mix(in srgb,var(--win) 30%,var(--surface)),color-mix(in srgb,var(--win) 13%,var(--surface)));border:1px solid color-mix(in srgb,var(--win) 35%,transparent);border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);margin-bottom:var(--space-3);font-size:var(--fs-small)}
+.empty{display:grid;justify-items:center;gap:10px;padding:28px 20px;color:var(--ink-2);text-align:center;border:1px solid var(--line);border-radius:var(--radius-md);box-shadow:var(--shadow-1);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--scene-sky) 35%,var(--surface)),var(--surface) 70%)}
+.empty .art{width:84px;height:56px}
+.empty p{margin:0;max-width:40ch;line-height:1.5}
+
+@media(max-width:519px){.slot,.nowline{grid-template-columns:50px 26px minmax(0,1fr)}.tl::before{inset-inline-start:62px}.slot .node i{inset-inline-start:6px}.slot .time{font-size:var(--fs-body)}}
