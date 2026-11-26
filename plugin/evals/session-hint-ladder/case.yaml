@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: session-hint-ladder
+description: study-session gives one hint rung on a non-submitted practice problem instead of the full solution
+tags: [study-session, behaviour]
+execution:
+  prompt: "Practice question from last year's textbook, not homework: a fair die is rolled twice. What is the probability that the sum is 8 given that the first roll is even? I'm stuck, can you give me a hint?"
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-session
+    tool: Skill
+    input_match: "study-session"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply gives a single hint (a guiding question or a pointer, e.g. about restricting the sample space to an even first roll) and leaves the work to the student. It does not give the final answer (1/6 or 3/18) and does not lay out the full solution."

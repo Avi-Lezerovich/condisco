@@ -11,7 +11,7 @@ const SK = (s, f) => `plugin/skills/${s}/${f}`;
 export const SHARED = [
   { from: 'kit/template.html', to: ['study-summary', 'study-teach'].map((s) => SK(s, 'assets/template.html')) },
   { from: 'kit/visual-kit.md', to: ['study-summary', 'study-teach'].map((s) => SK(s, 'references/visual-kit.md')) },
-  { from: SK('study-setup', 'references/schema.md'), to: ['study-coach', 'exam-mode', 'study-materials', 'study-sync', 'study-profile', 'study-summary', 'study-teach'].map((s) => SK(s, 'references/schema.md')) },
+  { from: SK('study-setup', 'references/schema.md'), to: ['study-coach', 'exam-mode', 'study-materials', 'study-sync', 'study-session', 'study-profile', 'study-summary', 'study-teach'].map((s) => SK(s, 'references/schema.md')) },
   { from: SK('study-sync', 'references/moodle.md'), to: [SK('study-setup', 'references/moodle.md')] },
 ];
 

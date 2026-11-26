@@ -1,7 +1,7 @@
 schema_version: "1.0"
 name: session-transcribe-forbidden
-description: trigger check for study-session
-tags: [study-session, trigger]
+description: study-session transcribes own handwriting verbatim without fixing it under aiSolve forbidden
+tags: [study-session, behaviour]
 execution:
   prompt: "Course: Probability (aiSolve forbidden). Please type up my own handwritten solution to LaTeX exactly as written, I'll attach the photo text: 'P(A|B) = P(B|A)P(A)/P(B) = 0.5*0.4/0.3 = 0.66' (note: I know my P(B) might be wrong, don't fix it)."
   max_turns: 8

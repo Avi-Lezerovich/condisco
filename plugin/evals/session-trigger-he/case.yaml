@@ -1,6 +1,6 @@
 schema_version: "1.0"
 name: session-trigger-he
-description: trigger check for study-session
+description: trigger check for study-session (Hebrew) and session opening
 tags: [study-session, trigger]
 execution:
   prompt: "בוא נלמד הסתברות מותנית, יש לי 45 דקות"
