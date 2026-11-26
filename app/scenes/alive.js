@@ -51,6 +51,8 @@ const isLayerEdge = el => { const t = el.tagName; if (t === 'rect') return num(e
 /** Split a drawn scene SVG into ordered planes: [{kind, nodes, depth}]. Pure DOM, no layout needed. */
 export function planesOf(svg, maxLand = 5){
   svg.querySelectorAll('animate,animateTransform,animateMotion').forEach(a => a.remove());
+  // parts drawn only for the still picture (e.g. rain streaks that life.js animates instead) are left out of the living scene
+  svg.querySelectorAll('[data-live="off"]').forEach(el => el.remove());
   const planes = [];
   let defs = null;
   for (const el of [...svg.children]) {
@@ -83,6 +85,7 @@ export function planesOf(svg, maxLand = 5){
 const CSS = `
 .cd-live{position:absolute;inset:0;overflow:hidden;contain:strict}
 .cd-cam{position:absolute;inset:0;will-change:transform;animation:cd-cam var(--scene-dur,1500s) cubic-bezier(.33,0,.4,1) forwards;transform-origin:var(--cam-o,50% 55%)}
+.cd-gl{position:absolute;inset:0;will-change:transform;transform-origin:50% 64%;animation:cd-glide var(--gd,80s) cubic-bezier(.45,0,.55,1) var(--gp,0s) infinite alternate}
 .cd-pl{position:absolute;inset:-7%;will-change:transform,translate;transition:translate 1.8s cubic-bezier(.2,.6,.3,1)}
 .cd-pl>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 .cd-pl.k-land{animation:cd-sway var(--dur,150s) ease-in-out var(--delay,0s) infinite alternate}
@@ -127,6 +130,7 @@ const CSS = `
 .cd-vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 95% at 50% 45%,transparent 60%,rgba(12,16,28,.22) 100%)}
 .cd-dim{position:absolute;inset:0;pointer-events:none}
 @keyframes cd-cam{from{transform:scale(1) translate(0,0)}to{transform:scale(var(--cam-s,1.1)) translate(var(--cam-x,-1.5%),var(--cam-y,.8%))}}
+@keyframes cd-glide{from{transform:translate(calc(var(--gx,0%) * -1),calc(var(--gy,0%) * -1)) scale(1)}to{transform:translate(var(--gx,0%),var(--gy,0%)) scale(var(--gs,1))}}
 @keyframes cd-sway{from{transform:translateX(calc(var(--amp,1%) * -1))}to{transform:translateX(var(--amp,1%))}}
 @keyframes cd-drift{from{transform:translateX(calc(var(--amp,3%) * -1))}to{transform:translateX(var(--amp,3%))}}
 @keyframes cd-sun{from{transform:translateY(0)}to{transform:translateY(var(--rise,-2%))}}
@@ -215,7 +219,7 @@ export function makeLiving(svg, scene, {seed, palette, dark, doc = document, sce
     const defsHere = first; first = false;
     switch (p.kind) {
       case 'sky': add('sky', p.nodes, '', defsHere); break;
-      case 'land': { const amp = (0.25 + 1.55 * Math.pow(p.depth, 1.3)) * swayDir; const pl = add('land', p.nodes, `--amp:${amp.toFixed(2)}%;--dur:${swayDur.toFixed(0)}s`, defsHere); pl.dataset.d = p.depth.toFixed(2); detail(pl, p.depth); break; }
+      case 'land': { const amp = (0.15 + 0.6 * Math.pow(p.depth, 1.3)) * swayDir; const pl = add('land', p.nodes, `--amp:${amp.toFixed(2)}%;--dur:${swayDur.toFixed(0)}s`, defsHere); pl.dataset.d = p.depth.toFixed(2); detail(pl, p.depth); break; }
       case 'sun': { const c = p.nodes.find(n => n.tagName === 'circle'); const sx = c ? num(c, 'cx') / 16 : 50, sy = c ? num(c, 'cy') / 9 : 50;
         add('sun', p.nodes, `--rise:${rise}%;--sun-o:${sx.toFixed(1)}% ${sy.toFixed(1)}%`, defsHere);
         if (c && !sun) { sun = {x: num(c, 'cx'), y: num(c, 'cy'), col: (p.nodes.filter(n => n.tagName === 'circle' && !(n.getAttribute('fill') || '').startsWith('url(')).pop() || c).getAttribute('fill')}; atmosphere(); }
@@ -288,16 +292,15 @@ export function makeLiving(svg, scene, {seed, palette, dark, doc = document, sce
   // Foreground: a soft, out-of-focus fringe of grass or stones along the bottom edge, swaying slowly (land scenes only).
   if (!abstract && !tags.some(t => ['water', 'sea', 'sky', 'coast', 'mist', 'snow', 'winter', 'mountains'].includes(t)) && tags.some(t => ['hills', 'fields', 'forest', 'spring', 'trees', 'desert'].includes(t))) {
     const lastLand = [...cam.querySelectorAll('.k-land')].pop(), fills = lastLand ? [...lastLand.querySelectorAll('[fill]')].map(n => n.getAttribute('fill')).filter(f => /^#[0-9a-f]{6}$/i.test(f)) : [];
-    const base = fills.pop() || '#2c3a2c', dk = h => '#' + [1, 3, 5].map(i => Math.round(parseInt(h.slice(i, i + 2), 16) * (nightT ? .7 : .78)).toString(16).padStart(2, '0')).join('');
+    const base = fills[0] || '#2c3a2c', dk = h => '#' + [1, 3, 5].map(i => Math.round(parseInt(h.slice(i, i + 2), 16) * (nightT ? .7 : .78)).toString(16).padStart(2, '0')).join('');
     const c = dk(base), dry = tags.includes('desert'), id = 'fg' + Math.floor(r() * 1e9).toString(36);
     let g = '';
     if (dry) {
       for (let i = 0; i < 7; i++) { const x = r() * 1600, rw = 30 + r() * 70; g += `<ellipse cx="${x.toFixed(0)}" cy="${(868 - r() * 10).toFixed(0)}" rx="${rw.toFixed(0)}" ry="${(rw * (.35 + r() * .2)).toFixed(0)}" fill="${c}"/>`; }
       for (let i = 0; i < 60; i++) { const x = r() * 1600, h = 18 + r() * 40, b = (r() - .5) * 20; g += `<path d="M${x.toFixed(0)} 866 q${(b / 2).toFixed(1)} ${(-h / 2).toFixed(0)} ${b.toFixed(1)} ${(-h).toFixed(0)}" stroke="${c}" stroke-width="2" fill="none" stroke-linecap="round"/>`; }
     } else {
-      for (let i = 0; i < 260; i++) { const x = r() * 1640 - 20, h = 30 + Math.pow(r(), 1.6) * 90, b = (r() - .5) * 40, w = 2.5 + r() * 3;
+      for (let i = 0; i < 260; i++) { const x = r() * 1640 - 20, h = 30 + Math.pow(r(), 1.6) * 90, b = (r() - .5) * 40, w = 3.5 + r() * 4;
         g += `<path d="M${(x - w).toFixed(0)} 904 L${(x - w).toFixed(0)} 866 Q${(x + b * .4).toFixed(0)} ${(866 - h * .6).toFixed(0)} ${(x + b).toFixed(0)} ${(866 - h).toFixed(0)} Q${(x + b * .3 + w * .4).toFixed(0)} ${(866 - h * .5).toFixed(0)} ${(x + w).toFixed(0)} 866 L${(x + w).toFixed(0)} 904 Z" fill="${c}"/>`; }
-      g += `<rect x="-20" y="874" width="1640" height="40" fill="${c}"/>`;
     }
     const pl = add('fore', [], `--amp:.6%;--dur:${(11 + r() * 5).toFixed(1)}s`);
     pl.firstChild.innerHTML = `<defs><filter id="${id}" x="-5%" y="-30%" width="110%" height="160%"><feGaussianBlur stdDeviation="${dry ? 2.2 : 2.6}"/></filter></defs><g filter="url(#${id})" opacity="${nightT ? .95 : .9}">${g}</g>`;
@@ -308,6 +311,15 @@ export function makeLiving(svg, scene, {seed, palette, dark, doc = document, sce
       if (k in fixed) { el.dataset.pd = fixed[k]; continue; }
       if (k === 'land' && el.dataset.d) pd = .15 + .85 * parseFloat(el.dataset.d);
       el.dataset.pd = Math.min(1, k === 'land' ? pd : pd + .05).toFixed(2); } }
+  // Glide: the camera flies slowly through the scene. Each plane sits in a wrapper that moves sideways and grows with its
+  // depth (near layers pass faster than far ones), all in sync, so the landscape opens up in real depth like an aerial shot.
+  { const gd = 70 + r() * 30, dir = r() < .5 ? -1 : 1, phase = -(r() * gd).toFixed(1), up = .4 + r() * .4;
+    const drifting = /k-(mist|cloud)|f-(sweep|wisp|creep)/;
+    for (const el of [...cam.children]) { let d = +(el.dataset.pd || 0); const w = doc.createElement('div'); w.className = 'cd-gl';
+      // planes that also drift on their own get a smaller glide and drift so their edges never come into view
+      if (drifting.test(el.className)) { d = Math.min(d, .4); const a = parseFloat(el.style.getPropertyValue('--amp')); el.style.setProperty('--amp', (isNaN(a) ? 2 : Math.min(a, 2.2)) + '%'); }
+      w.style.cssText = `--gx:${(dir * d * 5.2).toFixed(2)}%;--gy:${(up * d * 1.4).toFixed(2)}%;--gs:${(1 + d * .1).toFixed(3)};--gd:${gd.toFixed(0)}s;--gp:${phase}s`;
+      cam.insertBefore(w, el); w.appendChild(el); } }
   // The light changes over the ten minutes: dawn warms up, dusk deepens toward night.
   const arc = tags.includes('morning') ? ['#ffc983', 'bottom', .16] : tags.includes('evening') ? ['#2c2a5e', 'top', .26] : tags.includes('afternoon') ? ['#ffb870', 'bottom', .1] : null;
   if (arc) { const d = doc.createElement('div'); d.className = 'cd-arc'; d.style.cssText = `background:linear-gradient(to ${arc[1] === 'top' ? 'bottom' : 'top'},${arc[0]},transparent 70%);--to:${arc[2]}`; live.appendChild(d); }

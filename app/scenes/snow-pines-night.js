@@ -8,4 +8,4 @@ export default { id: 'snow-pines-night', name: 'אורנים בלילה מושל
     <path d="M0 600 C400 560 900 620 1600 570 L1600 900 L0 900 Z" fill="#c4d0e6"/>${row(610, 40, 120, '#2a3d5e', '#dfe7f4')}
     <path d="M0 720 C500 690 1000 740 1600 700 L1600 900 L0 900 Z" fill="#dbe3f1"/>${row(740, 22, 220, '#1d2c47', '#eef2f9')}
     <path d="M0 850 C500 830 1100 870 1600 840 L1600 900 L0 900 Z" fill="#eef2f9"/>
-    <g>${range(70, () => `<circle cx="${(r() * 1600).toFixed(0)}" cy="${(r() * 900).toFixed(0)}" r="${(1 + r() * 1.8).toFixed(1)}" fill="#ffffff" opacity="${(0.35 + r() * 0.5).toFixed(2)}"/>`)}<animateTransform attributeName="transform" type="translate" values="0 -24;-12 24;0 -24" dur="30s" repeatCount="indefinite"/></g>`); } };
+    <g data-live="off">${range(70, () => `<circle cx="${(r() * 1600).toFixed(0)}" cy="${(r() * 900).toFixed(0)}" r="${(1 + r() * 1.8).toFixed(1)}" fill="#ffffff" opacity="${(0.35 + r() * 0.5).toFixed(2)}"/>`)}<animateTransform attributeName="transform" type="translate" values="0 -24;-12 24;0 -24" dur="30s" repeatCount="indefinite"/></g>`); } };

@@ -121,7 +121,7 @@ export const LIFE = {
   'golan-winter-snow': [{fx: 'fall', shape: 'flake', n: 90, size: 1.2, colors: ['#ffffff'], dur: 70, sway: 2.5}, {fx: 'veil', x: 900, y: 340, n: 3, color: '#ffffff', o: .55, dur: 240}],
   'autumn-forest': [{fx: 'fall', shape: 'leaf', n: 28, size: 1.4, colors: ['#c9773f', '#d8964a', '#b8642f', '#e0b062'], dur: 55, sway: 3, swayDur: 11}, {fx: 'flock', form: 'v', n: 7, y: 170, size: .8, color: '#5a4a44', dur: 230}],
   'desert-milky-way': [{fx: 'meteor', x: 1150, y: 160, dur: 60}, {fx: 'meteor', x: 500, y: 260, dur: 95}],
-  'rain-hills': [{fx: 'fall', shape: 'drop', n: 120, size: 1, colors: ['#eef2f5'], dur: 9, sway: .6, swayDur: 14}],
+  'rain-hills': [{fx: 'fall', shape: 'drop', n: 110, size: 1.3, colors: ['#eef2f5'], dur: 2.6, sway: 0, swayDur: 14, rotate: false}, {fx: 'fall', shape: 'drop', n: 70, size: .8, colors: ['#e3e9ee'], dur: 3.8, sway: 0, swayDur: 14, rotate: false}],
   'eucalyptus-grove': [{fx: 'rays', x0: 500, x1: 1300, n: 8, color: '#fff8e0', o0: .2}, {fx: 'glow', n: 30, y0: 300, y1: 820, color: '#fff8e0', core: '#ffffff', tw: 9, o0: .15, size: .7}],
   'jezreel-fields': [{fx: 'shadows', y0: 500, y1: 880, color: '#5a4a20', o: .2, n: 5}, {fx: 'flock', form: 'v', n: 11, y: 210, size: .85, color: '#4a5568', dur: 280}],
   'valley-fog-sunrise': [{fx: 'flock', form: 'v', n: 7, y: 260, size: .8, color: '#6a5560', dur: 260}],
