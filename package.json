@@ -1,6 +1,6 @@
 {
   "name": "condisco",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "private": true,
   "description": "Condisco: a study partner for university students inside Claude (plugin + private study app).",
   "license": "MIT",

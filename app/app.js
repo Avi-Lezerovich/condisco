@@ -20,7 +20,7 @@ const FEATURES = { exam: false || MOCK === 'exam' || params.get('exam') === '1' 
 if (!FEATURES.exam) {
   delete ROUTES.exam;
   const nav = document.querySelector('nav.tabs'), tab = nav && nav.querySelector('a[data-r="exam"]');
-  if (tab) { tab.remove(); nav.style.gridTemplateColumns = `repeat(${nav.querySelectorAll('a').length},minmax(0,1fr))`; }
+  if (tab) { tab.remove(); nav.style.setProperty('--tabs', nav.querySelectorAll('a').length); } // a CSS variable, so the desktop side rail (1 column) still wins
 }
 
 let use = window.claude && window.claude.use ? n => window.claude.use(n) : null;

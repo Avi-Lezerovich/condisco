@@ -69,7 +69,7 @@ URL options: `?mock=1` fake database with sample data, `?mock=empty` first-run s
 | `npm test` | Static checks, unit tests and every browser suite. |
 | `npm run check` | Every JS file parses, JSON is valid, the plugin manifest and skills are complete, every scene and audio file in the manifests exists. |
 | `npm run test:unit` | Pure tests: focus engine, Leitner boxes, mocks, priority, pruning, migrations, Gaps rules. |
-| `npm run test:browser [suite...]` | Playwright suites against the mock app: `smoke today gaps-ui checkin focus timer breath idle sound exam`. |
+| `npm run test:browser [suite...]` | Playwright suites against the mock app: `smoke today gaps-ui checkin focus timer breath idle sound exam layout`. |
 | `npm run build:plugin` | Builds `dist/condisco-<version>.zip`, ready to upload. |
 
 CI runs all of this on every push and pull request, and attaches the plugin ZIP to the run.

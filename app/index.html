@@ -261,7 +261,7 @@ input.f,select.f{min-height:46px}
 @media(min-width:1100px){#mini{bottom:28px}}
 
 /* nav, toast, loading */
-nav.tabs{position:fixed;inset-inline:0;bottom:0;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(6,minmax(0,1fr));padding-block:6px calc(6px + env(safe-area-inset-bottom,0px));padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px));z-index:5}
+nav.tabs{position:fixed;inset-inline:0;bottom:0;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(var(--tabs,6),minmax(0,1fr));padding-block:6px calc(6px + env(safe-area-inset-bottom,0px));padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px));z-index:5}
 nav.tabs a{min-height:56px;display:grid;place-items:center;gap:2px;text-decoration:none;color:var(--muted);font-weight:700;font-size:12.5px;border-radius:14px;padding:4px 0;text-align:center}
 nav.tabs svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 nav.tabs a[aria-current=page]{color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent)}

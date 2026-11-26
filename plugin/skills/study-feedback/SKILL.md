@@ -15,11 +15,11 @@ Reply in the student's language. In Hebrew, write natural, warm, short sentences
    4. One wish: what should it do that it doesn't?
    If they came to report a single bug, ask only question 3 and which skill or screen.
 2. Write `feedback/{auto}` in their Condisco db:
-   `{date, skill?, rating?, worked?, broke?, wish?, pluginVersion: "0.3.1", createdAt}`.
+   `{date, skill?, rating?, worked?, broke?, wish?, pluginVersion: "0.3.2", createdAt}`.
    Only what they said; no personal data beyond it; never course content or grades.
 3. Read it back and give them a summary block to copy, in this shape:
    ```
-   Condisco 0.3.1 · פידבק · <date>
+   Condisco 0.3.2 · פידבק · <date>
    דירוג: <n>/5
    עבד: …
    נשבר: …

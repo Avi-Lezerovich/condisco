@@ -2,6 +2,14 @@
 
 All notable changes to Condisco. Versions follow the plugin version in `plugin/.claude-plugin/plugin.json`.
 
+## [0.3.2] - 2026-11-26
+
+### App
+- Fix: on a desktop in full screen, hiding the Exams tab squeezed the side rail into five narrow columns. The tab count is now a CSS variable (`--tabs`), so the rail stays one column.
+
+### Repository
+- New browser suite `layout` (8 widths from 390 to 2560 px, light and dark), also run in CI.
+
 ## [0.3.1] - 2026-11-26
 
 ### App

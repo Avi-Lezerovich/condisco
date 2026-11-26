@@ -8,7 +8,7 @@ Hebrew version: [pilot-guide.md](pilot-guide.md).
 - **Settings > Capabilities > Code execution** turned on.
 
 ## Steps
-1. Download `condisco-0.3.1.zip` from the latest release (or use the file you were sent). Do not unzip it.
+1. Download `condisco-0.3.2.zip` from the latest release (or use the file you were sent). Do not unzip it.
 2. In claude.ai: **Customize > Plugins > Add > Upload plugin**, and choose the ZIP.
 3. Create a new project called "Study" and open a chat in it.
 4. Write: **set up Condisco** (or **להתקין לי Condisco**).
