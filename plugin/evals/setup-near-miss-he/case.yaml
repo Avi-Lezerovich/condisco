@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: setup-near-miss-he
+description: study-setup does not fire on a small Condisco change that another skill owns
+tags: [study-setup, no]
+execution:
+  prompt: "תוסיף לי ב-Condisco תזכורת להגשת תרגיל 3 בהסתברות ביום חמישי"
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: not-fired-study-setup
+    tool: Skill
+    input_match: "study-setup"
+    min: 0
+    max: 0
+  - type: llm
+    name: behaviour
+    criteria: "The reply deals with adding a single homework deadline or reminder. It does not start the Condisco setup flow (no setup questionnaire, no publishing a new app)."

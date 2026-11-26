@@ -1,9 +1,11 @@
 // Static checks: every JS module parses, JSON files are valid, the plugin manifest is complete,
-// and every file listed in the scene and audio manifests exists.
+// every file listed in the scene and audio manifests exists, shared skill files match their source,
+// and every skill description fits the platform limits (≤ 1024 chars, no angle brackets).
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { drift } from './sync-shared.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const errors = [];
@@ -37,6 +39,15 @@ for (const s of sceneFiles) if (!fs.existsSync(path.join(ROOT, 'app', s))) error
 const audio = JSON.parse(fs.readFileSync(path.join(ROOT, 'app/audio/manifest.json'), 'utf8'));
 const audioFiles = [...(audio.tracks || []).map((t) => t.file), ...Object.values(audio.loops || {})];
 for (const a of audioFiles) if (!fs.existsSync(path.join(ROOT, 'app/audio', a))) errors.push(`audio manifest: missing app/audio/${a}`);
+
+for (const d of drift()) errors.push(`shared copy: ${d} (run node scripts/sync-shared.mjs)`);
+for (const s of fs.readdirSync(path.join(ROOT, 'plugin/skills'))) {
+  const body = fs.readFileSync(path.join(ROOT, 'plugin/skills', s, 'SKILL.md'), 'utf8');
+  const desc = (body.match(/\ndescription:\s*(.*)/) || [])[1] || '';
+  if (desc.length > 1024) errors.push(`skill ${s}: description is ${desc.length} chars (max 1024)`);
+  if (/[<>]/.test(desc)) errors.push(`skill ${s}: description has < or >`);
+  if (body.split('\n').length > 500) errors.push(`skill ${s}: SKILL.md over 500 lines`);
+}
 
 if (errors.length) { console.error(errors.join('\n')); process.exit(1); }
 console.log(`check: ${files.filter((f) => /\.m?js$/.test(f)).length} JS files parse, JSON valid, plugin manifest ok, ${sceneFiles.length} scenes and ${audioFiles.length} audio files present.`);

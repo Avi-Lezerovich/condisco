@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: teach-no-trigger
+description: no check for study-teach
+tags: [study-teach, no]
+execution:
+  prompt: "Write a four-line poem about autumn leaves."
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: not-fired-study-teach
+    tool: Skill
+    input_match: "study-teach"
+    min: 0
+    max: 0
+  - type: llm
+    name: behaviour
+    criteria: "The reply is a short poem about autumn leaves and does not start a lesson."

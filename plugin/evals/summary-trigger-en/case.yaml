@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: summary-trigger-en
+description: trigger check for study-summary
+tags: [study-summary, trigger]
+execution:
+  prompt: "Make me a summary of lecture 3 in Data Structures."
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-summary
+    tool: Skill
+    input_match: "study-summary"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply works toward a summary built from the student's own lecture 3 material: it looks for the Condisco app or the file, or asks for the file. It does not invent what lecture 3 covered."

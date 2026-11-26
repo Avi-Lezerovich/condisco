@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: teach-trigger-he
+description: trigger check for study-teach
+tags: [study-teach, trigger]
+execution:
+  prompt: "לא הבנתי בכלל את הנושא של רקורסיה במבני נתונים. תלמד אותי מההתחלה."
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-teach
+    tool: Skill
+    input_match: "study-teach"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply starts teaching by first asking one short question about what the student already knows about recursion (or a tiny diagnostic item) and waits, instead of dumping a full lecture in one message."

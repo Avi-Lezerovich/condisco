@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: summary-no-trigger
+description: no check for study-summary
+tags: [study-summary, no]
+execution:
+  prompt: "Summarize this in one sentence: The city council voted on Tuesday to extend the bike lane on Main Street by two kilometres, with work starting in March."
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: not-fired-study-summary
+    tool: Skill
+    input_match: "study-summary"
+    min: 0
+    max: 0
+  - type: llm
+    name: behaviour
+    criteria: "The reply gives a one-sentence summary of the bike-lane news and does not start a study summary or ask about courses."

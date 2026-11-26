@@ -1,6 +1,6 @@
 {
   "name": "condisco",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "private": true,
   "description": "Condisco: a study partner for university students inside Claude (plugin + private study app).",
   "license": "MIT",
@@ -8,11 +8,13 @@
   "engines": { "node": ">=20" },
   "scripts": {
     "serve": "node app/tests/serve.mjs app 8811",
-    "test": "npm run check && npm run test:unit && npm run test:browser",
+    "test": "npm run check && npm run test:unit && npm run test:kit && npm run test:browser",
     "check": "node scripts/check.mjs",
     "test:unit": "cd app && node tests/engine.test.mjs && node tests/gaps.test.mjs",
     "test:browser": "node scripts/run-browser-tests.mjs",
-    "build:plugin": "node scripts/build-plugin.mjs"
+    "test:kit": "node scripts/test-kit.mjs",
+    "build:plugin": "node scripts/build-plugin.mjs",
+    "sync:shared": "node scripts/sync-shared.mjs"
   },
   "devDependencies": {
     "playwright": "1.63.0"

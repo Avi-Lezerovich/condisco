@@ -1,0 +1,23 @@
+schema_version: "1.0"
+name: summary-visual-build
+description: behaviour check for study-summary - builds a visual page from the given material only, with sources and a hidden-answer quiz
+tags: [study-summary, behaviour]
+execution:
+  prompt: |
+    My Condisco profile: visual summaries, medium length, Hebrew with English terms. Summarize this lecture (Data Structures, lecture 6, slides 1-4) as my visual summary:
+    Slide 1: A binary search tree (BST) keeps, for every node, all keys in the left subtree smaller and all keys in the right subtree larger.
+    Slide 2: Search starts at the root and goes left or right by comparing keys. Time O(h), h = height.
+    Slide 3: Insert: search for the key; insert a new leaf where the search ended.
+    Slide 4: A balanced tree has h = O(log n); a degenerate tree (keys inserted in sorted order) has h = n.
+  max_turns: 12
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-summary
+    tool: Skill
+    input_match: "study-summary"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The output is (or creates) an HTML page in Hebrew, right-to-left, that contains at least one inline SVG diagram of a binary search tree or of the search path, marks where facts come from (slide numbers), and ends with recall questions whose answers are hidden until opened. Its content comes from the four slides; anything added beyond them is explicitly marked as Claude's own explanation. It is not a plain text-only document. If no artifact tool is available, the HTML may be written to a file or shown in the reply; judge that HTML."

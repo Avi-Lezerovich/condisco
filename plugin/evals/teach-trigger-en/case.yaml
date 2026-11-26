@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: teach-trigger-en
+description: trigger check for study-teach
+tags: [study-teach, trigger]
+execution:
+  prompt: "I missed the lecture on Bayes' theorem. Teach me the topic from scratch."
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-teach
+    tool: Skill
+    input_match: "study-teach"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply begins a short lesson on Bayes' theorem in a tutoring style: it asks what the student already knows (one question) or starts with one small step, and plans to end with the student explaining it back. It does not claim to know what the student's lecture said."

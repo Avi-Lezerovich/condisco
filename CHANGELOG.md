@@ -2,6 +2,29 @@
 
 All notable changes to Condisco. Versions follow the plugin version in `plugin/.claude-plugin/plugin.json`.
 
+## [0.4.0] - 2026-11-26
+
+Learning bundle: personal summaries and lessons, built on a learner profile.
+
+### Plugin
+- New skill `study-profile`: the first interview after setup (address form, confidence per course, study time, main goal, then three questions on how the student likes to learn, picked from two tiny samples), "what do you know about me", and preferences stated at any time. It is the only skill that writes `profile/main`; others append `profile_events`. No learning-style labels (matching has no evidence); preferences change the wrapping, never retrieval or the closing recall.
+- New skill `study-summary`: "summarize week 5" builds a summary of a week, unit, topic or whole course from the student's own files, in the profile's format. Default: a visual Hebrew page (concept map, diagrams, a step-by-step worked example, traps, a recall quiz with hidden answers). Never solves graded work in a course that forbids it; additions beyond the files are marked.
+- New skill `study-teach`: "teach me X" asks one prior-knowledge question, builds a short visual lesson, and ends with an explain-back.
+- `study-setup`: new first run. Publish the app and self-test first, then read courses and syllabi from Moodle (read only) or uploaded syllabi, confirm, then the `study-profile` interview.
+- `study-session`, `study-coach`, `exam-mode`, `study-materials` read the profile and log events; the weekly review proposes profile changes the student confirms.
+- 14 new evals (41 in total). Trigger descriptions narrowed so "summarize my materials" stays with `study-materials`, "let's study X, I have 45 minutes" stays with `study-session`, and `study-teach` asks exactly one question first. Behaviour evals that read skill assets run with `--allow-tools Read Glob Write`.
+
+### Visual kit
+- `kit/template.html` and `kit/visual-kit.md`: one page template in the Condisco look (RTL, light and dark, phone first, MathML formulas, inline SVG coloured by classes) and its rules, copied into `study-summary` and `study-teach`.
+
+### App
+- The store loads and exports `profile`, `profile_events` and `summaries`. Schema stays version 2 (additive, no migration).
+
+### Repository
+- `scripts/sync-shared.mjs` keeps shared skill files in sync; `npm run check` fails on drift and on skill descriptions over the platform limits.
+- `npm run test:kit` (also in CI) tests the kit page on phone and desktop, light and dark.
+- `docs/research/learning-skills.md`: existing study skills and the learning-science basis for this release.
+
 ## [0.3.2] - 2026-11-26
 
 ### App

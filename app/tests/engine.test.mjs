@@ -1,7 +1,7 @@
 // Pure tests for the focus engine and study rules (node, no browser).
 import * as E from '../focus/engine.js';
 import * as M from '../core/model.js';
-import { pendingMigrations, MIGRATIONS } from '../core/store.js';
+import { pendingMigrations, MIGRATIONS, COLS, SCHEMA_VERSION } from '../core/store.js';
 let n = 0, bad = 0; const ok = (c, m) => { n++; if (!c) { bad++; console.log('FAIL', m); } };
 const MIN = 60000, t0 = Date.UTC(2026, 10, 26, 8, 0);
 // full block, 45 min total in 25/5 → focus 25, break 5, focus 20, recall
@@ -46,6 +46,8 @@ const db = { courses: [{ id: 'a' }, { id: 'b', aiSolve: 'allowed' }], deadlines:
 const w = MIGRATIONS[0].plan(db); ok(w.length === 3, 'migration plans 3 writes');
 w.forEach(([path, d]) => { const [c, id] = path.split('/'); Object.assign(db[c].find(x => x.id === id), d); });
 ok(MIGRATIONS[0].plan(db).length === 0 && pendingMigrations(2).length === 0, 'migration idempotent');
+// learning additions (0.4.0) are additive: loaded and exported, no new migration
+ok(['profile', 'profile_events', 'summaries'].every(c => COLS.includes(c)) && SCHEMA_VERSION === 2 && pendingMigrations(2).length === 0, 'profile, profile_events, summaries are loaded and exported without a migration');
 // ---- timer edge cases (focus thread) ----
 {
   const tA = t0 + 100 * MIN;

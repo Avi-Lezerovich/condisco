@@ -1,6 +1,6 @@
 ---
 name: study-coach
-description: Plans a university student's study day from their Condisco (or older Study Hub) app data, runs the evening check-in with at most three questions and a plan for tomorrow in at most five lines, and runs the weekly review. Use when the student asks "what should I study today", "plan my day", "evening check-in", "weekly review", "I'm behind, what now", "מה ללמוד היום", "תכנן לי את היום", "צ'ק-אין ערב", "סיכום שבועי", "אני מאחר בחומר", "אני מאחרת בחומר", or when a scheduled check-in task runs.
+description: Plans a university student's study day from their Condisco (or older Study Hub) app data, runs the evening check-in with at most three questions and a plan for tomorrow in at most five lines, and runs the weekly review. Use when the student asks "what should I study today", "plan my day", "evening check-in", "weekly review", "I'm behind, what now", "מה ללמוד היום", "תכנן לי את היום", "צ'ק-אין ערב", "סיכום שבועי", "אני מאחר בחומר", "אני מאחרת בחומר", or when a scheduled check-in task runs. Not for planning toward one exam (exam-mode) or for studying a topic now (study-session).
 ---
 
 # Condisco coach
@@ -29,20 +29,23 @@ from memory alone.
   If behind, say plainly which lower-priority item to drop. Never drop a graded
   submission without telling the student the consequence from `deadlines`/`grading`.
 - Default study action is retrieval (practice questions, past exams), not rereading.
-- Show the plan in ≤5 lines. Write tasks to the db only after the student says yes.
+- Show the plan in ≤5 lines. Write tasks to the db only after the student says yes,
+  with ids `t{MMDD}-{n}` (warm-up: `w{MMDD}`) and `status: "todo"`.
 
 ## Evening check-in (default flow, also for scheduled runs)
+A scheduled run with nobody answering does steps 1, 2 and a proposed step 4 only, and writes nothing.
 1. Summarise today from data in ≤3 lines: tasks done/min/skipped, focus minutes
    from `sessions`, recall results, deadlines tomorrow. Numbers come from the db.
 2. Ask **at most 3 questions** in one message, e.g.: what got done that the app
    doesn't show; energy 1–5 and what blocked you; when and where you start tomorrow.
    Ask about habits in the same message only if habits exist.
 3. After the answer: write `checkins/{today}`, update task statuses, log habits only
-   if they said so.
+   if they said so (`habitlog/{today}`: read it first and keep its existing field shape).
 4. Tomorrow's plan in **≤5 lines**: line 1 = warm-up win with time and place;
-   then blocks with times. Then one line naming any course that is drifting
-   (last-2 timed mock average below `settings/main.target`, or a deadline at risk).
-5. Write tomorrow's tasks after a yes (a scheduled run with no answer: propose only, write nothing).
+   then blocks with times. After the plan, at most one extra line naming a course
+   that is drifting (last-2 timed mock average below `settings/main.target`, or a
+   deadline at risk); skip it when nothing drifts.
+5. Write tomorrow's tasks only after a yes.
 
 ## Weekly review (Sunday, or on request)
 - Per course, one line: units by status, mocks trend, deadlines in the next 14 days.
@@ -50,6 +53,19 @@ from memory alone.
 - Ask one question: anything changed (new dates, course dropped)?
 - Unverified dates found anywhere → list them as "לא מאומת" and ask the student to confirm.
 - No sync in 7+ days (`settings/main.lastSync`) → offer `study-sync` ("סנכרון עכשיו") in one line; never run it unasked.
+- Learner profile: read `profile/main` and the last 7 days of `profile_events`. Build
+  proposals only with the rules in `study-profile` ("Weekly proposals"): at most one
+  line per field, "שמתי לב ש-X, אז Y. להשאיר?". Changes are saved through
+  `study-profile` after a yes, never silently. Delete `profile_events` older than 180 days.
+
+## Profile in the daily plan
+Read `profile/main` with the other data (missing → defaults): block length from
+`block.minutes`, a lighter plan when `load: "light"` (fewer tasks, minimum versions
+first, no new topics). A unit studied this week without a summary may get one line
+offering `study-summary`; at most once a day. On the 2nd or 3rd evening check-in
+after setup (`profile.interviewAt`), add one optional question about current
+constraints (reserve duty, work, health, family, "בלי לפרט"); its answer goes
+to `study-profile` and is never quoted back unprompted.
 
 ## Rules
 - Never invent content, dates or grades; unverified → "לא מאומת" with its source.

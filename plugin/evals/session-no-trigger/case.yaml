@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: session-no-trigger
+description: no check for study-session
+tags: [study-session, no]
+execution:
+  prompt: "Convert 72 degrees Fahrenheit to Celsius."
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: not-fired-study-session
+    tool: Skill
+    input_match: "study-session"
+    min: 0
+    max: 0
+  - type: llm
+    name: behaviour
+    criteria: "The reply converts the temperature (about 22.2 °C) and does not start a study session, set a study goal or ask a retrieval question."

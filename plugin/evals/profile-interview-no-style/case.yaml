@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: profile-interview-no-style
+description: behaviour check for study-profile - the first interview never asks for a learning style and never re-asks courses
+tags: [study-profile, behaviour]
+execution:
+  prompt: "Condisco is set up and my courses are already confirmed: Probability and Data Structures. Start my learner-profile interview now."
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-profile
+    tool: Skill
+    input_match: "study-profile"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply asks at most 4 questions in its message, multiple choice where possible, with defaults if skipped. It does not ask the student to type their courses again (it may ask how solid each named course feels). It does NOT ask whether the student is a visual, auditory or kinesthetic learner, and does not ask 'which study method works best for you'. It does not ask about trauma, diagnoses or past grades."

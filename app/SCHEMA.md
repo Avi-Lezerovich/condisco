@@ -33,5 +33,22 @@ Capabilities: `{db: {rules: [{path: "", read: "owner", write: "owner"}]}, user: 
 - deadlines: + sourceUrl, + extId, + syncedAt; source like "Moodle sync 2026-11-26"; a new or changed item is written verified:false; a re-sync keeps verified:true when the doc already has it and due is unchanged (the app's "אישור" sets verified:true)
 - settings/main: + lastSync {moodle?, piazza?}
 
+## Learning additions (0.4.0: study-profile, study-summary, study-teach; additive, schema version stays 2, the app keeps unknown fields)
+- + `profile/main` (one doc, the learner profile; written only by the `study-profile` skill; an app Settings card is planned for a later version):
+  address ("m" | "f" | "neutral"), goal ("on_track" | "understand" | "exam_practice" | "get_back"), hoursPerWeek,
+  defaultFormat ("visual_summary" | "visual_lesson" | "outline" | "worked_example" | "socratic" | "printable_sheet"),
+  formats {<format>: {offered, chosen, recallYes}}, summary {length ("short" | "medium" | "deep"), language ("he_en_terms" | "source"), visuals ("rich" | "light")},
+  teach {order ("explain_first" | "questions_first")}, techniques[] ("analogies" | "worked_example_first" | "feynman_explain_back" | "quiz" | "concept_map"),
+  dislikes[] (≤ 10, the student's own words), videos {wanted (bool), maxMin}, block {minutes (15–50)}, hintDepth ("short" | "normal" | "long"),
+  tone ("direct" | "warm"), load ("normal" | "light"), constraints {text, at} (optional; never quoted back, never leaves the db),
+  meta {<field>: {source ("asked" | "observed" | "inferred"), n, updatedAt}}, interviewAt, updatedAt, version: 1.
+  Defaults when a field or the doc is missing: address neutral, defaultFormat "visual_summary", summary {medium, he_en_terms, light}, teach.order explain_first, block.minutes 25, hintDepth normal, tone warm, load normal, videos.wanted false.
+  Preferences change the wrapping only: retrieval, spacing and the closed-book recall at the end never switch off.
+- + `profile_events/{auto}` (append-only, any skill): at (ISO), skill, kind ("format_offered" | "format_chosen" | "recall" | "hint" | "block_done" | "block_abandoned" | "asked" | "summary_feedback"), value, courseId?, unitId?, format?. summary_feedback values: more_visual | less_visual | shorter | longer | more_examples | good. Pruned after 180 days by the weekly review.
+- + `summaries/{id}`: id `{courseId}-w{week}` for a week, `{courseId}-{unitId}` for one unit, `{courseId}-t-{slug}` for a topic, `{courseId}-exam` for an exam sheet, `{courseId}-lesson-{slug}` for a study-teach lesson.
+  courseId, kind ("week" | "unit" | "topic" | "exam" | "lesson"), week?, unitIds[], title, format, artifactUrl, sources [{fileName, fileId?, unitId?}], quizCount, createdAt, updatedAt.
+- units: + week (1–14, the semester week the unit belongs to; set by study-materials or study-summary after the student confirms).
+- courses: confidence keeps its 0–10 scale; the interview asks 1–5 and stores ×2.
+
 ## Suggestion priority (app, Today screen, when fewer than 2 tasks are open)
 deadline within 7 days > missed unit still not started > course whose last-2 timed mock average is under target > practice items due.

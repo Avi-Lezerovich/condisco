@@ -15,4 +15,4 @@ graders:
     arm: with-only
   - type: llm
     name: behaviour
-    criteria: "The reply asks at most 3 questions in one message and does not invent numbers (tasks done, focus minutes, grades) that were not read from data or given by the student."
+    criteria: "The reply asks at most 3 questions in one message, or, when it cannot find the student's Condisco data, says so briefly and offers setup. It does not invent numbers (tasks done, focus minutes, grades) that were not read from data or given by the student."

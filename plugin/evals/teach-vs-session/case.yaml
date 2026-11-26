@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: teach-vs-session
+description: no check for study-teach - a specific homework question goes to study-session
+tags: [study-teach, no]
+execution:
+  prompt: "תעזור לי בשאלה 3 מהתרגיל בהסתברות: מטילים מטבע 3 פעמים, מה ההסתברות לקבל לפחות עץ אחד?"
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: not-fired-study-teach
+    tool: Skill
+    input_match: "study-teach"
+    min: 0
+    max: 0
+  - type: llm
+    name: behaviour
+    criteria: "The reply helps with the specific question as a tutor (asks for an attempt or gives a hint first), and does not build a long lesson on the whole topic."
