@@ -24,16 +24,8 @@
   "file": "scenes/golden-dunes.js"
  },
  {
-  "id": "sea-glitter",
-  "file": "scenes/sea-glitter.js"
- },
- {
   "id": "northern-lights",
   "file": "scenes/northern-lights.js"
- },
- {
-  "id": "mountain-mirror",
-  "file": "scenes/mountain-mirror.js"
  },
  {
   "id": "meadow-tree",
@@ -44,10 +36,6 @@
   "file": "scenes/alpine-pink.js"
  },
  {
-  "id": "cloud-drift",
-  "file": "scenes/cloud-drift.js"
- },
- {
   "id": "above-the-clouds",
   "file": "scenes/above-the-clouds.js"
  },
@@ -56,8 +44,8 @@
   "file": "scenes/almond-blossom.js"
  },
  {
-  "id": "autumn-forest",
-  "file": "scenes/autumn-forest.js"
+  "id": "arbel-kinneret-view",
+  "file": "scenes/arbel-kinneret-view.js"
  },
  {
   "id": "dead-sea-morning",
@@ -72,10 +60,6 @@
   "file": "scenes/eucalyptus-grove.js"
  },
  {
-  "id": "full-moon-sea",
-  "file": "scenes/full-moon-sea.js"
- },
- {
   "id": "galilee-olive-terraces",
   "file": "scenes/galilee-olive-terraces.js"
  },
@@ -84,16 +68,8 @@
   "file": "scenes/galilee-spring.js"
  },
  {
-  "id": "golan-winter-snow",
-  "file": "scenes/golan-winter-snow.js"
- },
- {
   "id": "jerusalem-hills-twilight",
   "file": "scenes/jerusalem-hills-twilight.js"
- },
- {
-  "id": "jezreel-fields",
-  "file": "scenes/jezreel-fields.js"
  },
  {
   "id": "kinneret-dawn-path",
@@ -108,8 +84,8 @@
   "file": "scenes/layered-waves.js"
  },
  {
-  "id": "med-coast-noon",
-  "file": "scenes/med-coast-noon.js"
+  "id": "masada-dawn",
+  "file": "scenes/masada-dawn.js"
  },
  {
   "id": "med-coast-sunset",
@@ -124,12 +100,12 @@
   "file": "scenes/oasis-palms-dawn.js"
  },
  {
-  "id": "rain-hills",
-  "file": "scenes/rain-hills.js"
- },
- {
   "id": "ramon-crater-dusk",
   "file": "scenes/ramon-crater-dusk.js"
+ },
+ {
+  "id": "rosh-hanikra-cliffs",
+  "file": "scenes/rosh-hanikra-cliffs.js"
  },
  {
   "id": "snow-pines-night",

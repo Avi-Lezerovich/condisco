@@ -1,5 +1,5 @@
 import { rng, uid, put, sky, smooth } from './lib.js';
-export default { id: 'meadow-tree', name: 'עץ באחו', tags: ['hills', 'spring', 'classic'], seed: 139,
+export default { id: 'meadow-tree', name: 'עץ באחו', tags: ['hills', 'spring', 'day', 'classic'], seed: 139,
   draw(svg, { seed }){ const r = rng(seed), k = uid();
     put(svg, `<defs>${sky(k + 's', [[0, '#dcebf3'], [1, '#fbf0d6']])}</defs>
     <rect width="1600" height="900" fill="url(#${k}s)"/><circle cx="380" cy="300" r="54" fill="#fff6dc" opacity=".9"/>${smooth(r, 560, 50, '#c8dcab')}${smooth(r, 640, 60, '#a6c88e')}

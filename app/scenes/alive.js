@@ -2,7 +2,7 @@
 // Every plane is its own <svg> inside a <div>; all motion is CSS transform/opacity on those elements,
 // so the browser rasterizes each plane once and the GPU only composites it (light on CPU and battery).
 // Motion vocabulary (all cycles ≥ 12 s, nothing flashes):
-//   camera  – the whole stack pushes in and pans slowly over the 10-minute scene
+//   camera  – the whole stack pushes in and pans slowly over the scene (25 minutes by default, one focus block)
 //   parallax– landscape planes sway sideways, nearer planes further, so depth reads like moving through space
 //   sun     – rises (morning), sets (evening) or hangs, with a slow breathing glow
 //   mist    – fog bands drift sideways and breathe
@@ -82,11 +82,11 @@ export function planesOf(svg, maxLand = 5){
 
 const CSS = `
 .cd-live{position:absolute;inset:0;overflow:hidden;contain:strict}
-.cd-cam{position:absolute;inset:0;will-change:transform;animation:cd-cam var(--cam-dur,600s) cubic-bezier(.33,0,.4,1) forwards;transform-origin:var(--cam-o,50% 55%)}
+.cd-cam{position:absolute;inset:0;will-change:transform;animation:cd-cam var(--scene-dur,1500s) cubic-bezier(.33,0,.4,1) forwards;transform-origin:var(--cam-o,50% 55%)}
 .cd-pl{position:absolute;inset:-7%;will-change:transform}
 .cd-pl>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 .cd-pl.k-land{animation:cd-sway var(--dur,150s) ease-in-out var(--delay,0s) infinite alternate}
-.cd-pl.k-sun{animation:cd-sun 600s cubic-bezier(.3,0,.5,1) forwards}
+.cd-pl.k-sun{animation:cd-sun var(--scene-dur,1500s) cubic-bezier(.3,0,.5,1) forwards}
 .cd-pl.k-sun>svg{will-change:transform,opacity;transform-origin:var(--sun-o,50% 50%);animation:cd-glow 16s ease-in-out infinite alternate}
 .cd-pl.k-mist{animation:cd-drift var(--dur,200s) ease-in-out var(--delay,0s) infinite alternate}
 .cd-pl.k-mist>svg{will-change:opacity;animation:cd-breathe 22s ease-in-out var(--delay,0s) infinite alternate}
@@ -99,6 +99,8 @@ const CSS = `
 .cd-pl.f-orbit{animation:cd-ox var(--dur,25s) ease-in-out var(--delay,0s) infinite alternate}
 .cd-pl.f-orbit>svg{animation:cd-oy var(--dur,25s) ease-in-out calc(var(--delay,0s) - var(--dur,25s) / 2) infinite alternate}
 .cd-pl.f-fall{inset:auto;left:-7%;right:-7%;top:-121%;height:228%;animation:cd-tilefall var(--dur,60s) linear var(--delay,0s) infinite}
+.cd-fallin{position:absolute;left:0;right:0;top:-100%;height:200%;animation:cd-tilefall var(--dur,60s) linear var(--delay,0s) infinite}
+.cd-fallin>svg{position:absolute;inset:0;width:100%;height:100%}
 .cd-pl.f-fall>svg{animation:cd-sway var(--swd,9s) ease-in-out infinite alternate;--amp:var(--sway,1.5%)}
 .cd-pl.f-glow{animation:cd-fall var(--dur,34s) ease-in-out var(--delay,0s) infinite alternate}
 .cd-pl.f-glow>svg,.cd-pl.f-rays>svg{will-change:opacity;animation:cd-twinkle var(--tw,8s) ease-in-out var(--delay,0s) infinite alternate}
@@ -109,9 +111,17 @@ const CSS = `
 .cd-pl.f-creep{animation:cd-sway var(--dur,600s) ease-in-out infinite alternate}
 .cd-pl.f-foam{animation:cd-foam var(--dur,10s) ease-in-out infinite alternate}
 .cd-pl.f-foam>svg{animation:cd-twinkle var(--dur,10s) ease-in-out infinite alternate;--o0:.45}
-.cd-pl.k-star.fadein{animation:cd-fadein 600s ease-in forwards}
+.cd-pl.k-star.fadein{animation:cd-fadein var(--scene-dur,1500s) ease-in forwards}
 .cd-box{position:absolute;aspect-ratio:1;transform:translate(-50%,-50%) scale(.3);opacity:0;will-change:transform,opacity;animation:cd-ripple var(--dur,11s) ease-out var(--delay,0s) infinite}
 .cd-box>svg{width:100%;height:100%;display:block;overflow:visible}
+.cd-pl.k-sunrays{transform-origin:var(--orig,50% 50%);animation:cd-turn 90s ease-in-out infinite alternate}
+.cd-pl.k-sunrays>svg{animation:cd-twinkle 19s ease-in-out infinite alternate;--o0:.55}
+.cd-pl.k-halo{mix-blend-mode:screen}
+.cd-pl.k-halo>svg{animation:cd-twinkle 23s ease-in-out infinite alternate;--o0:.7}
+.cd-arc{position:absolute;inset:0;pointer-events:none;opacity:0;animation:cd-arc var(--scene-dur,1500s) ease-in-out forwards}
+.cd-grain{position:absolute;inset:0;pointer-events:none;opacity:.07;mix-blend-mode:overlay}
+.cd-grain svg{display:block}
+.cd-vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 95% at 50% 45%,transparent 60%,rgba(12,16,28,.22) 100%)}
 .cd-dim{position:absolute;inset:0;pointer-events:none}
 @keyframes cd-cam{from{transform:scale(1) translate(0,0)}to{transform:scale(var(--cam-s,1.1)) translate(var(--cam-x,-1.5%),var(--cam-y,.8%))}}
 @keyframes cd-sway{from{transform:translateX(calc(var(--amp,1%) * -1))}to{transform:translateX(var(--amp,1%))}}
@@ -129,20 +139,22 @@ const CSS = `
 @keyframes cd-foam{from{transform:translateY(-.5%)}to{transform:translateY(.6%)}}
 @keyframes cd-fadein{from{opacity:.08}to{opacity:1}}
 @keyframes cd-ripple{0%{transform:translate(-50%,-50%) scale(.3);opacity:0}12%{opacity:.9}100%{transform:translate(-50%,-50%) scale(1.7);opacity:0}}
+@keyframes cd-turn{from{transform:rotate(-3deg)}to{transform:rotate(3deg)}}
+@keyframes cd-arc{from{opacity:0}to{opacity:var(--to,.15)}}
 @keyframes cd-fall{from{transform:translate(-.6%,-1.2%)}to{transform:translate(.6%,1.2%)}}
 .cd-paused .cd-live,.cd-paused .cd-live *{animation-play-state:paused!important}
-@media(prefers-reduced-motion:reduce){.cd-live,.cd-live *{animation:none!important}}`;
+@media(prefers-reduced-motion:reduce){.cd-live,.cd-live *{animation:none!important}.cd-arc{opacity:calc(var(--to,.15) * .5)}}`;
 
 export function injectLiveCss(doc, into){ if (into.querySelector(':scope > style[data-cd-live]')) return; const s = doc.createElement('style'); s.dataset.cdLive = ''; s.textContent = CSS; into.appendChild(s); }
 
 const plainSvg = doc => { const s = doc.createElementNS(SVG_NS, 'svg'); s.setAttribute('viewBox', '0 0 1600 900'); s.setAttribute('preserveAspectRatio', 'xMidYMid slice'); s.setAttribute('aria-hidden', 'true'); return s; };
 
 /** Build the living version of a drawn scene. Returns a div (class cd-live) to place in a positioned box. */
-export function makeLiving(svg, scene, {seed, palette, dark, doc = document} = {}){
+export function makeLiving(svg, scene, {seed, palette, dark, doc = document, sceneMs = 1500000} = {}){
   const r = rng((seed ?? hashId(scene.id)) + 7);
   const tags = scene.tags || [];
   const {defs, planes} = planesOf(svg);
-  const live = doc.createElement('div'); live.className = 'cd-live';
+  const live = doc.createElement('div'); live.className = 'cd-live'; live.style.setProperty('--scene-dur', Math.round(sceneMs / 1000) + 's');
   const cam = doc.createElement('div'); cam.className = 'cd-cam';
   // Camera path: slow push-in toward a point near the horizon, chosen per scene.
   const ox = 30 + r() * 40, oy = 45 + r() * 20;
@@ -150,7 +162,19 @@ export function makeLiving(svg, scene, {seed, palette, dark, doc = document} = {
   live.appendChild(cam);
   const rise = tags.includes('morning') ? -5 : tags.includes('evening') ? 4.5 : tags.includes('night') ? -1 : -1.2;
   const swayDir = r() < .5 ? -1 : 1, swayDur = 130 + r() * 60;
-  let first = true;
+  let first = true, sun = null;
+  // Light around the sun: slow-turning soft rays behind the land, and a wide horizon glow that breathes.
+  const atmosphere = () => {
+    const warm = /^#/.test(sun.col || '') ? sun.col : '#fff0cf', night = tags.includes('night');
+    if (!night) {
+      const id = 'ry' + Math.floor(r() * 1e9).toString(36), n = 9, rays = Array.from({length: n}, (_, i) => { const a = (i / n) * Math.PI * 2 + r() * .3, w = .05 + r() * .06, L = 1400;
+        return `<path d="M${sun.x} ${sun.y} L${(sun.x + Math.cos(a - w) * L).toFixed(0)} ${(sun.y + Math.sin(a - w) * L).toFixed(0)} L${(sun.x + Math.cos(a + w) * L).toFixed(0)} ${(sun.y + Math.sin(a + w) * L).toFixed(0)} Z" fill="${warm}" opacity="${(0.035 + r() * 0.045).toFixed(3)}"/>`; }).join('');
+      const pl = add('sunrays', [], `--orig:${(sun.x / 16).toFixed(1)}% ${(sun.y / 9).toFixed(1)}%`);
+      pl.firstChild.innerHTML = `<defs><filter id="${id}" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="14"/></filter></defs><g filter="url(#${id})">${rays}</g>`;
+    }
+    const hz = add('halo', []), gid = 'hz' + Math.floor(r() * 1e9).toString(36);
+    hz.firstChild.innerHTML = `<defs><radialGradient id="${gid}" cx="${sun.x}" cy="${sun.y}" r="900" gradientUnits="userSpaceOnUse" gradientTransform="translate(${sun.x} ${sun.y}) scale(1 .32) translate(${-sun.x} ${-sun.y})"><stop offset="0" stop-color="${warm}" stop-opacity="${night ? .18 : .42}"/><stop offset=".45" stop-color="${warm}" stop-opacity="${night ? .06 : .14}"/><stop offset="1" stop-color="${warm}" stop-opacity="0"/></radialGradient></defs><rect width="1600" height="900" fill="url(#${gid})"/>`;
+  };
   const add = (kind, nodes, style = '', defsHere = false) => {
     const pl = doc.createElement('div'); pl.className = 'cd-pl k-' + kind; if (style) pl.style.cssText = style;
     const s = plainSvg(doc); if (defsHere && defs) s.appendChild(defs);
@@ -162,7 +186,9 @@ export function makeLiving(svg, scene, {seed, palette, dark, doc = document} = {
       case 'sky': add('sky', p.nodes, '', defsHere); break;
       case 'land': { const amp = (0.25 + 1.55 * Math.pow(p.depth, 1.3)) * swayDir; add('land', p.nodes, `--amp:${amp.toFixed(2)}%;--dur:${swayDur.toFixed(0)}s`, defsHere); break; }
       case 'sun': { const c = p.nodes.find(n => n.tagName === 'circle'); const sx = c ? num(c, 'cx') / 16 : 50, sy = c ? num(c, 'cy') / 9 : 50;
-        add('sun', p.nodes, `--rise:${rise}%;--sun-o:${sx.toFixed(1)}% ${sy.toFixed(1)}%`, defsHere); break; }
+        add('sun', p.nodes, `--rise:${rise}%;--sun-o:${sx.toFixed(1)}% ${sy.toFixed(1)}%`, defsHere);
+        if (c && !sun) { sun = {x: num(c, 'cx'), y: num(c, 'cy'), col: (p.nodes.filter(n => n.tagName === 'circle' && !(n.getAttribute('fill') || '').startsWith('url(')).pop() || c).getAttribute('fill')}; atmosphere(); }
+        break; }
       case 'mist': add('mist', p.nodes, `--amp:${(2 + r() * 3).toFixed(1)}%;--dur:${(150 + r() * 100).toFixed(0)}s;--delay:${(-r() * 120).toFixed(0)}s`, defsHere); break;
       case 'cloud': add('cloud', p.nodes, `--amp:${(2.5 + r() * 2.5).toFixed(1)}%;--dur:${(220 + r() * 120).toFixed(0)}s;--delay:${(-r() * 120).toFixed(0)}s`, defsHere); break;
       case 'particles': add('particles', p.nodes, `--dur:${(30 + r() * 20).toFixed(0)}s`, defsHere); break;
@@ -202,7 +228,12 @@ export function makeLiving(svg, scene, {seed, palette, dark, doc = document} = {
         const bx = doc.createElement('div'); bx.className = 'cd-box f-' + it.cls; bx.style.cssText = (it.style || '') + `;left:${(x / 16).toFixed(2)}%;top:${(y / 9).toFixed(2)}%;width:${(w / 16).toFixed(2)}%`;
         bx.innerHTML = `<svg viewBox="0 0 100 100" aria-hidden="true">${it.svg}</svg>`; pl.style.cssText = ''; pl.appendChild(bx);
       } else {
-        const sv = plainSvg(doc); if (it.vb) sv.setAttribute('viewBox', `0 0 1600 ${it.vb}`); sv.innerHTML = it.svg; pl.appendChild(sv);
+        const sv = plainSvg(doc); if (it.vb) sv.setAttribute('viewBox', `0 0 1600 ${it.vb}`); sv.innerHTML = it.svg;
+        if (it.clip) { // a still window (e.g. the waterfall) that the looping layer falls through
+          const [x0, y0, x1, y1] = it.clip, mv = doc.createElement('div'); mv.className = 'cd-fallin'; mv.style.cssText = it.style || '';
+          pl.className = 'cd-pl k-life f-window'; pl.style.cssText = `clip-path:inset(${(y0 / 9 / 1.14 + 6.14).toFixed(2)}% ${((1600 - x1) / 16 / 1.14 + 6.14).toFixed(2)}% ${((900 - y1) / 9 / 1.14 + 6.14).toFixed(2)}% ${(x0 / 16 / 1.14 + 6.14).toFixed(2)}%)`;
+          mv.appendChild(sv); pl.appendChild(mv);
+        } else pl.appendChild(sv);
       }
       const low = ['ripple', 'foam', 'shadows', 'sweep', 'wisp'].includes(it.cls) && !['veil'].includes(e.fx);
       if (it.box || (low && behindNear)) cam.insertBefore(pl, behindNear || null);
@@ -210,6 +241,13 @@ export function makeLiving(svg, scene, {seed, palette, dark, doc = document} = {
       else cam.appendChild(pl);
     }
   }
+  // The light changes over the ten minutes: dawn warms up, dusk deepens toward night.
+  const arc = tags.includes('morning') ? ['#ffc983', 'bottom', .16] : tags.includes('evening') ? ['#2c2a5e', 'top', .26] : tags.includes('afternoon') ? ['#ffb870', 'bottom', .1] : null;
+  if (arc) { const d = doc.createElement('div'); d.className = 'cd-arc'; d.style.cssText = `background:linear-gradient(to ${arc[1] === 'top' ? 'bottom' : 'top'},${arc[0]},transparent 70%);--to:${arc[2]}`; live.appendChild(d); }
+  // Fine film grain (rendered once) removes gradient banding; a faint vignette frames the view.
+  const gr = doc.createElement('div'); gr.className = 'cd-grain'; const gid = 'gr' + Math.floor(r() * 1e9).toString(36);
+  gr.innerHTML = `<svg width="100%" height="100%" aria-hidden="true"><filter id="${gid}" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 .9 0"/></filter><rect width="100%" height="100%" filter="url(#${gid})"/></svg>`;
+  const vg = doc.createElement('div'); vg.className = 'cd-vignette'; live.append(gr, vg);
   if (dark) { const d1 = doc.createElement('div'), d2 = doc.createElement('div'); d1.className = d2.className = 'cd-dim';
     d1.style.cssText = `background:${palette.sky};opacity:.42;mix-blend-mode:multiply`; d2.style.cssText = `background:${palette.sky};opacity:.18`; live.append(d1, d2); }
   return live;

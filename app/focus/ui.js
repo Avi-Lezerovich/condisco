@@ -51,8 +51,12 @@ export function createFocus({ store, onChange = () => {} }) {
     try { const s = JSON.parse(raw); if (s && (s.id !== F.id || (s.rev || 0) > (F.rev || 0))) adopt(s); } catch (e) { /* ignore */ }
     return !!F;
   }
+  // after a sleep, whichever tab caught up first stamps the state, so every open tab explains the jump once
+  let lastCaught = 0;
+  function caught(s) { if (s && s.caught && s.caught !== lastCaught && now() - s.caught < 15000) { lastCaught = s.caught; toast('הטיימר המשיך לרוץ גם בזמן שהמסך היה כבוי'); } }
   function adopt(s) {
     const wasOpen = FZ.classList.contains('open');
+    caught(s);
     F = s;
     if (wasOpen) paint(); else if (E.timerShowing(F)) { F = { ...F, min: true }; paint(); } else MINI.hidden = true;
     CU.arm(F); ensureLoop(); onChange();
@@ -61,7 +65,7 @@ export function createFocus({ store, onChange = () => {} }) {
   function step() {
     if (!F || !sync()) return;
     const prev = F, { state, events } = E.tick(F, now());
-    if (E.timerShowing(prev)) { const late = CU.onTick(prev, state, events); if (late > 120000) toast('הטיימר המשיך לרוץ גם בזמן שהמסך היה כבוי'); }
+    if (E.timerShowing(prev)) { const late = CU.onTick(prev, state, events); if (late > 120000) { state.caught = now(); caught(state); } }
     if (events.includes('breath-end')) breathEnd();
     if (events.length) { commit(state); return; }
     live();

@@ -12,7 +12,7 @@ The student-facing app of Condisco: a private claude.ai artifact with owner-only
 - `ui/*.js`: Today, Gaps, Deadlines, Check-in, Settings (+ first-run screen, feedback form), Exam mode (`#exam`, rules in `core/exam.js`; hidden unless `FEATURES.exam` in `app.js` is true, or the URL has `?exam=1` or `?mock=exam`).
 - `focus/engine.js`: pure state machine `idle → zone → breathe → music → focus ⇄ break → recall → done` with absolute timestamps, persisted in localStorage, shared by tabs. `focus/ui.js` renders it; `focus/sound.js` is the breath-paced Web Audio pad.
 - `idle/idle.js`: desktop idle screen (1 min without input), clock only in the 15 minutes before the next task, timer strip during a block.
-- `scenes/`: `registry.js`, `lib.js`, `manifest.json`, 37 scenes.
+- `scenes/`: `registry.js`, `lib.js`, `manifest.json`, 31 scenes.
 
 ## Publish
 Publish `index.html` as the page and every other file above with `files` (relative paths kept), capabilities as in `SCHEMA.md`. No build step.

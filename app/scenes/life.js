@@ -15,6 +15,7 @@ export const SHAPES = {
   leaf: (s, c) => F(`M0 ${-6 * s} Q${5 * s} 0 0 ${6 * s} Q${-5 * s} 0 0 ${-6 * s} Z`, c, .85),
   petal: (s, c) => `<ellipse rx="${3.2 * s}" ry="${2 * s}" fill="${c}" opacity=".9"/>`,
   flake: (s, c) => `<circle r="${1.4 * s}" fill="${c}" opacity=".85"/>`,
+  streak: (s, c) => `<path d="M0 0 l0 ${26 * s}" stroke="${c}" stroke-width="${2.2 * s}" opacity=".6" stroke-linecap="round"/>`,
   drop: (s, c) => `<path d="M0 0 l${-2.2 * s} ${16 * s}" stroke="${c}" stroke-width="${1.1 * s}" opacity=".45" stroke-linecap="round"/>`,
   mote: (s, c) => `<circle r="${1.6 * s}" fill="${c}" opacity=".55"/>`,
   sail: (s, c) => F(`M0 ${-26 * s} L0 0 L${-14 * s} 0 Z M${2 * s} ${-22 * s} L${2 * s} 0 L${11 * s} 0 Z M${-16 * s} ${2 * s} L${13 * s} ${2 * s} L${9 * s} ${6 * s} L${-12 * s} ${6 * s} Z`, c, .55)
@@ -34,8 +35,8 @@ function formation(r, kind, n, size, col, dir){
   return s;
 }
 /** A tile of falling things, drawn twice (y and y+900) so the fall loops seamlessly. */
-function tile(r, shape, n, size, cols, area = [0, 900]){
-  const one = Array.from({length: n}, () => ({x: r() * 1600, y: area[0] + r() * (area[1] - area[0]), s: size * (.6 + r() * .8), c: cols[Math.floor(r() * cols.length)], rot: r() * 360}));
+function tile(r, shape, n, size, cols, area = [0, 900], xr = [0, 1600], rotate = true){
+  const one = Array.from({length: n}, () => ({x: xr[0] + r() * (xr[1] - xr[0]), y: area[0] + r() * (area[1] - area[0]), s: size * (.6 + r() * .8), c: cols[Math.floor(r() * cols.length)], rot: rotate ? r() * 360 : 0}));
   return [0, 900].map(dy => one.map(p => place(shape, p.x, p.y + dy, p.s, p.c, p.rot)).join('')).join('');
 }
 
@@ -58,8 +59,8 @@ export const FX = {
         svg: place(o.shape || 'eagle', cx, cy, (o.size || .8) * (0.8 + r() * 0.3), o.color || '#2b2a33', (r() - .5) * 20, false)}); }
     return out; },
   // Falling leaves / petals / snow / rain: a seamless loop with a gentle sideways sway.
-  fall: (r, o) => [{cls: 'fall', vb: 1800, style: `--dur:${o.dur || 60}s;--sway:${o.sway ?? 1.5}%;--swd:${o.swayDur || 9}s;--delay:-${(r() * (o.dur || 60)).toFixed(0)}s`,
-    svg: tile(r, o.shape || 'leaf', o.n || 30, o.size || 1, o.colors || ['#c9773f'], o.area)}],
+  fall: (r, o) => [{cls: 'fall', vb: 1800, clip: o.clip, style: `--dur:${o.dur || 60}s;--sway:${o.sway ?? 1.5}%;--swd:${o.swayDur || 9}s;--delay:-${(r() * (o.dur || 60)).toFixed(0)}s`,
+    svg: tile(r, o.shape || 'leaf', o.n || 30, o.size || 1, o.colors || ['#c9773f'], o.area, o.xr, o.rotate !== false)}],
   // Fireflies / motes: three sets that glow at different rates while drifting.
   glow: (r, o) => [0, 1, 2].map(i => ({cls: 'glow', style: `--tw:${(o.tw || 7) + i * 2.3}s;--delay:-${(r() * 8).toFixed(1)}s;--dur:${(o.dur || 34) + i * 9}s;--o0:${o.o0 ?? .05}`,
     svg: Array.from({length: Math.ceil((o.n || 30) / 3)}, () => { const x = (o.x0 ?? 0) + r() * ((o.x1 ?? 1600) - (o.x0 ?? 0)), y = (o.y0 ?? 500) + r() * ((o.y1 ?? 880) - (o.y0 ?? 500)), s = (o.size || 1) * (.7 + r() * .6);
@@ -70,8 +71,8 @@ export const FX = {
       svg: `<ellipse cx="50" cy="50" rx="48" ry="9" fill="none" stroke="${o.color || '#ffffff'}" stroke-width="1.2" opacity=".55"/><ellipse cx="50" cy="50" rx="30" ry="5.5" fill="none" stroke="${o.color || '#ffffff'}" stroke-width="1" opacity=".4"/>`}; }),
   // Shadows of passing clouds sweeping across fields.
   shadows: (r, o) => { const id = 'cs' + Math.floor(r() * 1e9).toString(36);
-    return [{cls: 'sweep', style: `--dur:${o.dur || 160}s;--delay:-${(r() * 160).toFixed(0)}s;--amp:${o.amp || 18}%`,
-      svg: `<defs><filter id="${id}" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="40"/></filter></defs>` + Array.from({length: o.n || 4}, () => `<ellipse cx="${(r() * 1600).toFixed(0)}" cy="${((o.y0 ?? 560) + r() * ((o.y1 ?? 860) - (o.y0 ?? 560))).toFixed(0)}" rx="${(180 + r() * 220).toFixed(0)}" ry="${(40 + r() * 40).toFixed(0)}" fill="${o.color || '#2d3a2a'}" opacity="${o.o || .22}" filter="url(#${id})"/>`).join('')}]; },
+    return [{cls: 'sweep', style: `--dur:${o.dur || 160}s;--delay:-${(r() * 160).toFixed(0)}s;--amp:${Math.min(o.amp || 6, 6)}%`,
+      svg: `<defs><filter id="${id}" x="-100%" y="-300%" width="300%" height="700%"><feGaussianBlur stdDeviation="40"/></filter></defs>` + Array.from({length: o.n || 4}, () => `<ellipse cx="${(r() * 1600).toFixed(0)}" cy="${((o.y0 ?? 560) + r() * ((o.y1 ?? 860) - (o.y0 ?? 560))).toFixed(0)}" rx="${(180 + r() * 220).toFixed(0)}" ry="${(40 + r() * 40).toFixed(0)}" fill="${o.color || '#2d3a2a'}" opacity="${o.o || .22}" filter="url(#${id})"/>`).join('')}]; },
   // Wind lifting fine sand off the dune crests.
   wisps: (r, o) => { const id = 'sw' + Math.floor(r() * 1e9).toString(36);
     return [{cls: 'wisp', style: `--dur:${o.dur || 70}s;--delay:-${(r() * 60).toFixed(0)}s`,
@@ -83,12 +84,12 @@ export const FX = {
   meteor: (r, o) => [{cls: 'meteor', style: `--dur:${o.dur || 75}s;--delay:-${(r() * 60).toFixed(0)}s`,
     svg: `<defs><linearGradient id="mt${Math.floor(r() * 1e9).toString(36)}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity=".9"/></linearGradient></defs><path d="M${o.x ?? 1000} ${o.y ?? 140} l-150 70" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".8"/>`}],
   // A small sail creeping along the horizon over the whole scene.
-  sail: (r, o) => [{cls: 'creep', style: `--amp:${o.amp || 10}%;--dur:600s`, svg: place('sail', o.x ?? 500, o.y ?? 560, o.size || 1, o.color || '#f5f1e8')}],
+  sail: (r, o) => [{cls: 'creep', style: `--amp:${Math.min(o.amp || 6, 6)}%;--dur:var(--scene-dur,1500s)`, svg: place('sail', o.x ?? 500, o.y ?? 560, o.size || 1, o.color || '#f5f1e8')}],
   // Foam line breathing in and out on the beach.
-  foam: (r, o) => [{cls: 'foam', style: `--dur:${o.dur || 10}s`, svg: `<path d="M0 ${o.y ?? 722} C300 ${(o.y ?? 722) - 20} 700 ${(o.y ?? 722) + 20} 1100 ${(o.y ?? 722) - 5} S1500 ${(o.y ?? 722) - 20} 1600 ${(o.y ?? 722) - 8}" stroke="#ffffff" stroke-width="7" fill="none" opacity=".75" stroke-linecap="round"/>`}],
+  foam: (r, o) => o.path === 'cliff' ? [{cls: 'foam', style: `--dur:${o.dur || 10}s`, svg: `<path d="M1150 430 C1120 470 1140 560 1100 620 C1070 680 1090 780 1040 900" stroke="#ffffff" stroke-width="9" fill="none" opacity=".8" stroke-linecap="round" transform="translate(-10 0)"/>`}] : [{cls: 'foam', style: `--dur:${o.dur || 10}s`, svg: `<path d="M0 ${o.y ?? 722} C300 ${(o.y ?? 722) - 20} 700 ${(o.y ?? 722) + 20} 1100 ${(o.y ?? 722) - 5} S1500 ${(o.y ?? 722) - 20} 1600 ${(o.y ?? 722) - 8}" stroke="#ffffff" stroke-width="7" fill="none" opacity=".75" stroke-linecap="round"/>`}],
   // Wisps of cloud passing in front of the moon or a summit.
   veil: (r, o) => { const id = 'vl' + Math.floor(r() * 1e9).toString(36);
-    return [{cls: 'sweep', style: `--dur:${o.dur || 220}s;--delay:-${(r() * 200).toFixed(0)}s;--amp:${o.amp || 25}%`,
+    return [{cls: 'sweep', style: `--dur:${o.dur || 220}s;--delay:-${(r() * 200).toFixed(0)}s;--amp:${Math.min(o.amp || 6, 6)}%`,
       svg: `<defs><filter id="${id}" x="-50%" y="-200%" width="200%" height="500%"><feGaussianBlur stdDeviation="${o.blur || 14}"/></filter></defs>` + Array.from({length: o.n || 3}, () => `<ellipse cx="${((o.x ?? 800) + (r() - .5) * 600).toFixed(0)}" cy="${((o.y ?? 260) + (r() - .5) * 60).toFixed(0)}" rx="${(140 + r() * 160).toFixed(0)}" ry="${(10 + r() * 14).toFixed(0)}" fill="${o.color || '#dfe6f2'}" opacity="${o.o || .45}" filter="url(#${id})"/>`).join('')}]; },
   // Stars that appear one by one as dusk deepens (applied to the scene's own stars).
   starsFadeIn: () => []
@@ -124,12 +125,18 @@ export const LIFE = {
   'eucalyptus-grove': [{fx: 'rays', x0: 500, x1: 1300, n: 8, color: '#fff8e0', o0: .2}, {fx: 'glow', n: 30, y0: 300, y1: 820, color: '#fff8e0', core: '#ffffff', tw: 9, o0: .15, size: .7}],
   'jezreel-fields': [{fx: 'shadows', y0: 500, y1: 880, color: '#5a4a20', o: .2, n: 5}, {fx: 'flock', form: 'v', n: 11, y: 210, size: .85, color: '#4a5568', dur: 280}],
   'valley-fog-sunrise': [{fx: 'flock', form: 'v', n: 7, y: 260, size: .8, color: '#6a5560', dur: 260}],
-  'full-moon-sea': [{fx: 'veil', x: 1050, y: 260, n: 3, color: '#b8c2dc', o: .35, dur: 200, amp: 30}, {fx: 'ripples', n: 3, y0: 600, y1: 860, x0: 850, x1: 1250, color: '#eef1fb'}],
+  'full-moon-sea': [{fx: 'veil', x: 1050, y: 260, n: 3, color: '#b8c2dc', o: .35, dur: 200, amp: 6}, {fx: 'ripples', n: 3, y0: 600, y1: 860, x0: 850, x1: 1250, color: '#eef1fb'}],
   'wadi-acacia': [{fx: 'orbit', shape: 'eagle', x: 800, y: 230, radius: 120, size: .6, color: '#4a3226', dur: 48}, {fx: 'wisps', y0: 640, y1: 880, n: 5, color: '#fff0d8'}],
   'snow-pines-night': [{fx: 'fall', shape: 'flake', n: 80, size: 1.1, colors: ['#ffffff'], dur: 75, sway: 2}],
   'lavender-rows-dusk': [{fx: 'glow', n: 42, y0: 560, y1: 880, tw: 6}, {fx: 'flock', form: 'scatter', n: 8, y: 300, size: .8, color: DUSK, dur: 170}],
   'oasis-palms-dawn': [{fx: 'flock', form: 'scatter', n: 5, y: 330, size: .9, color: '#2e2430', dur: 200}, {fx: 'wisps', y0: 720, y1: 880, n: 4, color: '#f0c8a8'}],
   'layered-waves': [],
+  'masada-dawn': [{fx: 'orbit', shape: 'eagle', x: 680, y: 300, radius: 150, size: .7, color: '#3a2630', dur: 56, n: 2}, {fx: 'wisps', y0: 700, y1: 880, n: 4, color: '#f0c8a8'}],
+  'eilat-red-sea-dusk': [{fx: 'flock', form: 'line', n: 4, y: 360, size: 1.2, color: '#3a2a3a', dur: 200}, {fx: 'sail', x: 300, y: 560, size: .8, color: '#2e2a44', amp: 9}, {fx: 'ripples', n: 3, y0: 640, y1: 860, x0: 300, x1: 800, color: '#ffdca0'}],
+  'hula-cranes-sunrise': [{fx: 'flock', form: 'v', n: 13, y: 230, size: .9, color: '#4a4a5a', dur: 220}, {fx: 'flock', form: 'v', n: 9, y: 320, size: .7, color: '#5a5a6a', dur: 300}, {fx: 'ripples', n: 5, y0: 560, y1: 820, size: .8, color: '#fff2d4'}, {fx: 'glow', n: 18, y0: 520, y1: 760, color: '#fff6e0', core: '#ffffff', tw: 9, o0: .2, size: .6}],
+  'rosh-hanikra-cliffs': [{fx: 'foam', y: 0, dur: 9, path: 'cliff'}, {fx: 'flock', form: 'line', n: 4, y: 300, size: 1.3, color: '#4b6a80', dur: 190}, {fx: 'sail', x: 250, y: 440, size: .7, color: '#ffffff', amp: 10}],
+  'ein-gedi-falls': [{fx: 'fall', shape: 'streak', n: 40, size: 1, colors: ['#ffffff'], dur: 7, sway: 0, swayDur: 12, xr: [776, 832], area: [0, 900], rotate: false, clip: [770, 300, 846, 690]}, {fx: 'ripples', n: 4, x0: 640, x1: 960, y0: 690, y1: 760, size: .7, dur: 8}, {fx: 'flock', form: 'scatter', n: 6, y: 220, size: .8, color: '#4a3226', dur: 170}, {fx: 'glow', n: 15, y0: 560, y1: 780, x0: 500, x1: 1100, color: '#fff6e0', core: '#ffffff', tw: 8, o0: .2, size: .6}],
+  'arbel-kinneret-view': [{fx: 'orbit', shape: 'eagle', x: 1000, y: 260, radius: 170, size: .8, color: '#3a2e28', dur: 60, n: 2}, {fx: 'shadows', y0: 380, y1: 640, color: '#2a3a48', o: .16, n: 4}],
   'above-the-clouds': [{fx: 'orbit', shape: 'eagle', x: 1100, y: 330, radius: 130, size: .5, color: '#5a587a', dur: 56}],
   'tide-pools-morning': [{fx: 'ripples', n: 5, y0: 700, y1: 870, size: .6, color: '#ffffff'}, {fx: 'flock', form: 'line', n: 3, y: 300, size: 1.2, color: '#5a6a78', dur: 200}, {fx: 'foam', y: 640, dur: 12}],
   'jerusalem-hills-twilight': [{fx: 'starsFadeIn'}, {fx: 'flock', form: 'scatter', n: 9, y: 360, size: .75, color: '#2e2540', dur: 160}, {fx: 'glow', n: 18, y0: 700, y1: 880, tw: 7}],

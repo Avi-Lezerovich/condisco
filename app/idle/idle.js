@@ -76,6 +76,8 @@ export function createIdle({ store, focus }) {
   function info(show) { $('#ambInfo').classList.toggle('show', show); $('#ambShade').classList.toggle('show', show); }
   function update() {
     if (focus.state) focus.step();
+    // scenes never change mid-focus: a swap due during focus waits for the break
+    if (host.hold) host.hold(!!focus.state && focus.state.state === 'focus');
     if (strip()) { info(false); return; }
     const u = upcoming(store.S.tasks, todayStr(), nowMin());
     info(!!u);

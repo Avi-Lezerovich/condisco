@@ -31,7 +31,7 @@ Full guide: [Hebrew](docs/pilot-guide.md) · [English](docs/install.md). Somethi
 |---|---|
 | [`plugin/`](plugin/) | The Claude plugin `condisco`: seven skills (`study-setup`, `study-coach`, `study-session`, `exam-mode`, `study-materials`, `study-sync`, `study-feedback`) and their evals. |
 | [`app/`](app/) | The Condisco web app: a claude.ai artifact with an owner-only database. Hebrew, RTL, mobile first, no build step. |
-| [`app/scenes/`](app/scenes/) | 37 procedural SVG landscapes for the desktop idle screen. |
+| [`app/scenes/`](app/scenes/) | 31 procedural SVG landscapes for the desktop idle screen. |
 | [`app/audio/`](app/audio/) | Eight recordings for focus blocks (piano, rain, stream, forest, sea). All are CC0 or public domain except `sea.mp3` (CC BY 3.0, Luftrum). See [sources and licenses](app/audio/LICENSES.md) and [NOTICE](NOTICE.md). |
 | [`docs/`](docs/) | Student install guides ([Hebrew](docs/pilot-guide.md), [English](docs/install.md)), Hebrew style guide, research notes. |
 | [`scripts/`](scripts/) | Checks, the browser test runner and the plugin ZIP builder. |

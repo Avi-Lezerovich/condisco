@@ -1,8 +1,20 @@
 # Condisco scenes (WS-3)
 
-37 procedural SVG landscapes (12 ported unchanged from Study Hub + 25 new) and the scene host.
+31 active procedural SVG landscapes (picked on 2026-11-26 from 43) and the scene host. The 12 retired scenes are not in this repository.
 
-- `registry.js` exports `createSceneHost(container, {manifestUrl, palette, now, swapMs=600000, fadeMs=4000, timers})` -> `{start, stop, next, current}` (contract agreed with the app thread), plus `renderScene`, `loadScenes`, `makeBag`, `DEFAULT_PALETTES`.
+## Design criteria (round 3, 2026-11-26)
+Sources: Apple TV aerials (slow continuous camera, one long shot per scene), layered-landscape craft from Firewatch / Alto's Adventure,
+Runevision's notes on atmospheric perspective, and the grainy-gradients technique (noise to remove banding).
+1. One slow shot per scene: the camera pushes in and pans over the whole 25-minute scene; nothing ever jumps.
+2. Depth: far layers paler and bluer, near layers darker and saturated; parallax sway grows with nearness.
+3. Light is the subject: sun rays turn slowly behind the land, a wide horizon glow breathes, and the light changes across the scene (dawn warms, dusk deepens to night, stars appear one by one).
+4. Each scene has its own life that belongs to the place (eagles over Ramon and Arbel, cranes over the Hula and Jezreel, a heron over the Kinneret, the Ein Gedi waterfall, foam at Rosh HaNikra, snow on the Hermon). No two scenes share the same motion.
+5. Calm: every cycle 12 s or slower (except the waterfall and rain loops, which flow continuously, not flash); occasional events (a flock, a shooting star) are rare.
+6. Cheap: motion is CSS transform/opacity on pre-rasterized planes, so the GPU composites and the main thread stays idle (~0.06 s per 10 s measured). Film grain is rendered once.
+7. Respectful: off under prefers-reduced-motion, paused when the tab is hidden, light and dark.
+
+
+- `registry.js` exports `createSceneHost(container, {manifestUrl, palette, now, swapMs=1500000, sceneMs=swapMs, fadeMs=4000, timers, living=true})` -> `{start, stop, next, current, hold}`. Scenes swap every 25 min (one focus block). `hold(true)` during focus defers a due swap; `hold(false)` at the break swaps at once if one came due. The scene itself does not change during focus. `timeAware` (default false; time-of-day picking and calm-in-focus are off since 2026-11-26) can still pick by time tags if set true (contract agreed with the app thread), plus `renderScene`, `loadScenes`, `makeBag`, `DEFAULT_PALETTES`.
 - `manifest.json` paths are page-relative (`scenes/<id>.js`), resolved as `new URL('../' + file, manifestUrl)`.
 - `alive.js` living mode (default in the host, `living: false` turns it off): splits each drawn scene into stacked planes (sky, sun, landscape layers by paint order, mist, clouds, stars, water glints, snow/rain, birds) and moves them with CSS transform/opacity only, so the GPU composites and the main thread stays idle (measured ~0.02 s of main-thread work per 10 s). Slow camera push-in over the 10 minutes, parallax sway (near layers move more), sun rises in morning scenes and sets in evening ones, drifting mist (generated for daytime terrain scenes without their own), clouds, two-set star twinkle and water shimmer, a small flock of birds gliding across some daytime skies. All cycles ≥ 12 s. Off under prefers-reduced-motion, paused when the tab is hidden. `renderLiving(scene, opts)` returns the living div.
 - `life.js` per-scene life: each scene has its own creatures and weather (LIFE map; a scene file may also export `life: [...]`). Effects: crane/geese V formations, gulls, swallows/swifts, a heron gliding low over water, eagles/storks circling a thermal (level, flattened circle), fireflies, sunlit motes, falling leaves / almond petals / snow / rain (seamless loop), water ripples, cloud shadows over fields, sand wisps on dunes, light rays, shooting stars, a distant sail, beach foam, cloud veils over the moon or summit, stars appearing as dusk deepens.
@@ -13,4 +25,4 @@
 - Add a scene: one `<id>.js` + one manifest line, republish with `files`.
 
 
-Checks (2026-11-25): 148 Playwright shots (37 x light/dark x 1440x900/2560x1440) in `shots/`, 0 console errors, largest SVG 25 KB. Registry (fake clock): no repeats per round, no back-to-back, swap at exactly 10 min, skip a throwing scene with one warning, hold while hidden and resume with remaining time, stop() clears.
+Checks (2026-11-26): 172 Playwright shots (43 x light/dark x 1440x900/2560x1440) in `shots/`, 0 console errors, largest SVG 32 KB. Registry (fake clock): no repeats per round, no back-to-back, swap exactly on time, hold during focus then swap on release, skip a throwing scene with one warning, hold while hidden and resume with remaining time, stop() clears.
