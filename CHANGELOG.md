@@ -6,6 +6,10 @@ All notable changes to Condisco. Versions follow the plugin version in `plugin/.
 
 ### App
 - New recordings: Chopin, Nocturne Op. 9 No. 2 (public domain), and a sea loop (CC BY 3.0, Luftrum, credited in the app and in NOTICE.md).
+- The Exams tab is hidden for now (`FEATURES.exam = false` in `app.js`). All code and data stay; `?exam=1` or `?mock=exam` shows it. To bring it back, set `exam: true`.
+
+### Plugin
+- `exam-mode` no longer points students to the hidden Exams tab for the mock timer.
 
 ### Repository
 - NOTICE.md for third-party audio licenses.

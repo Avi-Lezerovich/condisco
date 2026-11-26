@@ -15,6 +15,13 @@ const ROUTES = { today: Today, gaps: Gaps, deadlines: Deadlines, exam: Exam, che
 const TITLES = { gaps: 'מפת פערים', deadlines: 'דדליינים', exam: 'מצב מבחן', checkin: "צ'ק-אין ערב", prefs: 'הגדרות' };
 const params = new URLSearchParams(location.search);
 const MOCK = params.get('mock');
+// Feature flags. Exams is hidden for now (2026-11-26); set exam: true to bring the tab back. ?mock=exam or ?exam=1 shows it for tests.
+const FEATURES = { exam: false || MOCK === 'exam' || params.get('exam') === '1' };
+if (!FEATURES.exam) {
+  delete ROUTES.exam;
+  const nav = document.querySelector('nav.tabs'), tab = nav && nav.querySelector('a[data-r="exam"]');
+  if (tab) { tab.remove(); nav.style.gridTemplateColumns = `repeat(${nav.querySelectorAll('a').length},minmax(0,1fr))`; }
+}
 
 let use = window.claude && window.claude.use ? n => window.claude.use(n) : null;
 if (MOCK) {

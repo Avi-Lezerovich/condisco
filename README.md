@@ -44,7 +44,7 @@ The app has one source, `app/`. The plugin ships a copy of it under `skills/stud
 1. The student uploads the plugin ZIP to claude.ai and says "להתקין לי Condisco" (or "set up Condisco").
 2. `study-setup` asks four short questions, publishes the app as a private artifact with its own database, saves settings and courses, and runs a database self-test.
 3. From then on the other skills read and write that database: `study-coach` for the daily plan and evening check-in, `study-session` for a study session (retrieval first, a hint ladder, a closed-book recall question at the end), `exam-mode` for backward exam plans and timed mocks from real past exams, `study-materials` for one-line summaries of each unit's Google Drive file, and `study-sync` for a read-only "sync now" of Moodle and Piazza.
-4. The app shows Today, Gaps, Deadlines, Exam mode, Check-in and Settings, plus a focus timer with breathing, music and a desktop idle screen.
+4. The app shows Today, Gaps, Deadlines, Check-in and Settings (an Exams tab is built but hidden for now; `?exam=1` shows it), plus a focus timer with breathing, music and a desktop idle screen.
 
 The data model is in [`app/SCHEMA.md`](app/SCHEMA.md).
 

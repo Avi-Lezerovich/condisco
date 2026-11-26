@@ -58,8 +58,9 @@ Read `references/mocks.md` before running or grading a mock. In short:
   file (name, year, moed). If none exist, say so and offer style questions,
   each labelled "תרגיל בסגנון, לא מבחן אמיתי"; style mocks never count for readiness.
 - Timed = the real exam length, closed book, as in the exam. The student does it
-  alone; you do not help during the mock. The app's מבחנים screen has the timer
-  (stopping early saves `timed: false`); point the student there.
+  alone; you do not help during the mock. The app's מבחנים screen is hidden in
+  this version, so do not point the student to it: give the start and end clock
+  time in chat, and save `timed: false` if they stopped early.
 - Grading: only against an official solution or rubric from their files, or by
   working each question with the student afterwards. Unsure points → ask, never
   round up. Write `mocks/{auto}` with `timed`, `score`, `source`, `minutes`, `mode: "past"`

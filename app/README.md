@@ -9,7 +9,7 @@ The student-facing app of Condisco: a private claude.ai artifact with owner-only
 - `app.js`: boot, routing (`#today #gaps #deadlines #checkin #prefs`), rendering, events, desktop install and dock icon.
 - `core/store.js`: the only module that calls `claude.use("db")`: no-db notice, 10-s load timeout, one write per doc at a time, schema version and migrations, session pruning, export snapshot.
 - `core/model.js`: pure rules (ladder, priority, mocks, Leitner, pruning). `core/util.js`: escaping, dates, the app clock. `core/mock.js`: `?mock=1` fake db with fictional sample data (`?mock=empty` for first run, `&now=ISO` fake clock).
-- `ui/*.js`: Today, Gaps, Deadlines, Check-in, Settings (+ first-run screen, feedback form), Exam mode (`#exam`, rules in `core/exam.js`).
+- `ui/*.js`: Today, Gaps, Deadlines, Check-in, Settings (+ first-run screen, feedback form), Exam mode (`#exam`, rules in `core/exam.js`; hidden unless `FEATURES.exam` in `app.js` is true, or the URL has `?exam=1` or `?mock=exam`).
 - `focus/engine.js`: pure state machine `idle → zone → breathe → music → focus ⇄ break → recall → done` with absolute timestamps, persisted in localStorage, shared by tabs. `focus/ui.js` renders it; `focus/sound.js` is the breath-paced Web Audio pad.
 - `idle/idle.js`: desktop idle screen (1 min without input), clock only in the 15 minutes before the next task, timer strip during a block.
 - `scenes/`: `registry.js`, `lib.js`, `manifest.json`, 37 scenes.
