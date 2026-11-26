@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: feedback-near-miss-code
+description: no check for study-feedback (bug in the student's own code)
+tags: [study-feedback, no]
+execution:
+  prompt: "I want to report a bug in my homework code: my Python loop `for i in range(1, 10)` never prints 10. Why?"
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: not-fired-study-feedback
+    tool: Skill
+    input_match: "study-feedback"
+    min: 0
+    max: 0
+  - type: llm
+    name: behaviour
+    criteria: "The reply explains that range(1, 10) stops before 10 and does not mention Condisco or feedback collection."
