@@ -83,7 +83,7 @@ export function planesOf(svg, maxLand = 5){
 const CSS = `
 .cd-live{position:absolute;inset:0;overflow:hidden;contain:strict}
 .cd-cam{position:absolute;inset:0;will-change:transform;animation:cd-cam var(--scene-dur,1500s) cubic-bezier(.33,0,.4,1) forwards;transform-origin:var(--cam-o,50% 55%)}
-.cd-pl{position:absolute;inset:-7%;will-change:transform}
+.cd-pl{position:absolute;inset:-7%;will-change:transform,translate;transition:translate 1.8s cubic-bezier(.2,.6,.3,1)}
 .cd-pl>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 .cd-pl.k-land{animation:cd-sway var(--dur,150s) ease-in-out var(--delay,0s) infinite alternate}
 .cd-pl.k-sun{animation:cd-sun var(--scene-dur,1500s) cubic-bezier(.3,0,.5,1) forwards}
@@ -117,6 +117,9 @@ const CSS = `
 .cd-pl.k-sunrays{transform-origin:var(--orig,50% 50%);animation:cd-turn 90s ease-in-out infinite alternate}
 .cd-pl.k-sunrays>svg{animation:cd-twinkle 19s ease-in-out infinite alternate;--o0:.55}
 .cd-pl.k-halo{mix-blend-mode:screen}
+.cd-pl.k-pillar{mix-blend-mode:screen;animation:cd-sway 17s ease-in-out infinite alternate;--amp:.25%}
+.cd-pl.k-pillar>svg{will-change:opacity;animation:cd-twinkle 7.5s ease-in-out infinite alternate}
+.cd-pl.k-fore{transform-origin:50% 100%;animation:cd-sway var(--dur,13s) ease-in-out infinite alternate}
 .cd-pl.k-halo>svg{animation:cd-twinkle 23s ease-in-out infinite alternate;--o0:.7}
 .cd-arc{position:absolute;inset:0;pointer-events:none;opacity:0;animation:cd-arc var(--scene-dur,1500s) ease-in-out forwards}
 .cd-grain{position:absolute;inset:0;pointer-events:none;opacity:.07;mix-blend-mode:overlay}
@@ -143,7 +146,7 @@ const CSS = `
 @keyframes cd-arc{from{opacity:0}to{opacity:var(--to,.15)}}
 @keyframes cd-fall{from{transform:translate(-.6%,-1.2%)}to{transform:translate(.6%,1.2%)}}
 .cd-paused .cd-live,.cd-paused .cd-live *{animation-play-state:paused!important}
-@media(prefers-reduced-motion:reduce){.cd-live,.cd-live *{animation:none!important}.cd-arc{opacity:calc(var(--to,.15) * .5)}}`;
+@media(prefers-reduced-motion:reduce){.cd-live,.cd-live *{animation:none!important}.cd-pl{translate:none!important}.cd-arc{opacity:calc(var(--to,.15) * .5)}}`;
 
 export function injectLiveCss(doc, into){ if (into.querySelector(':scope > style[data-cd-live]')) return; const s = doc.createElement('style'); s.dataset.cdLive = ''; s.textContent = CSS; into.appendChild(s); }
 
@@ -162,7 +165,7 @@ export function makeLiving(svg, scene, {seed, palette, dark, doc = document, sce
   live.appendChild(cam);
   const rise = tags.includes('morning') ? -5 : tags.includes('evening') ? 4.5 : tags.includes('night') ? -1 : -1.2;
   const swayDir = r() < .5 ? -1 : 1, swayDur = 130 + r() * 60;
-  let first = true, sun = null;
+  let first = true, sun = null, waterTop = 1e9;
   // Light around the sun: slow-turning soft rays behind the land, and a wide horizon glow that breathes.
   const atmosphere = () => {
     const warm = /^#/.test(sun.col || '') ? sun.col : '#fff0cf', night = tags.includes('night');
@@ -175,6 +178,34 @@ export function makeLiving(svg, scene, {seed, palette, dark, doc = document, sce
     const hz = add('halo', []), gid = 'hz' + Math.floor(r() * 1e9).toString(36);
     hz.firstChild.innerHTML = `<defs><radialGradient id="${gid}" cx="${sun.x}" cy="${sun.y}" r="900" gradientUnits="userSpaceOnUse" gradientTransform="translate(${sun.x} ${sun.y}) scale(1 .32) translate(${-sun.x} ${-sun.y})"><stop offset="0" stop-color="${warm}" stop-opacity="${night ? .18 : .42}"/><stop offset=".45" stop-color="${warm}" stop-opacity="${night ? .06 : .14}"/><stop offset="1" stop-color="${warm}" stop-opacity="0"/></radialGradient></defs><rect width="1600" height="900" fill="url(#${gid})"/>`;
   };
+  // Richer detail, rendered once per plane: fine texture (rock strata in desert and cliffs, soft grain on green land)
+  // a soft band of haze below each far ridge line (aerial depth), and, when the sun is low, a thin warm rim on ridge tops.
+  const rocky = tags.some(t => ['desert', 'cliffs', 'rocks'].includes(t)), abstract = tags.includes('abstract'), nightT = tags.includes('night');
+  const lowSun = tags.some(t => ['morning', 'evening', 'afternoon'].includes(t));
+  const wet = tags.some(t => ['water', 'sea'].includes(t));
+  const p0 = pl => { const n = pl.firstChild.querySelector(':scope > rect'); return !!n && num(n, 'width') >= 1600 && num(n, 'y') > 0; };
+  const detail = (pl, depth) => {
+    if (abstract) return;
+    // water bodies are full-width rects in wet scenes: leave them smooth (glints and the light pillar do the work)
+    if (wet && p0(pl)) return;
+    const sv = pl.firstChild, kids = [...sv.childNodes].filter(n => n.nodeType === 1 && n.tagName.toLowerCase() !== 'defs'); if (!kids.length) return;
+    const id = 'tx' + Math.floor(r() * 1e9).toString(36), seedN = Math.floor(r() * 999);
+    const bf = rocky ? `${(0.0035 + depth * .004).toFixed(4)} ${(0.05 + depth * .05).toFixed(3)}` : `${(0.009 + depth * .008).toFixed(4)}`;
+    const k = (rocky ? .17 : .1) * (nightT ? .6 : 1) * (rocky ? .6 + .4 * depth : 1 - .35 * depth);
+    const hazeCol = nightT ? '#a9b8dc' : lowSun && sun && /^#/.test(sun.col || '') ? sun.col : '#f2f5f8', haze = depth < .99 ? (nightT ? .1 : .2) * (1 - depth * .7) : 0;
+    const rimCol = sun && /^#/.test(sun.col || '') ? sun.col : '#ffe2b0', rim = 0; // a thin ridge rim read as an outline in tests, so it is off
+    const f = `<filter id="${id}" x="0" y="-2%" width="100%" height="104%" color-interpolation-filters="sRGB">` +
+      `<feTurbulence type="fractalNoise" baseFrequency="${bf}" numOctaves="${rocky ? 4 : 3}" seed="${seedN}" result="n"/>` +
+      `<feColorMatrix in="n" values="0 0 0 0 ${rocky ? 0 : 1}  0 0 0 0 ${rocky ? 0 : .97}  0 0 0 0 ${rocky ? 0 : .88}  0 0 0 ${(k * 2.4).toFixed(3)} ${(-k * .9).toFixed(3)}" result="nd"/>` +
+      `<feComposite in="nd" in2="SourceAlpha" operator="in" result="tex"/>` +
+      (haze ? `<feOffset in="SourceAlpha" dy="70" result="hs"/><feComposite in="SourceAlpha" in2="hs" operator="out" result="hb"/><feGaussianBlur in="hb" stdDeviation="0 26" result="hbb"/>` +
+        `<feFlood flood-color="${hazeCol}" flood-opacity="${haze.toFixed(2)}"/><feComposite in2="hbb" operator="in" result="hz"/><feComposite in="hz" in2="SourceAlpha" operator="in" result="hzIn"/>` : '') +
+      (rim ? `<feOffset in="SourceAlpha" dy="4" result="sh"/><feComposite in="SourceAlpha" in2="sh" operator="out" result="edge"/><feGaussianBlur in="edge" stdDeviation="1.2" result="eb"/>` +
+        `<feFlood flood-color="${rimCol}" flood-opacity="${rim.toFixed(2)}"/><feComposite in2="eb" operator="in" result="rim"/><feComposite in="rim" in2="SourceAlpha" operator="in" result="rimIn"/>` : '') +
+      `<feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="tex"/>${haze ? '<feMergeNode in="hzIn"/>' : ''}${rim ? '<feMergeNode in="rimIn"/>' : ''}</feMerge></filter>`;
+    const g = doc.createElementNS(SVG_NS, 'g'); g.setAttribute('filter', `url(#${id})`); kids.forEach(n => g.appendChild(n));
+    const d = doc.createElementNS(SVG_NS, 'defs'); d.innerHTML = f; sv.append(d, g);
+  };
   const add = (kind, nodes, style = '', defsHere = false) => {
     const pl = doc.createElement('div'); pl.className = 'cd-pl k-' + kind; if (style) pl.style.cssText = style;
     const s = plainSvg(doc); if (defsHere && defs) s.appendChild(defs);
@@ -184,7 +215,7 @@ export function makeLiving(svg, scene, {seed, palette, dark, doc = document, sce
     const defsHere = first; first = false;
     switch (p.kind) {
       case 'sky': add('sky', p.nodes, '', defsHere); break;
-      case 'land': { const amp = (0.25 + 1.55 * Math.pow(p.depth, 1.3)) * swayDir; add('land', p.nodes, `--amp:${amp.toFixed(2)}%;--dur:${swayDur.toFixed(0)}s`, defsHere); break; }
+      case 'land': { const amp = (0.25 + 1.55 * Math.pow(p.depth, 1.3)) * swayDir; const pl = add('land', p.nodes, `--amp:${amp.toFixed(2)}%;--dur:${swayDur.toFixed(0)}s`, defsHere); pl.dataset.d = p.depth.toFixed(2); detail(pl, p.depth); break; }
       case 'sun': { const c = p.nodes.find(n => n.tagName === 'circle'); const sx = c ? num(c, 'cx') / 16 : 50, sy = c ? num(c, 'cy') / 9 : 50;
         add('sun', p.nodes, `--rise:${rise}%;--sun-o:${sx.toFixed(1)}% ${sy.toFixed(1)}%`, defsHere);
         if (c && !sun) { sun = {x: num(c, 'cx'), y: num(c, 'cy'), col: (p.nodes.filter(n => n.tagName === 'circle' && !(n.getAttribute('fill') || '').startsWith('url(')).pop() || c).getAttribute('fill')}; atmosphere(); }
@@ -195,6 +226,7 @@ export function makeLiving(svg, scene, {seed, palette, dark, doc = document, sce
       case 'star': case 'glint': {
         // Split into two interleaved sets that crossfade at different rates: a slow twinkle / shimmer.
         const nodes = p.nodes.length === 1 && p.nodes[0].tagName === 'g' ? [...p.nodes[0].children] : p.nodes;
+        if (p.kind === 'glint') nodes.forEach(n => { const y = num(n, 'y'); if (y > 0) waterTop = Math.min(waterTop, y); });
         const a = nodes.filter((_, i) => i % 2 === 0), b = nodes.filter((_, i) => i % 2 === 1);
         const tw = p.kind === 'star' ? 11 : 7;
         add(p.kind, a, `--tw:${tw}s;--o0:${p.kind === 'star' ? .45 : .3}`, defsHere);
@@ -241,6 +273,41 @@ export function makeLiving(svg, scene, {seed, palette, dark, doc = document, sce
       else cam.appendChild(pl);
     }
   }
+  // Water reflection: a soft column of light under the sun or moon, breathing slowly (screen blend).
+  if (sun && wet && waterTop < 900 && sun.y < waterTop && (waterTop - sun.y < 260 || nightT) && !abstract) {
+    const id = 'pi' + Math.floor(r() * 1e9).toString(36), col = /^#/.test(sun.col || '') ? sun.col : '#fff0cf', x = sun.x, y0 = waterTop - 4;
+    const w0 = 34, w1 = 150 + (900 - y0) * .25, night = nightT;
+    const pl = add('pillar', [], `--o0:.6`);
+    pl.firstChild.innerHTML = `<defs><linearGradient id="${id}g" x1="0" y1="${y0}" x2="0" y2="900" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${col}" stop-opacity="${night ? .55 : .6}"/><stop offset=".55" stop-color="${col}" stop-opacity="${night ? .22 : .25}"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient>` +
+      `<filter id="${id}f" x="-50%" y="-10%" width="200%" height="120%"><feGaussianBlur stdDeviation="16 5"/></filter></defs>` +
+      `<path d="M${x - w0} ${y0} L${x + w0} ${y0} L${x + w1} 900 L${x - w1} 900 Z" fill="url(#${id}g)" filter="url(#${id}f)"/>` +
+      Array.from({length: 18}, (_, i) => { const t = (i + r() * .6) / 18, y = y0 + 8 + t * (900 - y0 - 8), hw = (w0 + (w1 - w0) * t) * (.35 + r() * .6);
+        return `<rect x="${(x - hw + (r() - .5) * 30).toFixed(0)}" y="${y.toFixed(0)}" width="${(hw * 2).toFixed(0)}" height="${(1.6 + t * 2.2).toFixed(1)}" rx="1.5" fill="${col}" opacity="${((night ? .5 : .55) * (1 - t * .8)).toFixed(2)}"/>`; }).join('');
+    const firstGlint = cam.querySelector('.k-glint'); if (firstGlint) cam.insertBefore(pl, firstGlint);
+  }
+  // Foreground: a soft, out-of-focus fringe of grass or stones along the bottom edge, swaying slowly (land scenes only).
+  if (!abstract && !tags.some(t => ['water', 'sea', 'sky', 'coast', 'mist', 'snow', 'winter', 'mountains'].includes(t)) && tags.some(t => ['hills', 'fields', 'forest', 'spring', 'trees', 'desert'].includes(t))) {
+    const lastLand = [...cam.querySelectorAll('.k-land')].pop(), fills = lastLand ? [...lastLand.querySelectorAll('[fill]')].map(n => n.getAttribute('fill')).filter(f => /^#[0-9a-f]{6}$/i.test(f)) : [];
+    const base = fills.pop() || '#2c3a2c', dk = h => '#' + [1, 3, 5].map(i => Math.round(parseInt(h.slice(i, i + 2), 16) * (nightT ? .7 : .78)).toString(16).padStart(2, '0')).join('');
+    const c = dk(base), dry = tags.includes('desert'), id = 'fg' + Math.floor(r() * 1e9).toString(36);
+    let g = '';
+    if (dry) {
+      for (let i = 0; i < 7; i++) { const x = r() * 1600, rw = 30 + r() * 70; g += `<ellipse cx="${x.toFixed(0)}" cy="${(868 - r() * 10).toFixed(0)}" rx="${rw.toFixed(0)}" ry="${(rw * (.35 + r() * .2)).toFixed(0)}" fill="${c}"/>`; }
+      for (let i = 0; i < 60; i++) { const x = r() * 1600, h = 18 + r() * 40, b = (r() - .5) * 20; g += `<path d="M${x.toFixed(0)} 866 q${(b / 2).toFixed(1)} ${(-h / 2).toFixed(0)} ${b.toFixed(1)} ${(-h).toFixed(0)}" stroke="${c}" stroke-width="2" fill="none" stroke-linecap="round"/>`; }
+    } else {
+      for (let i = 0; i < 260; i++) { const x = r() * 1640 - 20, h = 30 + Math.pow(r(), 1.6) * 90, b = (r() - .5) * 40, w = 2.5 + r() * 3;
+        g += `<path d="M${(x - w).toFixed(0)} 904 L${(x - w).toFixed(0)} 866 Q${(x + b * .4).toFixed(0)} ${(866 - h * .6).toFixed(0)} ${(x + b).toFixed(0)} ${(866 - h).toFixed(0)} Q${(x + b * .3 + w * .4).toFixed(0)} ${(866 - h * .5).toFixed(0)} ${(x + w).toFixed(0)} 866 L${(x + w).toFixed(0)} 904 Z" fill="${c}"/>`; }
+      g += `<rect x="-20" y="874" width="1640" height="40" fill="${c}"/>`;
+    }
+    const pl = add('fore', [], `--amp:.6%;--dur:${(11 + r() * 5).toFixed(1)}s`);
+    pl.firstChild.innerHTML = `<defs><filter id="${id}" x="-5%" y="-30%" width="110%" height="160%"><feGaussianBlur stdDeviation="${dry ? 2.2 : 2.6}"/></filter></defs><g filter="url(#${id})" opacity="${nightT ? .95 : .9}">${g}</g>`;
+  }
+  // Mouse depth: each plane gets data-pd (0 far .. 1 near); attachDepth() sets its translate so nearer layers shift more.
+  { let pd = .1; const fixed = {fore: 1, pillar: .9, sky: 0, star: .02, sun: .04, halo: .04, sunrays: .04, cloud: .12};
+    for (const el of cam.children) { const k = (el.className.match(/k-(\w+)/) || [])[1];
+      if (k in fixed) { el.dataset.pd = fixed[k]; continue; }
+      if (k === 'land' && el.dataset.d) pd = .15 + .85 * parseFloat(el.dataset.d);
+      el.dataset.pd = Math.min(1, k === 'land' ? pd : pd + .05).toFixed(2); } }
   // The light changes over the ten minutes: dawn warms up, dusk deepens toward night.
   const arc = tags.includes('morning') ? ['#ffc983', 'bottom', .16] : tags.includes('evening') ? ['#2c2a5e', 'top', .26] : tags.includes('afternoon') ? ['#ffb870', 'bottom', .1] : null;
   if (arc) { const d = doc.createElement('div'); d.className = 'cd-arc'; d.style.cssText = `background:linear-gradient(to ${arc[1] === 'top' ? 'bottom' : 'top'},${arc[0]},transparent 70%);--to:${arc[2]}`; live.appendChild(d); }
@@ -251,4 +318,17 @@ export function makeLiving(svg, scene, {seed, palette, dark, doc = document, sce
   if (dark) { const d1 = doc.createElement('div'), d2 = doc.createElement('div'); d1.className = d2.className = 'cd-dim';
     d1.style.cssText = `background:${palette.sky};opacity:.42;mix-blend-mode:multiply`; d2.style.cssText = `background:${palette.sky};opacity:.18`; live.append(d1, d2); }
   return live;
+}
+
+/** Layers shift gently with the mouse (nearer planes more). Sets each plane's translate from the pointer; returns a detach function. */
+export function attachDepth(target, doc = target.ownerDocument || document){
+  const win = doc.defaultView; if (!win || win.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return () => {};
+  let last = 0, t = null, x = 0, y = 0;
+  // translate is set per plane (not an inherited CSS variable) so the browser does not restyle every SVG node.
+  const apply = () => { t = null; last = Date.now(); for (const el of target.querySelectorAll('.cd-pl[data-pd]')) { const d = +el.dataset.pd; el.style.translate = d ? `${(-x * d * 2.4).toFixed(2)}% ${(-y * d * 1.3).toFixed(2)}%` : ''; } };
+  const move = e => { x = Math.max(-1, Math.min(1, (e.clientX / win.innerWidth - .5) * 2)); y = Math.max(-1, Math.min(1, (e.clientY / win.innerHeight - .5) * 2));
+    if (t) return; const wait = Math.max(0, 200 - (Date.now() - last)); t = win.setTimeout(apply, wait); };
+  const leave = () => { x = 0; y = 0; if (!t) t = win.setTimeout(apply, 0); };
+  doc.addEventListener('pointermove', move, {passive: true}); doc.documentElement.addEventListener('pointerleave', leave);
+  return () => { doc.removeEventListener('pointermove', move); doc.documentElement.removeEventListener('pointerleave', leave); if (t) win.clearTimeout(t); for (const el of target.querySelectorAll('.cd-pl[data-pd]')) el.style.translate = ''; };
 }

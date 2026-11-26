@@ -52,7 +52,7 @@ main{max-width:1400px;margin:0 auto;padding:8px 16px 48px;display:grid;grid-temp
 <script type="module">
 const base = document.querySelector('meta[name="scenes-base"]').content;
 const { loadScenes, renderScene, renderLiving, createSceneHost, DEFAULT_PALETTES } = await import(new URL(base + 'registry.js', location.href).href);
-const { injectLiveCss } = await import(new URL(base + 'alive.js', location.href).href);
+const { injectLiveCss, attachDepth } = await import(new URL(base + 'alive.js', location.href).href);
 injectLiveCss(document, document.head);
 const manifestUrl = new URL(base + 'manifest.json', location.href).href;
 const grid = document.getElementById('grid'), full = document.getElementById('full'), stage = document.getElementById('stage'), cap = document.getElementById('cap');

@@ -2,7 +2,7 @@
 // Contract with the app (agreed with the app thread):
 //   createSceneHost(container, { manifestUrl, palette, now, swapMs, fadeMs, timers }) -> { start, stop, next, current, hold }
 // - swapMs defaults to 25 minutes (one focus block). hold(true) defers swaps (e.g. during focus) and calms the scene;
-// - timeAware (default off, Avi cancelled 2026-11-26): if true, picks scenes that fit the local time of day.
+// - timeAware (default off since 2026-11-26): if true, picks scenes that fit the local time of day.
 //   hold(false) releases, and a swap that came due while held happens right then (at the break).
 // - Manifest "file" paths are page-relative ("scenes/x.js"); resolved as new URL('../' + file, manifestUrl),
 //   which equals page-relative whenever the manifest lives at <page>/scenes/manifest.json.
@@ -10,7 +10,8 @@
 // - Swap every swapMs with a fadeMs crossfade. A scene whose import or draw throws is skipped (warned once).
 // - Pauses timers and SMIL motion while document.hidden; resumes with the remaining time.
 import { applyMode, hashId, isDark } from './lib.js';
-import { makeLiving, injectLiveCss } from './alive.js';
+import { makeLiving, injectLiveCss, attachDepth } from './alive.js';
+export { attachDepth };
 
 export const VIEW_W = 1600, VIEW_H = 900;
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -80,7 +81,8 @@ export function createSceneHost(container, {
   timers = {setTimeout: (f, ms) => setTimeout(f, ms), clearTimeout: id => clearTimeout(id)},
   random = Math.random,
   living = true,
-  timeAware = false, // off by default (Avi 2026-11-26); true prefers scenes that match the time of day (dawn in the morning, dusk in the evening)
+  timeAware = false, // off by default since 2026-11-26; true prefers scenes that match the time of day
+  depth = false, // mouse parallax, off by default since 2026-11-26
   scenes: given = null
 } = {}){
   let held = false, pending = false, scenes = given, loading = null, pick = null, running = false, timer = 0, dueAt = 0, remaining = 0, cur = null, layer = null;
@@ -126,18 +128,21 @@ export function createSceneHost(container, {
     else { container.classList.remove('cd-paused'); if (!matchMedia('(prefers-reduced-motion: reduce)').matches) svgs.forEach(s => s.unpauseAnimations?.()); schedule(remaining); }
   }
 
+  let detachDepth = null;
   return {
     async start(){
       if (running) return; running = true;
       if (!style.isConnected) container.appendChild(style);
       if (living) injectLiveCss(doc, container);
       doc.addEventListener('visibilitychange', onVis);
+      if (living && depth && !detachDepth) detachDepth = attachDepth(container, doc);
       await ensure(); if (!running) return;
       show(); schedule(swapMs);
       if (doc.hidden) onVis();
     },
     stop(){
       running = false; timers.clearTimeout(timer); doc.removeEventListener('visibilitychange', onVis);
+      if (detachDepth) { detachDepth(); detachDepth = null; }
       container.querySelectorAll('.cd-scene').forEach(el => el.remove()); layer = null; cur = null;
     },
     async next(){ await ensure(); show(); if (running) schedule(swapMs); },

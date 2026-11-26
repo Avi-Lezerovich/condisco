@@ -13,6 +13,6 @@ Every file here is CC0, public domain or CC BY **for the recording itself**, not
 | sea.mp3 | Waves on the shore of Kalundborg Fjord, Røsnæs (field recording, 2008; 50 s cut from 0:34) | Luftrum (freesound.org/people/Luftrum/sounds/48412) | CC BY 3.0 (`{{cc-by-3.0}}`), credited in the app | https://commons.wikimedia.org/wiki/File:Oceanwavescrushing.ogg |
 | rain.mp3 | Rain (field recording) | ezwa, via PDSounds #682 (2008) | Public domain (`{{PD-pdsounds.org}}`, `{{PD-author|ezwa}}`) | https://commons.wikimedia.org/wiki/File:Rain_(1).ogg |
 
-stream.mp3, forest.mp3, sea.mp3 and the Chopin file were downloaded by hand in a browser from the pages above (Wikimedia rate-limited automated downloads); licences as shown on those pages on 2026-11-26. Loops: stream and forest −24 LUFS, 80 kbps stereo.
+stream.mp3, forest.mp3, sea.mp3 and the Chopin file were downloaded by hand from the pages above (Wikimedia rate-limited automated downloads); licences as shown on those pages on 2026-11-26. Loops: stream and forest −24 LUFS, 80 kbps stereo.
 
 Not included: "Ocean Waves on a Tropical Beach" (its Commons page carries a deletion request as a likely copyright violation), and a Clair de lune file whose performer and recording licence the page does not state. The app works fully if this whole folder is absent (tests/sound.mjs covers it).
