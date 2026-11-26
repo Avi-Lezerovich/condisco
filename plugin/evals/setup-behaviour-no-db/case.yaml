@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: setup-behaviour-no-db
+description: trigger check for study-setup
+tags: [study-setup, trigger]
+execution:
+  prompt: "Set up Condisco. My name is Dana, courses: Calculus 1 (exam 2027-01-20), Linear Algebra. I wake at 7, best in the morning, materials on Google Drive. Note: on this account artifacts cannot use storage/db at all."
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-setup
+    tool: Skill
+    input_match: "study-setup"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "Because artifact storage is not available, the reply says plainly that Condisco needs artifact storage (paid plan) and does not publish the app. It does NOT set up or recommend localStorage, a spreadsheet, project files or any other substitute storage for the app data (mentioning that it will not use them is fine; offering to study in chat without saving is fine). It does not invent extra courses or dates."

@@ -1,0 +1,35 @@
+/* deadlines: owned by the deadlines thread. Loaded after the main <style> in index.html, so rules here override it. */
+.toggle{display:inline-flex;gap:var(--s1);margin:0 0 10px;padding:var(--s1);background:var(--sunk);border-radius:var(--r-md)}
+.toggle .btn{border:0;min-height:40px;display:inline-flex;align-items:center;gap:6px}
+.toggle .btn.on{background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
+.toggle .cnt{font:600 12.5px var(--f-b);min-width:22px;padding:1px 6px;border-radius:999px;background:color-mix(in srgb,var(--muted) 16%,transparent);color:var(--muted)}
+.dl-sum{margin:0 2px 4px;color:var(--muted);font-size:15px;display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline}
+.dl-sum b{font-family:var(--f-d);font-weight:400;color:var(--ink);font-size:17px}.dl-sum b.warn{color:var(--warn);font-family:var(--f-b);font-weight:700;font-size:15px}
+.dl-sum i{font-style:normal;opacity:.6}.dl-sum .unv{border-bottom:1px dashed var(--muted)}
+.sec-late{color:var(--warn)}.sec-done{color:var(--muted)}
+.dlist{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden}
+.dl{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:var(--s3);align-items:center;padding:14px 16px;border-top:1px solid var(--line-soft,var(--line));position:relative}
+.dl:first-child{border-top:0}
+.dl::before{content:"";position:absolute;inset-inline-start:0;top:12px;bottom:12px;width:4px;border-start-end-radius:4px;border-end-end-radius:4px;background:var(--c);opacity:.85}
+.dl .left{font-family:var(--f-d);font-size:30px;line-height:1;text-align:center;color:var(--c);font-variant-numeric:tabular-nums}
+.dl.word .left{font-size:21px}
+.dl .left small{display:block;font:600 12.5px/1.2 var(--f-b);color:var(--muted);margin-top:4px}
+.dl.hot .left{color:var(--warn)}
+.dl.hot,.dl.late{background:color-mix(in srgb,var(--warn) 6%,transparent)}
+.dl.late .left,.dl.late .left small{color:var(--warn)}
+.dl.closed .left,.dl.closed .t-title{color:var(--muted)}.dl.closed .t-title{text-decoration:line-through;text-decoration-thickness:1.5px}
+.dl.closed::before{opacity:.3}
+.dl .acts{margin-top:0;justify-content:flex-end}
+.dl .meta .when{color:var(--ink)}.dl.closed .meta .when{color:var(--muted)}
+.dl .meta .left-h{color:var(--warn);font-weight:700}
+.dl .meta .src{flex-basis:100%;font-size:13px;overflow-wrap:anywhere}
+.btn.ghost{border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{border-color:var(--line)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.badge{display:inline-block;font-size:12px;border:1px dashed var(--muted);color:var(--muted);border-radius:6px;padding:0 6px;margin-inline-start:6px;white-space:nowrap;font-weight:600;vertical-align:2px}
+
+@media(max-width:520px){
+  .dl{grid-template-columns:52px minmax(0,1fr);padding:14px 14px;row-gap:10px}
+  .dl .acts{grid-column:2;justify-content:flex-start}
+  .dl .left{font-size:26px}.dl.word .left{font-size:18px}
+}

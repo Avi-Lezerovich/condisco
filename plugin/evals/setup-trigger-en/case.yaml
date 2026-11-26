@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: setup-trigger-en
+description: trigger check for study-setup
+tags: [study-setup, trigger]
+execution:
+  prompt: "I just installed Condisco, what do I do first?"
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-setup
+    tool: Skill
+    input_match: "study-setup"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply begins the Condisco setup flow and asks no more than 4 short questions; it does not publish anything or write data before the student answers."

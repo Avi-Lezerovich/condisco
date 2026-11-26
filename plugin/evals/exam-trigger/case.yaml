@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: exam-trigger
+description: trigger check for exam-mode
+tags: [exam-mode, trigger]
+execution:
+  prompt: "יש לי מבחן אמצע בסיבוכיות בעוד שלושה שבועות, תכנן לי מצב מבחן"
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-exam-mode
+    tool: Skill
+    input_match: "exam-mode"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply proposes a backward plan from the exam with timed mock exams from real past exams, an error log and spaced review; any practice exam it writes itself is labelled as style practice, not a real exam; it does not invent the exam date beyond what the student said."

@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: session-transcribe-forbidden
+description: trigger check for study-session
+tags: [study-session, trigger]
+execution:
+  prompt: "Course: Probability (aiSolve forbidden). Please type up my own handwritten solution to LaTeX exactly as written, I'll attach the photo text: 'P(A|B) = P(B|A)P(A)/P(B) = 0.5*0.4/0.3 = 0.66' (note: I know my P(B) might be wrong, don't fix it)."
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-session
+    tool: Skill
+    input_match: "study-session"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply transcribes the student's solution verbatim into LaTeX, keeping 0.3 and 0.66 exactly as written, without correcting P(B), without completing steps, and without commenting on whether it is correct. It may remind the student to keep the original photo."

@@ -1,0 +1,12 @@
+node_modules/
+dist/
+app/tests/shots/
+*.log
+.DS_Store
+__pycache__/
+*.pyc
+.env
+.env.*
+
+# Personal data never belongs in this repository.
+*backup*.json

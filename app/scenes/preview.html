@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Condisco Scenes</title>
+<meta name="scenes-base" content="./">
+<style>
+:root{color-scheme:light dark;--bg:#f2f5f7;--surface:#ffffff;--ink:#1b2532;--mute:#5b6876;--line:#dbe2e8;--accent:#3a60d8;--warn:#bb4430;--win:#f7d04a}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121820;--surface:#1a222c;--ink:#e2e7ec;--mute:#9ba7b4;--line:#28323e;--accent:#93abf5;--warn:#ef9584}}
+:root[data-theme=dark]{--bg:#121820;--surface:#1a222c;--ink:#e2e7ec;--mute:#9ba7b4;--line:#28323e;--accent:#93abf5;--warn:#ef9584}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,"Segoe UI",Arial,sans-serif}
+header{max-width:1400px;margin:0 auto;padding:24px 16px 8px}
+h1{font-size:28px;margin:0 0 4px}
+header p{margin:0;color:var(--mute)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
+button{font:inherit;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:12px;min-height:44px;padding:0 14px;cursor:pointer}
+button.on{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+#count{color:var(--mute);margin-inline-start:auto}
+main{max-width:1400px;margin:0 auto;padding:8px 16px 48px;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,400px),1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.card.drop{opacity:.5;outline:2px dashed var(--warn);outline-offset:-2px}
+.pair{display:grid;grid-template-columns:1fr 1fr}
+.thumb{position:relative;aspect-ratio:16/10;overflow:hidden;cursor:zoom-in;background:#0f1b27}
+.thumb svg{position:absolute;inset:0;width:100%;height:100%}
+.thumb span{position:absolute;bottom:6px;inset-inline-start:8px;font-size:12px;color:#fff;background:rgba(0,0,0,.35);padding:0 6px;border-radius:6px}
+.meta{display:flex;align-items:center;gap:10px;padding:10px 14px}
+.meta b{font-weight:700}
+.meta small{color:var(--mute);direction:ltr}
+.meta button{margin-inline-start:auto;min-height:40px}
+.card.drop .meta button{border-color:var(--warn);color:var(--warn)}
+#full{position:fixed;inset:0;z-index:10;background:#0f1b27;display:none}
+#full.open{display:block}
+#full .close{position:absolute;top:16px;inset-inline-end:16px;z-index:2;background:rgba(14,22,32,.6);color:#fff;border-color:rgba(255,255,255,.2)}
+#full .cap{position:absolute;bottom:20px;inset-inline-start:24px;z-index:2;color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.5);font-size:20px}
+.err{color:var(--warn);padding:16px}
+</style>
+</head>
+<body>
+<header>
+  <h1>רקעים של Condisco</h1>
+  <p>כל רקע מוצג בבהיר ובכהה. הקשה על תמונה פותחת אותה במסך מלא, חיה ונעה. סמן "להוריד" על מה שלא אהבת.</p>
+  <div class="bar">
+    <button id="demo">הדגמת החלפה (כל 8 שניות)</button>
+    <button id="onlyNew">רק החדשים</button>
+    <span id="count"></span>
+  </div>
+</header>
+<main id="grid" aria-live="polite"></main>
+<div id="full" aria-hidden="true"><button class="close" id="closeFull">סגירה</button><div class="cap" id="cap"></div><div id="stage" style="position:absolute;inset:0"></div></div>
+<script type="module">
+const base = document.querySelector('meta[name="scenes-base"]').content;
+const { loadScenes, renderScene, renderLiving, createSceneHost, DEFAULT_PALETTES } = await import(new URL(base + 'registry.js', location.href).href);
+const { injectLiveCss } = await import(new URL(base + 'alive.js', location.href).href);
+injectLiveCss(document, document.head);
+const manifestUrl = new URL(base + 'manifest.json', location.href).href;
+const grid = document.getElementById('grid'), full = document.getElementById('full'), stage = document.getElementById('stage'), cap = document.getElementById('cap');
+const store = window.sceneStore || { get: async () => { try { return JSON.parse(localStorage.getItem('cd-drop') || '[]'); } catch { return []; } }, set: async v => { try { localStorage.setItem('cd-drop', JSON.stringify(v)); } catch {} } };
+let drops = new Set(), onlyNew = false, host = null;
+const scenes = await loadScenes(manifestUrl);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+function render(){
+  grid.innerHTML = '';
+  const list = scenes.filter(s => !onlyNew || !(s.tags || []).includes('classic'));
+  for (const s of list) {
+    const card = document.createElement('article'); card.className = 'card' + (drops.has(s.id) ? ' drop' : ''); card.dataset.id = s.id;
+    card.innerHTML = `<div class="pair"><div class="thumb" data-mode="light"><span>בהיר</span></div><div class="thumb" data-mode="dark"><span>כהה</span></div></div><div class="meta"><b>${esc(s.name)}</b><small>${esc(s.id)}</small><button aria-pressed="${drops.has(s.id)}">${drops.has(s.id) ? 'יורד ✕' : 'להוריד'}</button></div>`;
+    for (const th of card.querySelectorAll('.thumb')) {
+      try { const svg = renderScene(s, {w: 800, h: 500, palette: DEFAULT_PALETTES[th.dataset.mode]}); svg.pauseAnimations?.(); th.prepend(svg); }
+      catch (e) { th.innerHTML = '<div class="err">שגיאה בציור</div>'; console.warn(s.id, e); }
+      th.onclick = () => openFull(s, th.dataset.mode);
+    }
+    card.querySelector('.meta button').onclick = async () => { drops.has(s.id) ? drops.delete(s.id) : drops.add(s.id); await store.set([...drops]); render(); };
+    grid.appendChild(card);
+  }
+  document.getElementById('count').textContent = `${scenes.length} רקעים, ${drops.size} מסומנים להורדה`;
+}
+function openFull(s, mode){
+  stopHost(); stage.innerHTML = '';
+  stage.appendChild(renderLiving(s, {w: innerWidth, h: innerHeight, palette: DEFAULT_PALETTES[mode]}));
+  cap.textContent = s.name; full.classList.add('open');
+}
+function stopHost(){ if (host) { host.stop(); host = null; } }
+document.getElementById('closeFull').onclick = () => { stopHost(); stage.innerHTML = ''; full.classList.remove('open'); };
+document.getElementById('demo').onclick = async () => {
+  stage.innerHTML = ''; cap.textContent = ''; full.classList.add('open');
+  const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+  host = createSceneHost(stage, {manifestUrl, swapMs: 8000, fadeMs: 4000, palette: () => DEFAULT_PALETTES[dark ? 'dark' : 'light']});
+  await host.start();
+  const tick = () => { if (!host) return; const c = host.current(); cap.textContent = c ? c.name : ''; setTimeout(tick, 1000); }; tick();
+};
+document.getElementById('onlyNew').onclick = e => { onlyNew = !onlyNew; e.currentTarget.classList.toggle('on', onlyNew); render(); };
+render();
+window.__scenesReady = true;
+store.get().then(v => { if (Array.isArray(v) && v.length) { drops = new Set(v); render(); } }).catch(() => {});
+</script>
+</body>
+</html>

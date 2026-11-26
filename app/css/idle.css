@@ -1,0 +1,45 @@
+/* idle: owned by the idle thread. Loaded after the main <style> in index.html, so rules here override it. */
+
+/* Enter slowly (1.8s), leave quickly (0.65s, matches OUT_MS in idle.js). The background is the scene sky,
+   so the first frame is never a dark flash in light mode. */
+#ambient{background:var(--scene-sky);transition:opacity .65s cubic-bezier(.4,0,.2,1),visibility 0s linear .65s;visibility:hidden}
+#ambient.on{transition:opacity 1.8s cubic-bezier(.25,.1,.25,1),visibility 0s;visibility:visible}
+
+/* the landscape settles in: a slight zoom-out while it fades in, a soft push back while it fades out */
+#ambient .scenes{transform:scale(1.035);transition:transform .65s ease-in;will-change:transform}
+#ambient.on .scenes{transform:none;transition:transform 3.2s cubic-bezier(.2,.7,.2,1)}
+/* the first scene after waking appears with the screen, not 4 seconds later */
+#ambient.first .cd-scene{transition:none!important}
+
+/* legibility shade behind the clock, only while the clock shows */
+.amb-shade{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 2.4s ease;
+  background:radial-gradient(120% 90% at 100% 100%,rgba(8,14,22,.55) 0%,rgba(8,14,22,.28) 32%,rgba(8,14,22,0) 62%)}
+[dir=ltr] .amb-shade{background:radial-gradient(120% 90% at 0% 100%,rgba(8,14,22,.55) 0%,rgba(8,14,22,.28) 32%,rgba(8,14,22,0) 62%)}
+.amb-shade.show{opacity:1}
+
+/* clock, date, next task */
+.amb-info{inset-inline-start:6vw;bottom:9vh;color:#f5f7f9;text-shadow:0 1px 2px rgba(0,0,0,.25),0 4px 30px rgba(0,0,0,.35);
+  transform:translateY(10px);transition:opacity 2.4s ease,transform 2.4s cubic-bezier(.2,.7,.2,1)}
+.amb-info.show{transform:none}
+.amb-clock{font-variant-numeric:tabular-nums;letter-spacing:.01em;font-size:clamp(84px,10.5vw,168px)}
+.amb-date{font-size:clamp(18px,1.6vw,24px);opacity:.88;margin-top:10px;font-weight:500}
+.amb-next{margin-top:22px;font-size:clamp(18px,1.5vw,22px);line-height:1.35;opacity:.95;padding-top:16px;border-top:1px solid rgba(255,255,255,.28);max-width:min(46ch,60vw)}
+.amb-next b{display:block;font-size:1.25em;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* timer strip: glass, quiet, readable on light and dark scenes */
+.amb-timer{bottom:4.5vh;width:min(600px,80vw);padding:16px 22px 15px;border-radius:22px;background:rgba(12,19,28,.55);
+  backdrop-filter:blur(22px) saturate(1.2);-webkit-backdrop-filter:blur(22px) saturate(1.2);border-color:rgba(255,255,255,.16);
+  box-shadow:0 1px 0 rgba(255,255,255,.08) inset,0 20px 60px rgba(0,0,0,.28);transform:translate(-50%,14px);
+  transition:opacity 1.6s ease,transform 1.6s cubic-bezier(.2,.7,.2,1)}
+.amb-timer.show{transform:translate(-50%,0)}
+.at-min{font-variant-numeric:tabular-nums}
+.at-goal:empty{display:none}
+.at-bar{height:3px;background:rgba(255,255,255,.14)}
+.at-bar i{transition:width 1s linear,background-color 1.2s ease}
+.amb-timer.end .at-bar i{background:#a8d5b0}
+
+@media (prefers-reduced-motion: reduce){
+  #ambient .scenes,#ambient.on .scenes{transform:none}
+  .amb-info,.amb-timer{transform:translate(0,0)}
+  .amb-timer,.amb-timer.show{transform:translate(-50%,0)}
+}

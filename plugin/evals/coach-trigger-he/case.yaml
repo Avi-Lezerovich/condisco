@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: coach-trigger-he
+description: trigger check for study-coach
+tags: [study-coach, trigger]
+execution:
+  prompt: "מה ללמוד היום? תכנן לי את היום"
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-coach
+    tool: Skill
+    input_match: "study-coach"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply tries to read the student's Condisco/Study Hub data first (or says it cannot find it and offers setup) instead of inventing a plan from nothing. If it plans, the plan is at most 5 lines and starts with a small warm-up task."

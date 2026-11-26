@@ -1,0 +1,57 @@
+/* focus: owned by the focus thread. Loaded after the main <style> in index.html, so rules here override it. */
+/* focus timer: setup (pattern cards, total, plan preview) and the running ring */
+#focus{--t-focus:var(--accent);--t-brk:light-dark(#3f86b3,#9ec7e2);--t-track:light-dark(#dfe6ec,#26303c)}
+
+/* setup */
+.tpat{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s2)}
+.tp{display:grid;gap:2px;align-content:start;text-align:start;min-height:76px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-md);background:transparent;color:var(--ink)}
+.tp b{font-family:var(--f-d);font-weight:400;font-size:22px;line-height:1.1;direction:ltr;text-align:end;font-variant-numeric:tabular-nums}
+.tp small{color:var(--muted);font-size:12.5px;line-height:1.35}
+.tp[aria-pressed=true]{border-color:var(--t-focus);background:color-mix(in srgb,var(--t-focus) 12%,transparent);box-shadow:inset 0 0 0 1px var(--t-focus)}
+.tprev{display:grid;gap:var(--s2);padding:2px 2px 0}
+@media(max-width:380px){.tpat{grid-template-columns:1fr}.tp{min-height:0;grid-template-columns:auto 1fr;align-items:baseline;gap:10px}.tp b{order:-1;text-align:start}}
+
+/* plan: one bar per segment, sized by duration */
+.tplan{display:flex;gap:4px;height:8px;direction:rtl}
+.tplan i{position:relative;flex-basis:0;min-width:6px;border-radius:4px;overflow:hidden;background:color-mix(in srgb,var(--t-focus) 26%,var(--t-track))}
+.tplan i.break{background:color-mix(in srgb,var(--t-brk) 30%,var(--t-track))}
+.tplan i.past{background:var(--t-focus)}.tplan i.break.past{background:var(--t-brk)}
+.tplan i b{position:absolute;inset-block:0;inset-inline-start:0;width:0;background:var(--t-focus);border-radius:4px;transition:width .25s linear}
+.tplan i.break b{background:var(--t-brk)}
+
+/* running */
+.trun{display:grid;gap:var(--s4);justify-items:center;text-align:center}
+.trun .task{justify-self:stretch;text-align:center}
+.trun .tplan{width:min(100%,360px);justify-self:center}
+.tring{position:relative;width:min(80vw,52vh,340px);aspect-ratio:1;margin:4px auto 0}
+.tring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)} /* starts at 12 and fills clockwise, like a clock */
+.tring circle{fill:none;stroke-width:5.5}
+.tr-bg{stroke:var(--t-track)}
+.tr-fg{stroke:var(--t-focus);stroke-linecap:round;transition:stroke-dashoffset .25s linear,stroke .6s ease}
+.is-brk .tr-fg{stroke:var(--t-brk)}
+.tr-in{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:6px}
+.tr-ph{font-family:var(--f-d);font-size:18px;color:var(--t-focus);letter-spacing:.3px}
+.is-brk .tr-ph{color:var(--t-brk)}
+.tring .big{font-size:clamp(56px,18vw,88px)}
+.tr-sub{font-size:14px;color:var(--muted);min-height:1.4em}
+.is-paused .tr-fg,.is-paused .big{opacity:.45}
+.is-paused .tr-ph{color:var(--muted)}
+@media(prefers-reduced-motion:no-preference){
+  .is-paused .big{animation:tpause 2.4s ease-in-out infinite}
+}
+@keyframes tpause{0%,100%{opacity:.45}50%{opacity:.85}}
+.tgoal{color:var(--muted);font-size:15px;max-width:42ch;text-wrap:pretty}
+.tbrk{margin:0;max-width:40ch;padding:12px 16px;border-radius:var(--r-md);background:color-mix(in srgb,var(--t-brk) 12%,var(--surface));border:1px solid color-mix(in srgb,var(--t-brk) 30%,transparent);font-size:15px;text-wrap:pretty}
+.tsnd{border:1px dashed var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:8px 16px;font-size:14px;min-height:40px}
+.fz .foot .btn.confirm{background:var(--warn);border-color:var(--warn);color:light-dark(#fff,#1b1210)}
+/* the break gets a soft cool wash so the change of phase is visible from across the room */
+#focus:has(.trun.is-brk){background:radial-gradient(120% 70% at 50% 0%,color-mix(in srgb,var(--t-brk) 16%,var(--bg)) 0%,var(--bg) 70%)}
+
+.tvol{width:min(100%,280px);opacity:.75;transition:opacity .2s}.tvol:hover,.tvol:focus-within{opacity:1}
+
+/* minimised pill */
+#mini{cursor:pointer;transition:transform .15s ease,box-shadow .15s ease}
+#mini:hover{transform:translateX(-50%) translateY(-2px);box-shadow:0 16px 38px rgba(10,20,30,.32)}
+#mini.paused .mini-t{opacity:.55}
+#mini.paused .mini-bar i{background:rgba(255,255,255,.45)}
+@media(prefers-reduced-motion:reduce){#mini,#mini:hover{transition:none;transform:translateX(-50%)}.tr-fg,.tplan i b{transition:none}}

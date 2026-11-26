@@ -1,0 +1,55 @@
+/* breath: owned by the breath thread. Loaded after the main <style> in index.html, so rules here override it. */
+/* Breathing screen: a lake at dawn in light mode, a night lake in dark mode. The orb fills the guide ring on the
+   inhales and sinks on the long exhale; a ripple spreads on each exhale; a thin ring fills as the session goes. */
+#focus.calm{
+  --calm-ink:#1d2a36;--calm-mute:#4f6070;--calm-line:rgba(29,42,54,.18);--calm-on:rgba(76,122,160,.16);--calm-on-line:rgba(76,122,160,.55);
+  --calm-ring:rgba(76,122,160,.42);--calm-guide:rgba(76,122,160,.28);--calm-track:rgba(29,42,54,.08);--calm-prog:rgba(76,122,160,.55);
+  --orb-a:#ffffff;--orb-b:#cfe3f1;--orb-c:#86b2d2;--orb-d:#5b8db4;--orb-glow:rgba(120,170,210,.30);--orb-shade:rgba(30,60,90,.18);
+  background:radial-gradient(120% 70% at 50% 0%,#fbf3e8 0%,#eef0f2 42%,#d9e4ee 100%);color:var(--calm-ink)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) #focus.calm{
+  --calm-ink:#e4edf3;--calm-mute:#a6bacb;--calm-line:rgba(228,237,243,.22);--calm-on:rgba(158,199,226,.22);--calm-on-line:rgba(158,199,226,.6);
+  --calm-ring:rgba(158,199,226,.45);--calm-guide:rgba(158,199,226,.22);--calm-track:rgba(228,237,243,.08);--calm-prog:rgba(158,199,226,.55);
+  --orb-a:#d9ecf6;--orb-b:#8fc0dc;--orb-c:#4b88b0;--orb-d:#2f6489;--orb-glow:rgba(143,192,220,.30);--orb-shade:rgba(12,32,52,.35);
+  background:radial-gradient(130% 75% at 50% 0%,#24415a 0%,#162a3b 45%,#0f1b27 100%)}}
+:root[data-theme=dark] #focus.calm{
+  --calm-ink:#e4edf3;--calm-mute:#a6bacb;--calm-line:rgba(228,237,243,.22);--calm-on:rgba(158,199,226,.22);--calm-on-line:rgba(158,199,226,.6);
+  --calm-ring:rgba(158,199,226,.45);--calm-guide:rgba(158,199,226,.22);--calm-track:rgba(228,237,243,.08);--calm-prog:rgba(158,199,226,.55);
+  --orb-a:#d9ecf6;--orb-b:#8fc0dc;--orb-c:#4b88b0;--orb-d:#2f6489;--orb-glow:rgba(143,192,220,.30);--orb-shade:rgba(12,32,52,.35);
+  background:radial-gradient(130% 75% at 50% 0%,#24415a 0%,#162a3b 45%,#0f1b27 100%)}
+#focus.calm .hint,#focus.calm .bleft,#focus.calm .bsub{color:var(--calm-mute)}
+#focus.calm .btn{border-color:var(--calm-line);color:var(--calm-ink);background:transparent}
+#focus.calm .btn.primary{background:#e6c25c;color:#1f1b08;border-color:#e6c25c}
+#focus.calm .btn.on{background:var(--calm-on);color:var(--calm-ink);border-color:var(--calm-on-line)}
+#focus.calm .btn small{opacity:.75;font-size:12px;margin-inline-start:4px}
+#focus.calm .steps i{background:var(--calm-line)}#focus.calm .steps i.on{background:var(--calm-on-line)}
+
+.breath{display:grid;place-items:center;gap:6px;padding:6px 0 2px}
+.breath.run{padding-top:min(6vh,40px)}
+.breath:not(.run) .pond{width:min(52vw,210px,32vh);margin-bottom:2px}
+.pond{position:relative;width:min(72vw,300px,46vh);aspect-ratio:1;display:grid;place-items:center;margin-bottom:8px}
+.pond>*{grid-area:1/1}
+.bprog{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.bprog circle{fill:none;stroke:var(--calm-track);stroke-width:.9}
+.bprog circle.v{stroke:var(--calm-prog);stroke-linecap:round;transition:stroke-dashoffset .25s linear}
+.breath:not(.run) .bprog{opacity:0}
+.guide{width:78%;aspect-ratio:1;border-radius:50%;border:1.5px dashed var(--calm-guide)}
+.orb{width:78%;aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle at 36% 30%,var(--orb-a) 0%,var(--orb-b) 34%,var(--orb-c) 72%,var(--orb-d) 100%);
+  box-shadow:0 0 44px 4px var(--orb-glow),inset 0 -14px 34px var(--orb-shade);
+  transform:scale(.6);transition-property:transform,box-shadow;transition-duration:2s;transition-timing-function:ease-in-out;will-change:transform}
+.orb.full{box-shadow:0 0 90px 24px var(--orb-glow),inset 0 -12px 30px var(--orb-shade)}
+.orb.idle{animation:orb-idle 7s ease-in-out infinite}
+@keyframes orb-idle{0%,100%{transform:scale(.6)}50%{transform:scale(.68)}}
+.ring{position:absolute;inset:0;margin:auto;width:76%;height:76%;border-radius:50%;border:1.5px solid var(--calm-ring);opacity:0;pointer-events:none}
+.ring.go{animation:ripple 6.4s cubic-bezier(.2,.6,.3,1) forwards}
+@keyframes ripple{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.32);opacity:0}}
+.cue{font-family:var(--f-d);font-size:clamp(26px,7vw,32px);text-align:center;min-height:1.3em}
+.bsub{font-size:15px;text-align:center;min-height:1.5em}
+.bleft{font-family:var(--f-d);font-size:15px;direction:ltr;text-align:center;font-variant-numeric:tabular-nums;opacity:.85;margin-top:4px}
+.bset{display:grid;gap:var(--s2);margin-top:var(--s2)}
+.bwhy{max-width:520px;margin:var(--s3) auto 0;font-size:14px;color:var(--calm-mute)}
+.bwhy summary{cursor:pointer;text-align:center;list-style:none;text-decoration:underline;text-underline-offset:3px}
+.bwhy summary::-webkit-details-marker{display:none}
+.bwhy p{margin:var(--s2) 0 0;line-height:1.6}
+@media(prefers-reduced-motion:reduce){.orb{transform:scale(.8)!important}}
+.bsnd{flex-wrap:wrap;gap:var(--s3);align-items:center}

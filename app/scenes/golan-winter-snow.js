@@ -1,0 +1,7 @@
+import { rng, uid, put, sky, ridge, range, breathe } from './lib.js';
+export default { id: 'golan-winter-snow', name: 'חרמון מושלג', tags: ['mountains', 'winter', 'snow', 'israel'],
+  draw(svg, { seed }){ const r = rng(seed), k = uid();
+    put(svg, `<defs>${sky(k + 's', [[0, '#a9bdd4'], [1, '#e9eef3']])}<linearGradient id="${k}p" gradientUnits="userSpaceOnUse" x1="0" y1="300" x2="0" y2="640"><stop offset="0" stop-color="#ffffff"/><stop offset=".45" stop-color="#e6edf4"/><stop offset=".62" stop-color="#a9b5c6"/><stop offset="1" stop-color="#8494aa"/></linearGradient></defs>
+    <rect width="1600" height="900" fill="url(#${k}s)"/><path d="M0 650 C260 600 520 420 760 340 C860 308 960 318 1060 360 C1240 440 1420 560 1600 600 L1600 900 L0 900 Z" fill="url(#${k}p)"/><path d="M760 340 C800 400 780 440 820 480 M1060 360 C1030 420 1080 470 1060 520 M600 430 C620 470 600 500 630 540" stroke="#c7d2df" stroke-width="8" fill="none" opacity=".6" stroke-linecap="round"/>${ridge(r, 590, 70, '#9aaac0', {f: .5})}
+    ${ridge(r, 650, 40, '#7d8c78', {f: .6})}${ridge(r, 740, 40, '#63745e')}${ridge(r, 840, 30, '#4b5a48')}
+    <g>${range(90, () => `<circle cx="${(r() * 1600).toFixed(0)}" cy="${(r() * 900).toFixed(0)}" r="${(1 + r() * 2).toFixed(1)}" fill="#ffffff" opacity="${(0.4 + r() * 0.5).toFixed(2)}"/>`)}<animateTransform attributeName="transform" type="translate" values="0 -20;14 20;0 -20" dur="24s" repeatCount="indefinite"/></g>`); } };

@@ -1,0 +1,216 @@
+// Condisco "living" scenes: turns a drawn scene SVG into stacked planes that move like a slow aerial shot.
+// Every plane is its own <svg> inside a <div>; all motion is CSS transform/opacity on those elements,
+// so the browser rasterizes each plane once and the GPU only composites it (light on CPU and battery).
+// Motion vocabulary (all cycles ≥ 12 s, nothing flashes):
+//   camera  – the whole stack pushes in and pans slowly over the 10-minute scene
+//   parallax– landscape planes sway sideways, nearer planes further, so depth reads like moving through space
+//   sun     – rises (morning), sets (evening) or hangs, with a slow breathing glow
+//   mist    – fog bands drift sideways and breathe
+//   clouds  – drift across the sky; aurora ribbons sway
+//   stars   – two star sets crossfade (gentle twinkle); water glints do the same and slide a little
+//   particles – snow / rain / pollen layers drift
+//   life    – per-scene creatures and weather from life.js: herons, circling eagles and storks, crane V's, gulls,
+//             swallows, fireflies, falling leaves/petals/snow/rain, ripples, cloud shadows, sand wisps, light rays,
+//             shooting stars, a distant sail, beach foam, stars appearing at dusk
+import { hashId, rng } from './lib.js';
+import { lifeFor, FX } from './life.js';
+
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const isWhite = f => /^#(fff|ffffff|f3ead0|eef1fb|e6ecfb)$/i.test(f || '');
+const num = (el, a) => parseFloat(el.getAttribute(a) || '0');
+
+function kindOf(el){
+  const tag = el.tagName.toLowerCase(), fill = el.getAttribute('fill') || '';
+  if (tag === 'defs') return 'defs';
+  if (tag === 'rect') {
+    const w = num(el, 'width'), h = num(el, 'height');
+    if (w >= 1600 && h >= 900) return 'sky';
+    if (h <= 2.6) return 'glint';
+    if (fill.startsWith('url(') && w >= 1600 && h <= 200) return 'mist';
+    return 'land';
+  }
+  if (tag === 'circle') {
+    const r = num(el, 'r');
+    if (fill.startsWith('url(')) return 'sun';
+    if (r <= 2.6 && isWhite(fill) && num(el, 'cy') < 700) return 'star';
+    if (r >= 30) return 'sun';
+    return 'land';
+  }
+  if (tag === 'path' && el.getAttribute('filter')) return 'cloud';
+  if (tag === 'g') {
+    if (el.getAttribute('filter') || el.querySelector('[filter]')) return 'cloud';
+    const kids = [...el.children];
+    if (kids.length && kids.every(k => k.tagName === 'rect' && num(k, 'height') <= 2.6)) return 'glint';
+    if (kids.length === 1 && kids[0].tagName === 'rect' && (kids[0].getAttribute('fill') || '').startsWith('url(') && num(kids[0], 'height') <= 200) return 'mist';
+    if (kids.length > 20 && kids.every(k => k.tagName === 'circle' ? num(k, 'r') <= 3.2 : k.tagName === 'path' && !k.getAttribute('fill'))) return 'particles';
+  }
+  return 'land';
+}
+const isLayerEdge = el => { const t = el.tagName; if (t === 'rect') return num(el, 'width') >= 1600; if (t === 'path') return /1600[ ,](900|\d{3})/.test(el.getAttribute('d') || '') && !!el.getAttribute('fill') && el.getAttribute('fill') !== 'none'; return false; };
+
+/** Split a drawn scene SVG into ordered planes: [{kind, nodes, depth}]. Pure DOM, no layout needed. */
+export function planesOf(svg, maxLand = 5){
+  svg.querySelectorAll('animate,animateTransform,animateMotion').forEach(a => a.remove());
+  const planes = [];
+  let defs = null;
+  for (const el of [...svg.children]) {
+    let k = kindOf(el);
+    if (k === 'defs') { defs = el; continue; }
+    if (k === 'sky') k = planes.length ? 'land' : 'sky';
+    const last = planes[planes.length - 1];
+    if (last && last.kind === k) last.nodes.push(el); else planes.push({kind: k, nodes: [el]});
+  }
+  // A land run that holds several full-width layers is cut at each layer, then neighbours are merged
+  // back so the scene has at most maxLand landscape planes (GPU memory stays bounded).
+  const out = [];
+  for (const p of planes) {
+    if (p.kind !== 'land') { out.push(p); continue; }
+    let cur = null;
+    for (const el of p.nodes) { if (!cur || isLayerEdge(el) && cur.nodes.some(isLayerEdge)) { cur = {kind: 'land', nodes: []}; out.push(cur); } cur.nodes.push(el); }
+  }
+  let lands = out.filter(p => p.kind === 'land');
+  while (lands.length > maxLand) {
+    let best = -1, bestSize = Infinity;
+    for (let i = 0; i < out.length - 1; i++) if (out[i].kind === 'land' && out[i + 1].kind === 'land') { const s = out[i].nodes.length + out[i + 1].nodes.length; if (s < bestSize) { bestSize = s; best = i; } }
+    if (best < 0) break;
+    out[best].nodes.push(...out[best + 1].nodes); out.splice(best + 1, 1);
+    lands = out.filter(p => p.kind === 'land');
+  }
+  lands.forEach((p, i) => { p.depth = lands.length > 1 ? i / (lands.length - 1) : 1; });
+  return {defs, planes: out};
+}
+
+const CSS = `
+.cd-live{position:absolute;inset:0;overflow:hidden;contain:strict}
+.cd-cam{position:absolute;inset:0;will-change:transform;animation:cd-cam var(--cam-dur,600s) cubic-bezier(.33,0,.4,1) forwards;transform-origin:var(--cam-o,50% 55%)}
+.cd-pl{position:absolute;inset:-7%;will-change:transform}
+.cd-pl>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.cd-pl.k-land{animation:cd-sway var(--dur,150s) ease-in-out var(--delay,0s) infinite alternate}
+.cd-pl.k-sun{animation:cd-sun 600s cubic-bezier(.3,0,.5,1) forwards}
+.cd-pl.k-sun>svg{will-change:transform,opacity;transform-origin:var(--sun-o,50% 50%);animation:cd-glow 16s ease-in-out infinite alternate}
+.cd-pl.k-mist{animation:cd-drift var(--dur,200s) ease-in-out var(--delay,0s) infinite alternate}
+.cd-pl.k-mist>svg{will-change:opacity;animation:cd-breathe 22s ease-in-out var(--delay,0s) infinite alternate}
+.cd-pl.k-cloud{animation:cd-drift var(--dur,260s) ease-in-out var(--delay,0s) infinite alternate}
+.cd-pl.k-star>svg,.cd-pl.k-glint>svg{will-change:opacity;animation:cd-twinkle var(--tw,9s) ease-in-out var(--delay,0s) infinite alternate}
+.cd-pl.k-glint{animation:cd-sway 14s ease-in-out infinite alternate;--amp:.5%}
+.cd-pl.k-particles{animation:cd-fall var(--dur,40s) ease-in-out infinite alternate}
+.cd-pl.f-pass{animation:cd-birds var(--dur,260s) linear var(--delay,0s) infinite}
+.cd-pl.f-pass>svg{animation:cd-bob 18s ease-in-out infinite alternate}
+.cd-pl.f-orbit{animation:cd-ox var(--dur,25s) ease-in-out var(--delay,0s) infinite alternate}
+.cd-pl.f-orbit>svg{animation:cd-oy var(--dur,25s) ease-in-out calc(var(--delay,0s) - var(--dur,25s) / 2) infinite alternate}
+.cd-pl.f-fall{inset:auto;left:-7%;right:-7%;top:-121%;height:228%;animation:cd-tilefall var(--dur,60s) linear var(--delay,0s) infinite}
+.cd-pl.f-fall>svg{animation:cd-sway var(--swd,9s) ease-in-out infinite alternate;--amp:var(--sway,1.5%)}
+.cd-pl.f-glow{animation:cd-fall var(--dur,34s) ease-in-out var(--delay,0s) infinite alternate}
+.cd-pl.f-glow>svg,.cd-pl.f-rays>svg{will-change:opacity;animation:cd-twinkle var(--tw,8s) ease-in-out var(--delay,0s) infinite alternate}
+.cd-pl.f-sweep{animation:cd-drift var(--dur,160s) ease-in-out var(--delay,0s) infinite alternate}
+.cd-pl.f-wisp{animation:cd-drift var(--dur,70s) ease-in-out var(--delay,0s) infinite alternate;--amp:4%}
+.cd-pl.f-wisp>svg{animation:cd-twinkle 9s ease-in-out var(--delay,0s) infinite alternate;--o0:.15}
+.cd-pl.f-meteor{opacity:0;animation:cd-meteor var(--dur,75s) linear var(--delay,0s) infinite}
+.cd-pl.f-creep{animation:cd-sway var(--dur,600s) ease-in-out infinite alternate}
+.cd-pl.f-foam{animation:cd-foam var(--dur,10s) ease-in-out infinite alternate}
+.cd-pl.f-foam>svg{animation:cd-twinkle var(--dur,10s) ease-in-out infinite alternate;--o0:.45}
+.cd-pl.k-star.fadein{animation:cd-fadein 600s ease-in forwards}
+.cd-box{position:absolute;aspect-ratio:1;transform:translate(-50%,-50%) scale(.3);opacity:0;will-change:transform,opacity;animation:cd-ripple var(--dur,11s) ease-out var(--delay,0s) infinite}
+.cd-box>svg{width:100%;height:100%;display:block;overflow:visible}
+.cd-dim{position:absolute;inset:0;pointer-events:none}
+@keyframes cd-cam{from{transform:scale(1) translate(0,0)}to{transform:scale(var(--cam-s,1.1)) translate(var(--cam-x,-1.5%),var(--cam-y,.8%))}}
+@keyframes cd-sway{from{transform:translateX(calc(var(--amp,1%) * -1))}to{transform:translateX(var(--amp,1%))}}
+@keyframes cd-drift{from{transform:translateX(calc(var(--amp,3%) * -1))}to{transform:translateX(var(--amp,3%))}}
+@keyframes cd-sun{from{transform:translateY(0)}to{transform:translateY(var(--rise,-2%))}}
+@keyframes cd-glow{from{transform:scale(1);opacity:.92}to{transform:scale(1.035);opacity:1}}
+@keyframes cd-breathe{from{opacity:var(--o0,.7)}to{opacity:1}}
+@keyframes cd-twinkle{from{opacity:var(--o0,.35)}to{opacity:1}}
+@keyframes cd-birds{0%{transform:translateX(calc(var(--dir,1) * -75%))}42%{transform:translateX(calc(var(--dir,1) * 75%))}100%{transform:translateX(calc(var(--dir,1) * 75%))}}
+@keyframes cd-bob{from{transform:translateY(-1.2%)}to{transform:translateY(1.2%)}}
+@keyframes cd-ox{from{transform:translateX(calc(var(--rx,6%) * -1))}to{transform:translateX(var(--rx,6%))}}
+@keyframes cd-oy{from{transform:translateY(calc(var(--ry,2%) * -1))}to{transform:translateY(var(--ry,2%))}}
+@keyframes cd-tilefall{from{transform:translateY(0)}to{transform:translateY(50%)}}
+@keyframes cd-meteor{0%{opacity:0;transform:translate(0,0)}1%{opacity:1}3.5%{opacity:0;transform:translate(-9%,4%)}100%{opacity:0;transform:translate(-9%,4%)}}
+@keyframes cd-foam{from{transform:translateY(-.5%)}to{transform:translateY(.6%)}}
+@keyframes cd-fadein{from{opacity:.08}to{opacity:1}}
+@keyframes cd-ripple{0%{transform:translate(-50%,-50%) scale(.3);opacity:0}12%{opacity:.9}100%{transform:translate(-50%,-50%) scale(1.7);opacity:0}}
+@keyframes cd-fall{from{transform:translate(-.6%,-1.2%)}to{transform:translate(.6%,1.2%)}}
+.cd-paused .cd-live,.cd-paused .cd-live *{animation-play-state:paused!important}
+@media(prefers-reduced-motion:reduce){.cd-live,.cd-live *{animation:none!important}}`;
+
+export function injectLiveCss(doc, into){ if (into.querySelector(':scope > style[data-cd-live]')) return; const s = doc.createElement('style'); s.dataset.cdLive = ''; s.textContent = CSS; into.appendChild(s); }
+
+const plainSvg = doc => { const s = doc.createElementNS(SVG_NS, 'svg'); s.setAttribute('viewBox', '0 0 1600 900'); s.setAttribute('preserveAspectRatio', 'xMidYMid slice'); s.setAttribute('aria-hidden', 'true'); return s; };
+
+/** Build the living version of a drawn scene. Returns a div (class cd-live) to place in a positioned box. */
+export function makeLiving(svg, scene, {seed, palette, dark, doc = document} = {}){
+  const r = rng((seed ?? hashId(scene.id)) + 7);
+  const tags = scene.tags || [];
+  const {defs, planes} = planesOf(svg);
+  const live = doc.createElement('div'); live.className = 'cd-live';
+  const cam = doc.createElement('div'); cam.className = 'cd-cam';
+  // Camera path: slow push-in toward a point near the horizon, chosen per scene.
+  const ox = 30 + r() * 40, oy = 45 + r() * 20;
+  cam.style.cssText = `--cam-o:${ox.toFixed(0)}% ${oy.toFixed(0)}%;--cam-s:${(1.07 + r() * .05).toFixed(3)};--cam-x:${((r() - .5) * 3).toFixed(2)}%;--cam-y:${((r() - .5) * 1.6).toFixed(2)}%`;
+  live.appendChild(cam);
+  const rise = tags.includes('morning') ? -5 : tags.includes('evening') ? 4.5 : tags.includes('night') ? -1 : -1.2;
+  const swayDir = r() < .5 ? -1 : 1, swayDur = 130 + r() * 60;
+  let first = true;
+  const add = (kind, nodes, style = '', defsHere = false) => {
+    const pl = doc.createElement('div'); pl.className = 'cd-pl k-' + kind; if (style) pl.style.cssText = style;
+    const s = plainSvg(doc); if (defsHere && defs) s.appendChild(defs);
+    nodes.forEach(n => s.appendChild(n)); pl.appendChild(s); cam.appendChild(pl); return pl;
+  };
+  for (const p of planes) {
+    const defsHere = first; first = false;
+    switch (p.kind) {
+      case 'sky': add('sky', p.nodes, '', defsHere); break;
+      case 'land': { const amp = (0.25 + 1.55 * Math.pow(p.depth, 1.3)) * swayDir; add('land', p.nodes, `--amp:${amp.toFixed(2)}%;--dur:${swayDur.toFixed(0)}s`, defsHere); break; }
+      case 'sun': { const c = p.nodes.find(n => n.tagName === 'circle'); const sx = c ? num(c, 'cx') / 16 : 50, sy = c ? num(c, 'cy') / 9 : 50;
+        add('sun', p.nodes, `--rise:${rise}%;--sun-o:${sx.toFixed(1)}% ${sy.toFixed(1)}%`, defsHere); break; }
+      case 'mist': add('mist', p.nodes, `--amp:${(2 + r() * 3).toFixed(1)}%;--dur:${(150 + r() * 100).toFixed(0)}s;--delay:${(-r() * 120).toFixed(0)}s`, defsHere); break;
+      case 'cloud': add('cloud', p.nodes, `--amp:${(2.5 + r() * 2.5).toFixed(1)}%;--dur:${(220 + r() * 120).toFixed(0)}s;--delay:${(-r() * 120).toFixed(0)}s`, defsHere); break;
+      case 'particles': add('particles', p.nodes, `--dur:${(30 + r() * 20).toFixed(0)}s`, defsHere); break;
+      case 'star': case 'glint': {
+        // Split into two interleaved sets that crossfade at different rates: a slow twinkle / shimmer.
+        const nodes = p.nodes.length === 1 && p.nodes[0].tagName === 'g' ? [...p.nodes[0].children] : p.nodes;
+        const a = nodes.filter((_, i) => i % 2 === 0), b = nodes.filter((_, i) => i % 2 === 1);
+        const tw = p.kind === 'star' ? 11 : 7;
+        add(p.kind, a, `--tw:${tw}s;--o0:${p.kind === 'star' ? .45 : .3}`, defsHere);
+        if (b.length) add(p.kind, b, `--tw:${(tw * 1.37).toFixed(1)}s;--delay:-${(tw * .6).toFixed(1)}s;--o0:${p.kind === 'star' ? .45 : .3}`);
+        break; }
+      default: add('land', p.nodes, '', defsHere);
+    }
+  }
+  if (first && defs) add('sky', [], '', true);
+  // Generated morning mist for calm daytime terrain scenes that have no mist of their own.
+  if (!planes.some(p => p.kind === 'mist') && !tags.includes('night') && !tags.includes('abstract') && (tags.some(t => ['morning', 'hills', 'forest', 'water', 'mountains', 'winter'].includes(t)))) {
+    const id = 'cdm' + Math.floor(r() * 1e9).toString(36);
+    const s = `<defs><filter id="${id}" x="-20%" y="-200%" width="140%" height="500%"><feGaussianBlur stdDeviation="28"/></filter></defs>` +
+      Array.from({length: 5}, () => `<ellipse cx="${(r() * 1800 - 100).toFixed(0)}" cy="${(560 + r() * 220).toFixed(0)}" rx="${(260 + r() * 300).toFixed(0)}" ry="${(22 + r() * 22).toFixed(0)}" fill="#ffffff" opacity="${(0.18 + r() * 0.16).toFixed(2)}" filter="url(#${id})"/>`).join('');
+    const pl = add('mist', [], `--amp:${(3 + r() * 2).toFixed(1)}%;--dur:${(170 + r() * 80).toFixed(0)}s;--delay:${(-r() * 100).toFixed(0)}s;--o0:.55`);
+    pl.firstChild.insertAdjacentHTML('beforeend', s);
+    // keep it under the nearest landscape plane so fog sits in the valleys
+    const lands = cam.querySelectorAll('.k-land'); if (lands.length > 1) cam.insertBefore(pl, lands[lands.length - 1]);
+  }
+  // Life: creatures and weather chosen per scene (life.js).
+  const life = lifeFor(scene);
+  if (life.some(e => e.fx === 'starsFadeIn')) cam.querySelectorAll('.k-star').forEach(el => el.classList.add('fadein'));
+  const lands = [...cam.querySelectorAll('.k-land')];
+  const behindNear = lands.length > 2 ? lands[lands.length - 1] : null, afterFar = lands[0] ? lands[0].nextSibling : null;
+  for (const e of life) {
+    const make = FX[e.fx]; if (!make) continue;
+    for (const it of make(r, e)) {
+      const pl = doc.createElement('div'); pl.className = 'cd-pl k-life f-' + it.cls; if (it.style) pl.style.cssText = it.style;
+      if (it.box) {
+        const [x, y, w] = it.box; pl.className = 'cd-pl k-life f-boxes';
+        const bx = doc.createElement('div'); bx.className = 'cd-box f-' + it.cls; bx.style.cssText = (it.style || '') + `;left:${(x / 16).toFixed(2)}%;top:${(y / 9).toFixed(2)}%;width:${(w / 16).toFixed(2)}%`;
+        bx.innerHTML = `<svg viewBox="0 0 100 100" aria-hidden="true">${it.svg}</svg>`; pl.style.cssText = ''; pl.appendChild(bx);
+      } else {
+        const sv = plainSvg(doc); if (it.vb) sv.setAttribute('viewBox', `0 0 1600 ${it.vb}`); sv.innerHTML = it.svg; pl.appendChild(sv);
+      }
+      const low = ['ripple', 'foam', 'shadows', 'sweep', 'wisp'].includes(it.cls) && !['veil'].includes(e.fx);
+      if (it.box || (low && behindNear)) cam.insertBefore(pl, behindNear || null);
+      else if (it.cls === 'pass' && e.fx === 'flock' && afterFar) cam.insertBefore(pl, afterFar);
+      else cam.appendChild(pl);
+    }
+  }
+  if (dark) { const d1 = doc.createElement('div'), d2 = doc.createElement('div'); d1.className = d2.className = 'cd-dim';
+    d1.style.cssText = `background:${palette.sky};opacity:.42;mix-blend-mode:multiply`; d2.style.cssText = `background:${palette.sky};opacity:.18`; live.append(d1, d2); }
+  return live;
+}

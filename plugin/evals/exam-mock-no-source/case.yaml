@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: exam-mock-no-source
+description: trigger check for exam-mode
+tags: [exam-mode, trigger]
+execution:
+  prompt: "Make me a full mock exam for my Data Structures final. I don't have any past exams."
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-exam-mode
+    tool: Skill
+    input_match: "exam-mode"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply says there are no real past exams to use; any questions it writes are clearly labelled as style practice, not a real exam, and it says these do not count toward exam readiness."

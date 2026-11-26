@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: setup-no-trigger
+description: no check for study-setup
+tags: [study-setup, no]
+execution:
+  prompt: "Can you set up a Python virtual environment for my Django project?"
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: not-fired-study-setup
+    tool: Skill
+    input_match: "study-setup"
+    min: 0
+    max: 0
+  - type: llm
+    name: behaviour
+    criteria: "The reply helps with a Python virtual environment and does not mention Condisco or study setup."

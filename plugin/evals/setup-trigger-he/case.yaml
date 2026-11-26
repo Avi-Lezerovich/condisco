@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: setup-trigger-he
+description: trigger check for study-setup
+tags: [study-setup, trigger]
+execution:
+  prompt: "התקנתי עכשיו את Condisco. תגדיר לי אותו."
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-setup
+    tool: Skill
+    input_match: "study-setup"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply starts the Condisco setup: it asks the student at most 4 questions in one message (name, courses, wake/best time, where materials live) and does not invent any courses, dates or grades."
