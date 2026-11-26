@@ -52,7 +52,7 @@ deadline within 7 days > missed unit still not started > course whose last-2 tim
 - Never delete a doc unless the student asks for that doc by name.
 
 ## Learning additions (0.4.0: study-profile, study-summary, study-teach; additive, schema version stays 2, the app keeps unknown fields)
-- + `profile/main` (one doc, the learner profile; written only by the `study-profile` skill and by the student in the app's Settings card):
+- + `profile/main` (one doc, the learner profile; written only by the `study-profile` skill; an app Settings card is planned for a later version):
   address ("m" | "f" | "neutral"), goal ("on_track" | "understand" | "exam_practice" | "get_back"), hoursPerWeek,
   defaultFormat ("visual_summary" | "visual_lesson" | "outline" | "worked_example" | "socratic" | "printable_sheet"),
   formats {<format>: {offered, chosen, recallYes}}, summary {length ("short" | "medium" | "deep"), language ("he_en_terms" | "source"), visuals ("rich" | "light")},
