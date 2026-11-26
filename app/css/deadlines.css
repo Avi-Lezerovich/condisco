@@ -1,38 +1,91 @@
-/* deadlines: owned by the deadlines thread. Loaded after the main <style> in index.html, so rules here override it. */
-.toggle{display:inline-flex;gap:var(--space-1);margin:0 0 10px;padding:var(--space-1);background:var(--surface-sunk);border-radius:var(--radius-md)}
-.toggle .btn{border:0;min-height:40px;display:inline-flex;align-items:center;gap:6px}
-.toggle .btn.on{background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
-.toggle .cnt{font:600 12.5px var(--font-text);min-width:22px;padding:1px 6px;border-radius:var(--radius-pill);background:color-mix(in srgb,var(--ink-2) 16%,transparent);color:var(--ink-2)}
-.dl-sum{margin:0 2px 4px;color:var(--ink-2);font-size:var(--fs-small);display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline}
-.dl-sum b{font-family:var(--font-display);font-weight:400;color:var(--ink);font-size:var(--fs-body)}.dl-sum b.warn{color:var(--warn);font-family:var(--font-text);font-weight:700;font-size:var(--fs-small)}
-.dl-sum i{font-style:normal;opacity:.6}.dl-sum .unv{border-bottom:1px dashed var(--ink-2)}
+/* deadlines: owned by the deadlines thread (UI-2d). Composes app/ds components; tokens only, logical properties only.
+   Compact: one view at a time (list or calendar) on the segmented control. From 1024px: list + calendar side by side. */
+
+/* toolbar: segmented view control + a quiet "also closed" toggle */
+.dl-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--space-2);margin-bottom:var(--space-3)}
+.dl-bar .toggle{margin:0}
+.dl-bar .toggle .btn{min-width:88px}
+.dl-flt{display:inline-flex;align-items:center;gap:var(--space-2);color:var(--ink-2)}
+.dl-flt[aria-pressed=true]{color:var(--ink)}
+.dl-flt .cnt{font-size:var(--fs-label);min-width:22px;padding:1px 6px;border-radius:var(--radius-pill);background:var(--surface-sunk);color:var(--ink-2)}
+
+.dlw.mode-list .dl-cal,.dlw.mode-cal .dl-main{display:none}
+
+/* summary line */
+.dl-sum{margin:0 2px var(--space-1);color:var(--ink-2);font-size:var(--fs-small);display:flex;flex-wrap:wrap;gap:2px var(--space-2);align-items:baseline}
+.dl-sum b{font-family:var(--font-display);font-weight:400;color:var(--ink);font-size:var(--fs-body)}
+.dl-sum b.warn{color:var(--warn);font-family:var(--font-text);font-weight:700;font-size:var(--fs-small)}
+.dl-sum i{font-style:normal;opacity:.6}
+.dl-sum .unv{border-bottom:1px dashed var(--ink-2)}
 .sec-late{color:var(--warn)}.sec-done{color:var(--ink-2)}
-.dlist{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md);overflow:hidden}
-.dl{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:var(--space-3);align-items:center;padding:14px 16px;border-top:1px solid var(--line-soft,var(--line));position:relative}
+
+/* list: one card, rows split by hairlines; days left is the number on the start side */
+.dlist{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-1)}
+.dl{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:var(--space-3);align-items:center;padding:var(--space-3) var(--space-4);border-top:1px solid var(--line-soft)}
 .dl:first-child{border-top:0}
-.dl::before{content:"";position:absolute;inset-inline-start:0;top:12px;bottom:12px;width:4px;border-start-end-radius:4px;border-end-end-radius:4px;background:var(--c);opacity:.85}
-.dl .left{font-family:var(--font-display);font-size:var(--fs-title-1);line-height:1;text-align:center;color:var(--c);font-variant-numeric:tabular-nums}
-.dl.word .left{font-size:var(--fs-title-2)}
-.dl .left small{display:block;font:600 12.5px/1.2 var(--font-text);color:var(--ink-2);margin-top:4px}
-.dl.hot .left{color:var(--warn)}
-.dl.hot,.dl.late{background:color-mix(in srgb,var(--warn) 6%,transparent)}
-.dl.late .left,.dl.late .left small{color:var(--warn)}
-.dl.closed .left,.dl.closed .t-title{color:var(--ink-2)}.dl.closed .t-title{text-decoration:line-through;text-decoration-thickness:1.5px}
-.dl.closed::before{opacity:.3}
-.dl .acts{margin-top:0;justify-content:flex-end}
+.dl .left{display:grid;justify-items:center;align-content:center;text-align:center;color:var(--ink)}
+.dl .left .num{font-family:var(--font-display);font-size:var(--fs-number);line-height:var(--lh-number);font-variant-numeric:tabular-nums}
+.dl.word .left .num{font-size:var(--fs-title-3);line-height:var(--lh-title-3);font-weight:700;font-family:var(--font-text)}
+.dl .left small{display:block;font-size:var(--fs-label);line-height:var(--lh-label);font-weight:600;color:var(--ink-2);margin-top:2px}
+/* meaning, not alarm: clay for "3 days or less" and for late, ink for everything else */
+.dl.hot .left,.dl.late .left,.dl.late .left small{color:var(--warn)}
+.dl.closed .left,.dl.closed .t-title{color:var(--ink-2)}
+.dl.closed .t-title{text-decoration:line-through;text-decoration-thickness:1.5px}
+.dl .t-title{font-size:var(--fs-body);line-height:var(--lh-body)}
+.dl .acts{margin-top:0;justify-content:flex-end;flex-wrap:nowrap}
 .dl .meta .when{color:var(--ink)}.dl.closed .meta .when{color:var(--ink-2)}
+.dl.closed .meta .cn::before{opacity:.45}
 .dl .meta .left-h{color:var(--warn);font-weight:700}
 .dl .meta .src{flex-basis:100%;font-size:var(--fs-caption);overflow-wrap:anywhere}
-.btn.ghost{border-color:transparent;color:var(--ink-2)}
-.btn.ghost:hover{border-color:var(--line)}
+.dl .meta .src-link{color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:2px;min-height:var(--target);display:inline-flex;align-items:center;margin-block:-12px}
+/* "לא מאומת": a quiet dashed badge (DS .badge), aligned with the title */
+.dl .badge{vertical-align:2px;font-weight:600}
+.btn.quiet{color:var(--ink-2)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-.badge{display:inline-block;font-size:var(--fs-label);border:1px dashed var(--ink-2);color:var(--ink-2);border-radius:var(--radius-xs);padding:0 6px;margin-inline-start:6px;white-space:nowrap;font-weight:600;vertical-align:2px}
 
-@media(max-width:520px){
-  .dl{grid-template-columns:52px minmax(0,1fr);padding:14px 14px;row-gap:10px}
-  .dl .acts{grid-column:2;justify-content:flex-start}
-  .dl .left{font-size:var(--fs-number)}.dl.word .left{font-size:var(--fs-title-3)}
+/* DS-candidate: Calendar (month-like grid of WEEKS weeks, a dot per item in its course colour) */
+.dl-cal{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md);box-shadow:var(--shadow-1);padding:var(--space-3)}
+.cal-head{display:flex;align-items:center;justify-content:space-between;gap:var(--space-2);margin-bottom:var(--space-2)}
+.cal-range{margin:0;font-size:var(--fs-title-3);line-height:var(--lh-title-3);font-variant-numeric:tabular-nums}
+.cal-nav{padding:0;display:grid;place-items:center}
+.cal-nav svg{width:18px;height:18px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px}
+.cal-grid .dow{text-align:center;font-size:var(--fs-label);color:var(--ink-2);padding-block:var(--space-1)}
+.cd{min-height:52px;min-width:40px;display:grid;grid-template-rows:auto 10px;justify-items:center;align-content:center;gap:3px;border-radius:var(--radius-sm);border:1px solid transparent;background:transparent;padding:var(--space-1) 0;font-size:var(--fs-small);color:var(--ink);font-variant-numeric:tabular-nums}
+.cd.past{color:var(--ink-3)}
+.cd.has{background:var(--surface-sunk);font-weight:700;cursor:pointer}
+.cd.hot .dn{color:var(--warn)}
+.cd.today .dn{display:grid;place-items:center;min-width:28px;height:28px;border-radius:var(--radius-pill);box-shadow:inset 0 0 0 1.5px var(--accent);color:var(--accent);font-weight:700}
+.cd.sel{background:var(--accent-soft);border-color:var(--accent)}
+.cd .dots{display:flex;gap:3px;align-items:center;height:10px}
+.cd .dots i{width:7px;height:7px;border-radius:50%;background:var(--c)}
+.cd .dots i.x{opacity:.35}
+.cd .dots b{font-size:var(--fs-label);line-height:1;color:var(--ink-2)}
+@media(hover:hover){.cd.has:not(.sel):hover{border-color:var(--line-strong)}}
+.cal-day h4{margin:var(--space-4) 2px var(--space-2);font-size:var(--fs-small);font-weight:700}
+.cal-day .dlist{box-shadow:none}
+.cal-none{margin:var(--space-3) 2px 0;color:var(--ink-2);font-size:var(--fs-small)}
+/* end DS-candidate */
+
+/* compact phones: actions under the text, number column a bit narrower */
+@media(max-width:599px){
+  .dl{grid-template-columns:52px minmax(0,1fr);padding:var(--space-3);row-gap:var(--space-2)}
+  .dl .acts{grid-column:2;justify-content:flex-start;flex-wrap:wrap}
+  .dl-cal{padding:var(--space-2)}
 }
 
-.dl .meta .src-link{color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:2px}
-.dlist{border-color:var(--line);box-shadow:var(--shadow-1)}
+/* expanded: list and calendar side by side, the view control is not needed */
+@media(min-width:1024px){
+  .dl-bar .toggle{display:none}
+  .dl-bar{justify-content:flex-end;margin-block:calc(-1 * var(--space-2)) var(--space-2)}
+  .dlw.mode-list .dl-cal,.dlw.mode-cal .dl-main{display:block}
+  .dlw{display:grid;grid-template-columns:minmax(0,1fr) minmax(340px,400px);gap:var(--space-5);align-items:start}
+  .dl-cal{position:sticky;top:var(--space-4);margin-top:var(--space-6)}
+  /* the list already carries the actions; the calendar's day panel is a quick look */
+  .dl-cal .acts{display:none}
+  .dl-cal .dl{grid-template-columns:44px minmax(0,1fr);padding:var(--space-2) var(--space-3)}
+  .dl-cal .dl .left .num{font-size:var(--fs-title-3)}
+  .dl-cal .dl .t-title{font-size:var(--fs-small)}
+  .dl-cal .dl .meta .src,.dl-cal .dl .meta .src-link{display:none}
+}
+@media(min-width:1440px){.dlw{grid-template-columns:minmax(0,1fr) 420px}}
