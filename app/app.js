@@ -7,11 +7,12 @@ import { watchHorizon } from './idle/horizon.js';
 import * as Today from './ui/today.js';
 import * as Gaps from './ui/gaps.js';
 import * as Deadlines from './ui/deadlines.js';
+import * as Exam from './ui/exam.js';
 import * as Checkin from './ui/checkin.js';
 import * as Prefs from './ui/settings.js';
 
-const ROUTES = { today: Today, gaps: Gaps, deadlines: Deadlines, checkin: Checkin, prefs: Prefs };
-const TITLES = { gaps: 'מפת פערים', deadlines: 'דדליינים', checkin: "צ'ק-אין ערב", prefs: 'הגדרות' };
+const ROUTES = { today: Today, gaps: Gaps, deadlines: Deadlines, exam: Exam, checkin: Checkin, prefs: Prefs };
+const TITLES = { gaps: 'מפת פערים', deadlines: 'דדליינים', exam: 'מצב מבחן', checkin: "צ'ק-אין ערב", prefs: 'הגדרות' };
 const params = new URLSearchParams(location.search);
 const MOCK = params.get('mock');
 

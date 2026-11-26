@@ -8,7 +8,10 @@ const b = await chromium.launch();
 const ctx = await b.newContext({ viewport: { width: 1440, height: 900 }, timezoneId: 'Asia/Jerusalem' });
 const errs = []; let installed = false;
 const page = async () => { const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); }); if (!installed) { await p.clock.install({ time: T0 }); installed = true; } return p; };  // the clock is per browser context
-const st = p => p.evaluate(() => { const s = window.__condisco.focus.state; return s && { state: s.state, min: s.min, focusMs: s.timer.focusMs, run: s.timer.run, segEnd: s.timer.segEnd, now: Date.now(), rev: s.rev, paused: s.timer.paused }; });
+// the app sets window.__condisco a moment after load (after a reload too), so wait for it on the fake clock first
+const ready = async p => { for (let i = 0; i < 60 && !(await p.evaluate(() => !!(window.__condisco && window.__condisco.focus))); i++) await p.clock.runFor(100); };
+const st = async p => { await ready(p); return stRaw(p); };
+const stRaw = p => p.evaluate(() => { const s = window.__condisco.focus.state; return s && { state: s.state, min: s.min, focusMs: s.timer.focusMs, run: s.timer.run, segEnd: s.timer.segEnd, now: Date.now(), rev: s.rev, paused: s.timer.paused }; });
 
 const p1 = await page();
 await p1.goto(URL0 + '#today'); await p1.clock.runFor(1500);

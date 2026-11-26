@@ -17,9 +17,10 @@ Read this before you start, time or grade a mock.
    question with them afterwards; the student decides partial credit with you,
    using the course's usual point split.
 2. Per question: points earned, points lost, and why (one line).
-3. Total → `mocks/{auto}` = `{courseId, title ("2024 מועד א'"), score, timed, date, source}`.
+3. Total → `mocks/{auto}` = `{courseId, title ("2024 מועד א'"), score, timed, date, source, minutes, mode: "past", createdAt}`.
+   Style practice (no real past exam) → `mode: "style"`, `timed: false`: it never counts for readiness.
 4. Each lost point → `errors/{auto}` = `{courseId, unitId?, mockId, what, kind, fix, resolved: false, createdAt}`.
-5. Each error → `practice_items/{id}` = box 1, due tomorrow, `source` = the mock.
+5. Each error → `practice_items/{id}` = box 1, due tomorrow, `source` = the mock, `errorId` = the error.
 6. Close with the readiness line and the next mock date.
 
 ## Error kinds

@@ -7,6 +7,8 @@ Condisco is a study partner for university students that lives inside Claude. It
 - `study-coach`: daily plan, evening check-in (at most 3 questions, a plan of at most 5 lines), weekly review.
 - `study-session`: one study session; also types up the student's own handwritten solutions verbatim (Markdown or LaTeX).
 - `exam-mode`: backward exam plan, timed mocks from real past exams, error log, readiness check.
+- `study-materials`: links each unit to its Google Drive file and writes a short summary from the file only (Drive is read, never changed).
+- `study-sync`: manual, read-only "sync now" of Moodle and Piazza through Claude in Chrome (or a pasted page or screenshot). New deadlines enter as unverified; nothing is ever written to Moodle or Piazza.
 - `study-feedback`: collects pilot feedback in under two minutes and gives a summary to send to the organizer. Nothing is sent automatically.
 
 ## AI policy
@@ -19,7 +21,7 @@ All study data stays in the student's own private Condisco artifact on claude.ai
 A paid Claude plan (Pro or higher) with code execution on, and artifact storage (web or desktop).
 
 ## Install
-Customize > Plugins > Add > Upload plugin, then choose `condisco-0.2.0.zip`. Then say "set up Condisco".
+Customize > Plugins > Add > Upload plugin, then choose `condisco-0.3.0.zip`. Then say "set up Condisco".
 
 ## Build
 From the repository root: `npm run build:plugin` writes `dist/condisco-<version>.zip`. It copies the app from `app/` into `skills/study-setup/assets/app/`, so do not edit that folder by hand.

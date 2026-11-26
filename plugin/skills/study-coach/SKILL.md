@@ -49,6 +49,7 @@ from memory alone.
 - Name the single biggest gap and propose ≤3 blocks for the week to close it.
 - Ask one question: anything changed (new dates, course dropped)?
 - Unverified dates found anywhere → list them as "לא מאומת" and ask the student to confirm.
+- No sync in 7+ days (`settings/main.lastSync`) → offer `study-sync` ("סנכרון עכשיו") in one line; never run it unasked.
 
 ## Rules
 - Never invent content, dates or grades; unverified → "לא מאומת" with its source.

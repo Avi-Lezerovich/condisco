@@ -9,7 +9,10 @@ let n = 0, bad = 0; const ok = (c, m) => { n++; console.log(c ? 'ok  ' : 'FAIL',
 const b = await chromium.launch();
 const errs = [];
 const watch = p => { p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); }); return p; };
-const st = p => p.evaluate(() => { const f = window.__condisco.focus, s = f.state; return s && { state: s.state, min: s.min, focusMs: s.timer.focusMs, run: s.timer.run, paused: s.timer.paused, segEnd: s.timer.segEnd, total: s.timer.total, rev: s.rev, tab: f.tab, leader: JSON.parse(localStorage.getItem('condisco.focus.leader') || 'null') }; });
+// the app sets window.__condisco a moment after load (after a reload too), so wait for it on the fake clock first
+const ready = async p => { for (let i = 0; i < 60 && !(await p.evaluate(() => !!(window.__condisco && window.__condisco.focus))); i++) await p.clock.runFor(100); };
+const st = async p => { await ready(p); return stRaw(p); };
+const stRaw = p => p.evaluate(() => { const f = window.__condisco.focus, s = f.state; return s && { state: s.state, min: s.min, focusMs: s.timer.focusMs, run: s.timer.run, paused: s.timer.paused, segEnd: s.timer.segEnd, total: s.timer.total, rev: s.rev, tab: f.tab, leader: JSON.parse(localStorage.getItem('condisco.focus.leader') || 'null') }; });
 async function toTimer(p) {
   await p.goto(URL0 + '#today'); await p.clock.runFor(1500);
   await p.click('.next [data-act=focus]'); await p.clock.runFor(300);

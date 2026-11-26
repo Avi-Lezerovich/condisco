@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: materials-trigger-he
+description: trigger check for study-materials
+tags: [study-materials, trigger]
+execution:
+  prompt: "תחבר את הדרייב שלי ותסכם לי את ההרצאות בהסתברות לפי יחידות"
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-materials
+    tool: Skill
+    input_match: "study-materials"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply works from the student's own Drive files (or says the Drive connector is needed and offers uploading files instead). It does not invent lecture topics or file contents, asks before choosing a folder or writing to the app, and does not move, rename or delete any Drive file."

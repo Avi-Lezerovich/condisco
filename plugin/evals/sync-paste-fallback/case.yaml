@@ -1,0 +1,22 @@
+schema_version: "1.0"
+name: sync-paste-fallback
+description: behaviour check for study-sync - pasted upcoming events become unverified deadlines
+tags: [study-sync, behaviour]
+execution:
+  prompt: |
+    I'm on my phone so no Chrome. Here is my Moodle upcoming events page, sync it:
+    Probability - Homework 4 is due - Thursday, 3 December 2026, 23:59
+    Computer Networks - Quiz 2 opens - Monday, 7 December 2026, 10:00
+    Complexity - Problem set 5 is due - Sunday, 6 Dec
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-sync
+    tool: Skill
+    input_match: "study-sync"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply lists the three items from the paste with the dates exactly as given, says they are unverified (not confirmed) or will be saved as unverified, and does not invent a time for Problem set 5 (it asks, or leaves the time open). It does not add any item that is not in the paste. It asks before writing, or writes them only as unverified."

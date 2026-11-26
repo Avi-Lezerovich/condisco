@@ -80,6 +80,7 @@ student enters in it, but Claude cannot plan from it. Do not hide a failure.
 - Offer (do NOT create) a daily evening check-in as a scheduled task, e.g. 22:30
   their time, which runs the `study-coach` check-in. Create it only after an explicit yes.
 - Save the artifact link to project memory (if the chat has memory) so other chats find it.
+- If materials are on Drive or Moodle, offer once: `study-materials` ("תחבר את הדרייב") and `study-sync` ("סנכרון עכשיו"). Don't run them in setup.
 - Tell them the three things to try first: "מה ללמוד היום?", "רוצה ללמוד <course>, יש לי 45 דקות",
   and the evening check-in. Feedback any time: "פידבק על Condisco".
 

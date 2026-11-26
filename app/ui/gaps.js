@@ -50,7 +50,7 @@ export function countHe(n, one, many) { return n === 1 ? one : `${n} ${many}`; }
 export function inDays(n) { return n === 0 ? 'היום' : n === 1 ? 'מחר' : n === 2 ? 'מחרתיים' : `בעוד ${n} ימים`; }
 
 // ---------- view state (per viewer, survives reloads) ----------
-const view = Object.assign({ open: '', filter: 'all', pick: '', undo: null }, (() => { try { const v = JSON.parse(safeLS.get(LS) || '{}'); return { open: v.open || '', filter: v.filter === 'gaps' ? 'gaps' : 'all' }; } catch (e) { return {}; } })());
+const view = Object.assign({ open: '', filter: 'all', pick: '', undo: null, sums: new Set() }, (() => { try { const v = JSON.parse(safeLS.get(LS) || '{}'); return { open: v.open || '', filter: v.filter === 'gaps' ? 'gaps' : 'all' }; } catch (e) { return {}; } })());
 const keep = () => safeLS.set(LS, JSON.stringify({ open: view.open, filter: view.filter }));
 
 // ---------- render ----------
@@ -154,11 +154,15 @@ function unit(u) {
   const cv = Math.max(0, Math.min(5, Math.round(+u.confidence || 0)));
   const conf = Array.from({ length: 5 }, (_, i) => `<button class="${cv > i ? 'f' : ''}" data-act="conf" data-id="${esc(u.id)}" data-v="${i + 1}" aria-label="ביטחון ${i + 1} מתוך 5" aria-pressed="${cv === i + 1}"><i></i></button>`).join('');
   const link = /^[\w-]{10,}$/.test(u.fileId || '') ? `<a class="flink" href="https://drive.google.com/file/d/${esc(u.fileId)}/view" target="_blank" rel="noopener">לקובץ</a>` : '';
+  const sumText = typeof u.summary === 'string' ? u.summary.trim().slice(0, 600) : '';
+  const sumOpen = !!sumText && view.sums.has(u.id);
+  const sum = sumText ? `<button class="u-sumbtn" data-act="sum" data-id="${esc(u.id)}" aria-expanded="${sumOpen}" aria-controls="us-${esc(u.id)}">תקציר<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>` : '';
+  const sumBody = sumOpen ? `<p class="u-sum" id="us-${esc(u.id)}">${esc(sumText)}</p>` : '';
   const picker = picking ? `<div class="picker" role="radiogroup" aria-label="שלב עבור ${esc(unitLabel(u))}">${LADDER.map((x, i) => `<button role="radio" aria-checked="${x === s}" class="${x === s ? 'on' : ''}${i === LADDER.indexOf(s) + 1 ? ' nextup' : ''}" data-act="setstep" data-id="${esc(u.id)}" data-v="${x}" data-s="${x}">${LADDER_HE[x]}</button>`).join('')}</div>` : '';
   return `<div class="unit${picking ? ' picking' : ''}${u.missed && s === 'not_started' ? ' missed' : ''}">
-    <div class="u-name">${esc(unitLabel(u))}${t ? `<small>${esc(t)}</small>` : ''}${u.missed && s !== 'exam' ? `<span class="miss">${s === 'not_started' ? 'פספסתי' : 'פספסתי, בהשלמה'}</span>` : ''}${link}</div>
+    <div class="u-name">${esc(unitLabel(u))}${t ? `<small>${esc(t)}</small>` : ''}${u.missed && s !== 'exam' ? `<span class="miss">${s === 'not_started' ? 'פספסתי' : 'פספסתי, בהשלמה'}</span>` : ''}${link}${sum}</div>
     <div class="u-ctl"><button class="st" data-s="${s}" data-act="pick" data-id="${esc(u.id)}" aria-expanded="${picking}" aria-label="שלב: ${LADDER_HE[s]}. הקשה לשינוי">${LADDER_HE[s]}<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
-    <div class="conf" role="group" aria-label="ביטחון ${cv} מתוך 5"><span class="cl" aria-hidden="true">ביטחון</span>${conf}</div></div>${picker}</div>`;
+    <div class="conf" role="group" aria-label="ביטחון ${cv} מתוך 5"><span class="cl" aria-hidden="true">ביטחון</span>${conf}</div></div>${sumBody}${picker}</div>`;
 }
 
 function undoBar() {
@@ -185,6 +189,7 @@ export const actions = {
     if (view.open) requestAnimationFrame(() => { const h = $(`.c-head[data-id="${CSS.escape(id)}"]`); if (h && h.getBoundingClientRect().top < 0) h.scrollIntoView({ block: 'start', behavior: 'smooth' }); });
   },
   filter(b, ctx) { view.filter = b.dataset.v === 'gaps' ? 'gaps' : 'all'; keep(); ctx.rerender(); refocus(`[data-act=filter][data-v=${view.filter}]`); },
+  sum(b, ctx) { const id = b.dataset.id; if (view.sums.has(id)) view.sums.delete(id); else view.sums.add(id); ctx.rerender(); refocus(`.u-sumbtn[data-id="${CSS.escape(id)}"]`); },
   pick(b, ctx) { view.pick = view.pick === b.dataset.id ? '' : b.dataset.id; ctx.rerender(); refocus(view.pick ? `.picker [data-id="${CSS.escape(b.dataset.id)}"].on` : `.st[data-id="${CSS.escape(b.dataset.id)}"]`); },
   async setstep(b, ctx) {
     const u = ctx.store.S.units.find(x => x.id === b.dataset.id); if (!u) return;

@@ -23,17 +23,17 @@ Screenshots use the fictional sample data from `?mock=1`.
 4. Open a new project, start a chat, and write **להתקין לי Condisco** (or "set up Condisco").
 5. Answer four short questions. At the end you see `בדיקת db: עברה ✓` and a link to your private Condisco app. Bookmark it.
 
-Something wrong? See [troubleshooting](docs/pilot-guide.md#אם-משהו-לא-עובד), or write **פידבק על Condisco** in any chat.
+Full guide: [Hebrew](docs/pilot-guide.md) · [English](docs/install.md). Something wrong? See [troubleshooting](docs/pilot-guide.md#אם-משהו-לא-עובד), or write **פידבק על Condisco** in any chat.
 
 ## What is in this repository
 
 | Path | What it is |
 |---|---|
-| [`plugin/`](plugin/) | The Claude plugin `condisco`: five skills (`study-setup`, `study-coach`, `study-session`, `exam-mode`, `study-feedback`) and their evals. |
+| [`plugin/`](plugin/) | The Claude plugin `condisco`: seven skills (`study-setup`, `study-coach`, `study-session`, `exam-mode`, `study-materials`, `study-sync`, `study-feedback`) and their evals. |
 | [`app/`](app/) | The Condisco web app: a claude.ai artifact with an owner-only database. Hebrew, RTL, mobile first, no build step. |
 | [`app/scenes/`](app/scenes/) | 37 procedural SVG landscapes for the desktop idle screen. |
 | [`app/audio/`](app/audio/) | Public-domain and CC0 recordings for focus blocks, with [sources and licenses](app/audio/LICENSES.md). |
-| [`docs/`](docs/) | Pilot guide, install test, Hebrew style guide, research notes. |
+| [`docs/`](docs/) | Student install guides ([Hebrew](docs/pilot-guide.md), [English](docs/install.md)), Hebrew style guide, research notes. |
 | [`scripts/`](scripts/) | Checks, the browser test runner and the plugin ZIP builder. |
 | [`tools/hebrew/`](tools/hebrew/) | The Hebrew copy map and the script that applies it. |
 
@@ -43,8 +43,8 @@ The app has one source, `app/`. The plugin ships a copy of it under `skills/stud
 
 1. The student uploads the plugin ZIP to claude.ai and says "להתקין לי Condisco" (or "set up Condisco").
 2. `study-setup` asks four short questions, publishes the app as a private artifact with its own database, saves settings and courses, and runs a database self-test.
-3. From then on the other skills read and write that database: `study-coach` for the daily plan and evening check-in, `study-session` for a study session (retrieval first, a hint ladder, a closed-book recall question at the end), `exam-mode` for backward exam plans and timed mocks from real past exams.
-4. The app shows Today, Gaps, Deadlines, Check-in and Settings, plus a focus timer with breathing, music and a desktop idle screen.
+3. From then on the other skills read and write that database: `study-coach` for the daily plan and evening check-in, `study-session` for a study session (retrieval first, a hint ladder, a closed-book recall question at the end), `exam-mode` for backward exam plans and timed mocks from real past exams, `study-materials` for one-line summaries of each unit's Google Drive file, and `study-sync` for a read-only "sync now" of Moodle and Piazza.
+4. The app shows Today, Gaps, Deadlines, Exam mode, Check-in and Settings, plus a focus timer with breathing, music and a desktop idle screen.
 
 The data model is in [`app/SCHEMA.md`](app/SCHEMA.md).
 
@@ -69,14 +69,14 @@ URL options: `?mock=1` fake database with sample data, `?mock=empty` first-run s
 | `npm test` | Static checks, unit tests and every browser suite. |
 | `npm run check` | Every JS file parses, JSON is valid, the plugin manifest and skills are complete, every scene and audio file in the manifests exists. |
 | `npm run test:unit` | Pure tests: focus engine, Leitner boxes, mocks, priority, pruning, migrations, Gaps rules. |
-| `npm run test:browser [suite...]` | Playwright suites against the mock app: `smoke today gaps-ui checkin focus timer breath idle sound`. |
+| `npm run test:browser [suite...]` | Playwright suites against the mock app: `smoke today gaps-ui checkin focus timer breath idle sound exam`. |
 | `npm run build:plugin` | Builds `dist/condisco-<version>.zip`, ready to upload. |
 
 CI runs all of this on every push and pull request, and attaches the plugin ZIP to the run.
 
 ## Releasing
 
-1. Bump `version` in `plugin/.claude-plugin/plugin.json` and `package.json`, and the version strings in `plugin/skills/study-feedback/SKILL.md`.
+1. `node scripts/bump-version.mjs X.Y.Z` (plugin.json, package.json, feedback skill, install guides).
 2. Add an entry to [`CHANGELOG.md`](CHANGELOG.md).
 3. `npm test && npm run build:plugin`, then tag `vX.Y.Z` and attach `dist/condisco-X.Y.Z.zip` to a GitHub release.
 

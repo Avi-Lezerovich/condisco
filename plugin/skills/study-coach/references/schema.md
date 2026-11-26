@@ -1,4 +1,4 @@
-Read this when you write or read any Condisco db document.
+Read this when you write or read any Condisco db document. Source of truth: the app's SCHEMA.md (copied here).
 
 # Condisco data schema (v2, 2026-11-25)
 
@@ -21,19 +21,28 @@ Capabilities: `{db: {rules: [{path: "", read: "owner", write: "owner"}]}, user: 
 - `habits/{id}`, `habitlog/{YYYY-MM-DD}`: unchanged
 - `sessions/{id}`: kind (block | class | breathe | music), taskId, courseId, startedAt, endedAt, focusMin, breath, zone[], goal, recall. Condisco writes the id as `s{startMs}` so two tabs finishing the same block write one doc; old Study Hub ids are kept.
 - `mocks/{auto}`: courseId, title, score, timed, date, createdAt. Ready = the last two timed mocks both ≥ target.
+  + exam mode (all optional; a mock without them reads as a real past exam, timed unless timed is false): source (past-exam name or file), minutes (real exam length), tookMin, mode ("past" | "style"; style is always saved with timed: false and never counts).
+- `courses/{id}` + exam mode: midtermDate (YYYY-MM-DD, already present in Study Hub data), examVerified (bool; a date on the course is verified only when true, else "לא מאומת"). An open `deadlines` doc of kind exam on the same day wins.
+- `tasks/{id}` from the exam plan (app מבחנים screen or exam-mode skill): source "exam:<examId>", id `x{MMDD}-{examId}-{map|mock|rev|light}`; examId = the deadline id, or `<courseId>-final` / `<courseId>-mid`. Regenerating changes or removes only that source's tasks still in status todo.
 - `meta/open`: items[]
-- + `practice_items/{id}`: courseId, unitId, prompt, source, box (1–4), due (YYYY-MM-DD), lastResult (right | wrong | null), createdAt, updatedAt. Leitner: wrong → box 1, due +1 day; right → next box, due +3 / +7 / +14 days.
+- + `practice_items/{id}`: courseId, unitId, prompt, source, box (1–4), due (YYYY-MM-DD), lastResult (right | wrong | null), createdAt, updatedAt, + errorId (exam mode: the error that created it). Leitner: wrong → box 1, due +1 day; right → next box, due +3 / +7 / +14 days.
 - + `errors/{auto}`: courseId, unitId?, taskId?, mockId?, what, kind (concept | careless | time | reading | unknown), fix, resolved, createdAt
 - + `feedback/{auto}` (pilot): date, skill ("app" from the app's settings form, or a skill name), rating (1–5), worked, broke, wish, createdAt
+
+## Skill additions (2026-11-26, study-materials / study-sync; optional fields, no migration, the app keeps unknown fields)
+- units: + fileName, + fileModified (ISO), + summary (3-5 lines, <=600 chars), + summaryAt, + figures (bool)
+- courses: + driveFolderId, + moodleUrl, + piazzaUrl
+- deadlines: + sourceUrl, + extId, + syncedAt; source like "Moodle sync 2026-11-26"; a new or changed item is written verified:false; a re-sync keeps verified:true when the doc already has it and due is unchanged (the app's "אישור" sets verified:true)
+- settings/main: + lastSync {moodle?, piazza?}
 
 ## Suggestion priority (app, Today screen, when fewer than 2 tasks are open)
 deadline within 7 days > missed unit still not started > course whose last-2 timed mock average is under target > practice items due.
 
-## Skill additions (the app keeps unknown fields untouched)
+## Setup and coach additions (optional fields; the app keeps unknown fields)
 - `settings/main`: + timezone (IANA, e.g. "Asia/Jerusalem"), + bestTime ("morning" | "afternoon" | "evening"), + firstBlock ("HH:MM"), + materials ("drive" | "moodle" | "local" | "mixed").
 - `courses/{id}`: + aiSolveSource (file name or "student").
-- `mocks/{auto}`: + source (past-exam file name; style practice never counts).
 - `feedback/{auto}`: skills add pluginVersion.
+- Field notes for study-materials: `units.fileModified` = Drive modified time; `units.summary` comes from the file only; `units.figures: true` means a text-only read missed figures (ask for an upload). `courses.moodleUrl` = site base URL; `deadlines.extId` = the site's event id.
 
 ## Rules for writes
 - Never invent content, dates or grades. Anything not from the student's words,

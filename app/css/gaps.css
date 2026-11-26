@@ -125,3 +125,10 @@
 }
 @media(prefers-reduced-motion:reduce){.picker,.g-undo{animation:none}.gaps .c-head .chev{transition:none}}
 @media(min-width:900px){.gaps .mk-form{max-width:640px}}
+/* unit summary (units.summary, from the study-materials skill) */
+.gaps .u-sumbtn{display:inline-flex;align-items:center;gap:3px;margin-inline-start:8px;min-height:32px;padding:0 8px;border:0;border-radius:8px;background:transparent;color:var(--accent);font-size:13.5px;font-weight:700;vertical-align:middle}
+.gaps .u-sumbtn svg{width:13px;height:13px;transition:transform .2s var(--ease)}
+.gaps .u-sumbtn[aria-expanded=true] svg{transform:rotate(180deg)}
+.gaps .u-sumbtn:hover{background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.gaps .u-sum{grid-column:1/-1;margin:0;padding:8px 12px;border-inline-start:3px solid color-mix(in srgb,var(--c) 55%,transparent);background:var(--sunk);border-radius:8px;font-size:14px;line-height:1.55;color:var(--ink);white-space:pre-line;overflow-wrap:anywhere;animation:gp-in .18s var(--ease)}
+@media(prefers-reduced-motion:reduce){.gaps .u-sum{animation:none}.gaps .u-sumbtn svg{transition:none}}

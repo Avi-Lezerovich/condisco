@@ -18,7 +18,9 @@
   }
  ],
  "loops": {
-  "rain": "rain.mp3"
+  "rain": "rain.mp3",
+  "stream": "stream.mp3",
+  "forest": "forest.mp3"
  },
  "credits": [
   {
@@ -44,6 +46,18 @@
    "by": "ezwa (PDSounds)",
    "license": "Public domain",
    "url": "https://commons.wikimedia.org/wiki/File:Rain_(1).ogg"
+  },
+  {
+   "name": "Stream, river water up close",
+   "by": "jackthemurray",
+   "license": "CC0",
+   "url": "https://commons.wikimedia.org/wiki/File:433589_jackthemurray_stream-river-water-up-close.wav"
+  },
+  {
+   "name": "Forest ambience",
+   "by": "nille",
+   "license": "Public domain",
+   "url": "https://commons.wikimedia.org/wiki/File:20090610_0_ambience.ogg"
   }
  ]
 }

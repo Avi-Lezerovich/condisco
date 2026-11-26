@@ -12,7 +12,12 @@ honest. Never invent exam content, dates or scores.
 Find the Condisco artifact as `study-coach` does. Read `settings/main` (`target`,
 default 85 if missing, say so), `courses/{id}` (`examDate`, `grading`, `aiSolve`),
 `mocks` for the course, open `errors` for the course, `units` for the course,
-`deadlines` of kind `exam`/`quiz`. Read `references/schema.md` for field meanings.
+`deadlines` of kind `exam`/`quiz`, and `tasks` whose `source` starts with `exam:`.
+Read `references/schema.md` for field meanings.
+
+**Which exams:** open `deadlines` of kind `exam` first; then `courses.examDate` /
+`courses.midtermDate` on a day no deadline covers. A course date is verified only when
+`courses.examVerified` is true; otherwise say "לא מאומת" with the date.
 
 **Exam date:** only from the student's words, `courses.examDate`, a `deadlines` doc
 or a file they show. Never guess. "In three weeks" → plan in relative days and ask
@@ -33,8 +38,18 @@ Count days to the exam (T). Show at most 8 lines, then write tasks after a yes.
   logged errors (mix units, don't block by topic); no new material unless a gap.
 - **T-1 Light:** 20–30 min retrieval of `practice_items` in boxes 1–2, formula
   sheet if allowed, early sleep. No new mock.
+Timed mocks fall on T-18, T-10, T-6 and T-3 (never T-1 or exam day). If the plan
+starts inside the diagnose phase after T-18, the baseline mock is today.
 Fewer than 21 days left: start at the matching phase, compress, and say what is
-dropped. Several exams close together: interleave by date and course priority
+dropped.
+
+**Writing the plan (after a yes):** the plan's tasks get `source: "exam:<examId>"`
+(examId = the deadline id, or `<courseId>-final` / `<courseId>-mid` for a course date)
+and fixed ids `x{MMDD}-{examId}-{map|mock|rev|light}`, so writing the plan again updates
+the same docs. Only tasks with that source and `status: "todo"` may be changed or
+removed; never touch the student's own tasks or done ones. Mock tasks need the real
+exam length in minutes: ask once if no mock of the course has `minutes`. The app's
+מבחנים screen builds the same plan with the same ids, so either side can update it. Several exams close together: interleave by date and course priority
 (`courses.order`) and say which exam gets the mornings.
 
 ## Mock exam protocol
@@ -43,10 +58,12 @@ Read `references/mocks.md` before running or grading a mock. In short:
   file (name, year, moed). If none exist, say so and offer style questions,
   each labelled "תרגיל בסגנון, לא מבחן אמיתי"; style mocks never count for readiness.
 - Timed = the real exam length, closed book, as in the exam. The student does it
-  alone; you do not help during the mock.
+  alone; you do not help during the mock. The app's מבחנים screen has the timer
+  (stopping early saves `timed: false`); point the student there.
 - Grading: only against an official solution or rubric from their files, or by
   working each question with the student afterwards. Unsure points → ask, never
-  round up. Write `mocks/{auto}` with `timed`, `score`, `source` after they confirm.
+  round up. Write `mocks/{auto}` with `timed`, `score`, `source`, `minutes`, `mode: "past"`
+  after they confirm. Style practice: `mode: "style"`, `timed: false`.
 - After grading: each lost point → one `errors` entry (`kind`: concept | careless |
   time | reading | unknown) with a one-line `fix`, and a `practice_items` card.
 

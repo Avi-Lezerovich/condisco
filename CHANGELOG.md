@@ -2,6 +2,25 @@
 
 All notable changes to Condisco. Versions follow the plugin version in `plugin/.claude-plugin/plugin.json`.
 
+## [0.3.0] - 2026-11-26
+
+Pilot release: the first version a student installs alone.
+
+### Plugin
+- New skill `study-materials`: links each unit to its Google Drive file and writes a short summary from that file only. Drive is read, never changed.
+- New skill `study-sync`: manual, read-only "sync now" of Moodle and Piazza through Claude in Chrome, or a pasted page or screenshot. New deadlines come in as unverified. Nothing is written to Moodle or Piazza.
+- `exam-mode`, `study-coach`, `study-setup`: exam mode fields and the shared schema text.
+- 10 new evals (27 in total).
+
+### App
+- Exam mode screen (`#exam`) with rules in `core/exam.js`.
+- Deadlines: a confirm button for unverified deadlines and a link to the source.
+- Gaps: a new summary.
+- New stream and forest recordings, with sources in `audio/LICENSES.md`.
+
+### Repository
+- `scripts/bump-version.mjs`, an English install guide, and the exam suite in the browser test runner.
+
 ## [0.2.0] - 2026-11-26
 
 First version in this repository.

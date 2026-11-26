@@ -97,6 +97,7 @@ function sample() {
 export function mockUse(kind) {
   const seed = kind === 'empty' ? {} : sample();
   if (kind === 'deadlines') seed.deadlines.push(...deadlineEdges());
+  if (kind === 'exam') examEdges(seed);
   const db = makeDb(seed);
   window.__mockDb = db;
   return async name => {
@@ -116,10 +117,31 @@ function deadlineEdges() {
     { id: 'e1', courseId: 'a', title: 'תרגיל בית 4', kind: 'hw', due: iso(-2), estHours: 3, status: 'open', verified: true, graded: true },
     { id: 'e2', courseId: 'c', title: 'הגשת דוח מעבדה', kind: 'hw', due: iso(0, '23:00'), estHours: 1.5, status: 'open', verified: true, graded: true },
     { id: 'e3', courseId: 'b', title: 'טופס הרשמה לתרגול', kind: 'admin', due: iso(0, '07:00'), status: 'open', verified: true, graded: false },
-    { id: 'e4', courseId: 'a', title: 'בוחן קצר', kind: 'quiz', due: iso(1, '10:00'), status: 'open', verified: false, source: 'סילבוס: שבוע 7 (תאריך משוער)', graded: true },
-    { id: 'e5', courseId: 'b', title: 'פרויקט סיום', kind: 'hw', due: '', estHours: 20, status: 'open', verified: false, graded: true },
+    { id: 'e4', courseId: 'a', title: 'בוחן קצר', kind: 'quiz', due: iso(1, '10:00'), status: 'open', verified: false, source: 'סילבוס: שבוע 7 (תאריך משוער)', sourceUrl: 'https://example.com/syllabus', graded: true },
+    { id: 'e5', courseId: 'b', title: 'פרויקט סיום', kind: 'hw', due: '', estHours: 20, status: 'open', verified: false, sourceUrl: 'javascript:alert(1)', graded: true },
     { id: 'e6', courseId: 'c', title: 'תרגיל בית 0', kind: 'hw', due: iso(-10), status: 'missed', verified: true, graded: true },
     { id: 'e7', courseId: 'a', title: 'מטלה ארוכה מאוד עם שם שממשיך וממשיך כדי לבדוק שבירת שורות במסך צר', kind: 'hw', due: iso(40), estHours: 6, status: 'open', verified: true, graded: true },
     { id: 'e8', courseId: 'c', title: 'מבחן סופי', kind: 'exam', due: iso(60, '09:00'), estHours: 30, status: 'open', verified: true, graded: true },
   ];
+}
+
+// ?mock=exam: the normal sample plus exam-mode cases (owned by the exam-mode thread). All fictional:
+// course a has an exam in 10 days (inside "close gaps") with past-exam mocks that carry source and minutes,
+// one style practice that must not count, and a student-made task that the plan must never touch;
+// course b has an unverified exam date on the course only (no deadline), 40 days out.
+function examEdges(seed) {
+  const t = todayStr(), d = n => addDays(t, n);
+  seed.deadlines.push({ id: 'xa', courseId: 'a', title: 'מבחן אמצע', kind: 'exam', due: d(10) + 'T09:00:00+02:00', status: 'open', verified: true, source: 'סילבוס' });
+  seed.courses.find(c => c.id === 'b').examDate = d(40);
+  seed.mocks.push(
+    { id: 'ma1', courseId: 'a', title: 'מבחן דוגמה 2022 מועד א', source: 'מבחן דוגמה 2022 מועד א', score: 72, timed: true, date: d(-8), minutes: 120, mode: 'past' },
+    { id: 'ma2', courseId: 'a', title: 'מבחן דוגמה 2022 מועד ב', source: 'מבחן דוגמה 2022 מועד ב', score: 86, timed: true, date: d(-4), minutes: 120, mode: 'past' },
+    { id: 'ma3', courseId: 'a', title: 'תרגיל בסגנון', source: 'דף תרגול 3', score: 95, timed: false, date: d(-1), mode: 'style' },
+  );
+  seed.errors.push(
+    { id: 'ea1', courseId: 'a', mockId: 'ma1', what: 'שאלה 2: לא זיהיתי את סוג הבעיה', kind: 'concept', fix: 'דוגמה פתורה ואז שתי שאלות לבד', resolved: false, createdAt: d(-8) + 'T12:00:00Z' },
+    { id: 'ea2', courseId: 'a', mockId: 'ma1', what: 'שאלה 4: לא הספקתי', kind: 'time', fix: 'סטים בזמן', resolved: false, createdAt: d(-8) + 'T12:01:00Z' },
+    { id: 'ea3', courseId: 'a', mockId: 'ma2', what: 'שאלה 1: הגדרה לא מדויקת', kind: 'concept', fix: 'לכתוב את ההגדרה מהזיכרון', resolved: false, createdAt: d(-4) + 'T12:00:00Z' },
+  );
+  seed.tasks.push({ id: 'own1', courseId: 'a', title: 'משימה שלי, לא מהתכנית', date: d(3), minutes: 40, status: 'todo' });
 }

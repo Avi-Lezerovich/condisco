@@ -18,7 +18,7 @@ async function run(label, vp, { noAudio = false } = {}) {
   ok(!(await S()).on, 'nothing plays before a tap');
   await p.click('[data-act=focus][data-mode=music]'); await p.waitForTimeout(600);
   const opts = await p.locator('.sp-o').count();
-  ok(noAudio ? opts === 7 : opts === 8, `${opts} choices (classical piano ${noAudio ? 'hidden' : 'shown'})`);
+  ok(noAudio ? opts === 7 : opts === 9, `${opts} choices (classical piano and forest ${noAudio ? 'hidden' : 'shown'})`);
   ok((await p.locator('.sp-cred').count()) === (noAudio ? 0 : 1), 'credits ' + (noAudio ? 'hidden' : 'listed'));
   await p.click('.sp-o[data-v=piano]'); await p.waitForTimeout(1200);
   let s = await S(); ok(s.on && s.kind === 'piano' && s.run, 'tap starts generated piano, audio running');
@@ -27,7 +27,7 @@ async function run(label, vp, { noAudio = false } = {}) {
     ok(s.kind === 'classic' && s.track && s.track.file, 'classical recording plays: ' + (s.track && s.track.file));
     ok((await p.textContent('.sp-now')).startsWith('מתנגן:'), 'status names the piece');
   }
-  for (const k of ['rain', 'stream', 'sea', 'pad', 'brown']) { await p.click(`.sp-o[data-v=${k}]`); await p.waitForTimeout(500); s = await S(); ok(s.kind === k && s.on, k + ' plays'); }
+  for (const k of (noAudio ? [] : ['forest']).concat(['rain', 'stream', 'sea', 'pad', 'brown'])) { await p.click(`.sp-o[data-v=${k}]`); await p.waitForTimeout(500); s = await S(); ok(s.kind === k && s.on, k + ' plays'); }
   await p.locator('[data-snd=vol]').first().fill('35'); await p.waitForTimeout(100); s = await S(); ok(Math.abs(s.vol - .35) < .01, 'volume set and saved');
   await p.click('.sp-o[data-v=""]'); await p.waitForTimeout(300); s = await S(); ok(!s.on, 'silence stops the sound');
   // the timer path: pick rain, go on to the timer (music mode ends at finish, so use a block)

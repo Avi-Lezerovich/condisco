@@ -13,6 +13,8 @@ const timeOf = d => { const t = String(d.due).slice(11, 16); return /^\d{2}:\d{2
 // hours until the due moment, only when the value carries a time (absolute, so offsets are respected)
 const hoursLeft = d => { if (!timeOf(d)) return null; const ms = Date.parse(d.due); return isNaN(ms) ? null : (ms - clock.now()) / 36e5; };
 const unverified = d => d.verified !== true;
+// only https links are rendered; anything else (javascript:, http:, junk) is dropped
+const safeUrl = u => { try { const x = new URL(String(u || '')); return x.protocol === 'https:' ? x.href : ''; } catch (e) { return ''; } };
 const fmtH = h => (Math.round(h * 10) / 10).toString();
 const plural = (n, one, two, many) => n === 1 ? one : n === 2 ? two : n + ' ' + many;
 
@@ -49,12 +51,14 @@ function row(d, cm) {
     +d.estHours > 0 ? `<span>כ-${esc(fmtH(+d.estHours))} ש' עבודה</span>` : '',
     d.graded ? '<span>לציון</span>' : '',
     showSrc ? `<span class="src">מקור: ${esc(src)}</span>` : '',
+    safeUrl(d.sourceUrl) ? `<a class="src-link" href="${esc(safeUrl(d.sourceUrl))}" target="_blank" rel="noopener noreferrer">למקור</a>` : '',
   ].join('');
   const canSubmit = d.kind === 'hw' || d.kind === 'admin' || !d.kind;
   let acts = '';
   if (closed) acts = `<button class="btn ghost" data-act="dlo" data-id="${esc(d.id)}" aria-label="${esc('החזרה לפתוחים: ' + (d.title || ''))}">החזרה לפתוחים</button>`;
   else if (canSubmit) acts = `<button class="btn" data-act="dl" data-id="${esc(d.id)}" aria-label="${esc('סימון כהוגש: ' + (d.title || ''))}">סימון כהוגש</button>`
     + (late ? `<button class="btn ghost" data-act="dlm" data-id="${esc(d.id)}" aria-label="${esc('סימון כלא הוגש: ' + (d.title || ''))}">סימון כלא הוגש</button>` : '');
+  if (!closed && unverified(d)) acts += `<button class="btn ghost" data-act="dlv" data-id="${esc(d.id)}" aria-label="${esc('אישור שהפרטים נבדקו מול המקור: ' + (d.title || ''))}">אישור</button>`;
   const cls = ['dl', hot && 'hot', late && 'late', closed && 'closed', d.kind === 'exam' && 'exam', k.word && 'word'].filter(Boolean).join(' ');
   return `<li class="${cls}" style="${cvar(c)}"><div class="left" aria-hidden="true">${esc(k.big)}${k.small ? `<small>${esc(k.small)}</small>` : ''}</div>
     <div class="body"><span class="sr">${esc(k.say)}. </span><div class="t-title">${esc(d.title || 'ללא שם')}${badge}</div><div class="meta">${meta}</div></div>
@@ -110,5 +114,12 @@ export const actions = {
   dlf(b, { rerender }) { view.all = b.dataset.v === '1'; rerender(); },
   dl(b, { store }) { return setStatus(b, store, 'submitted', 'סומן כהוגש. כל הכבוד'); },
   dlm(b, { store }) { return setStatus(b, store, 'missed', 'סומן כלא הוגש. אפשר למצוא אותו בלשונית "הכול"'); },
+  async dlv(b, { store }) {
+    const d = store.S.deadlines.find(x => x.id === b.dataset.id); if (!d) return;
+    b.disabled = true;
+    const r = await store.write('deadlines/' + d.id, { verified: true, updatedAt: new Date(clock.now()).toISOString() });
+    if (r && r.ok === false) { b.disabled = false; toast('השמירה לא הצליחה. אפשר לנסות שוב'); return; }
+    toast('סומן כמאומת');
+  },
   dlo(b, { store }) { return setStatus(b, store, 'open', 'הוחזר לפתוחים'); },
 };

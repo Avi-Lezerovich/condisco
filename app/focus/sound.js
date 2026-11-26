@@ -246,6 +246,7 @@ export const MUSIC_KINDS = [
   { id: 'rain', he: 'גשם', note: 'גשם רך על חלון' },
   { id: 'stream', he: 'נחל', note: 'מים זורמים בשקט' },
   { id: 'sea', he: 'גלים', note: 'ים רגוע' },
+  { id: 'forest', he: 'יער', note: 'רוח ועלים, כמעט בלי ציפורים' },
   { id: 'pad', he: 'צליל חם', note: 'אקורדים שזזים לאט' },
   { id: 'brown', he: 'רעש חום', note: 'מבליע רעשי רקע' },
 ];
@@ -266,7 +267,7 @@ export function loadLibrary() {
   return libP;
 }
 export const library = () => LIB;
-export const kindAvailable = k => k !== 'classic' || LIB.tracks.length > 0;
+export const kindAvailable = k => k === 'classic' ? LIB.tracks.length > 0 : k === 'forest' ? !!LIB.loops.forest : true; // these two have no generated twin
 const BEAT = 60 / 54, CHORD_BEATS = 16;
 
 function pianoNote(ctx, out, m, t, v) {
@@ -414,7 +415,7 @@ function makeTracks(ctx, out, onFail) {
   };
 }
 
-const LEVEL = { classic: 1, piano: .9, pad: .7, rain: .85, stream: .6, sea: .6, brown: .5 };
+const LEVEL = { classic: 1, piano: .9, pad: .7, rain: .85, stream: .8, sea: .6, forest: .85, brown: .5 };
 export const Music = {
   kind: null, out: null, gen: null, ducked: false, dip: null,
   get on() { return !!this.gen; },

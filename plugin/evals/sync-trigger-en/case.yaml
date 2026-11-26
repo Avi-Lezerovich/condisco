@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: sync-trigger-en
+description: trigger check for study-sync
+tags: [study-sync, trigger]
+execution:
+  prompt: "Sync Moodle and Piazza now, anything new I should know about?"
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-sync
+    tool: Skill
+    input_match: "study-sync"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply works read-only on Moodle and Piazza, marks any new deadline as unverified, does not invent deadlines or announcements, and does not create a scheduled task."

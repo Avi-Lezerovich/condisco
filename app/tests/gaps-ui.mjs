@@ -50,6 +50,17 @@ await p.click('[data-act=errdone]'); await wait(150);
 t((await S()).errors[0].resolved === true, 'error resolved');
 await p.reload(); await wait(700);
 t(await p.$('.course.open .c-head[data-id=c]') != null, 'open card remembered after reload');
+// unit summary: collapsed by default, escaped, capped at 600 chars
+await p.evaluate(async () => { await window.__mockDb.doc('units/a-l1').update({ summary: 'שורה ראשונה <img src=x onerror=alert(1)>\nשורה שנייה ' + 'א'.repeat(700) }); });
+await p.click('.c-head[data-id=a]'); await wait(200);
+t(await p.$('.u-sumbtn[data-id=a-l1]') != null && await p.$('.u-sum') == null, 'summary collapsed by default');
+t(await p.$('.u-sumbtn[data-id=a-l2]') == null, 'no summary button without summary');
+await p.click('.u-sumbtn[data-id=a-l1]'); await wait(120);
+const sumTxt = await p.textContent('.u-sum');
+t(sumTxt.includes('<img') && await p.$('.u-sum img') == null && sumTxt.length <= 600, 'summary escaped and capped');
+await p.screenshot({ path: out + '/gaps-summary.png' });
+await p.click('.u-sumbtn[data-id=a-l1]'); await wait(120);
+t(await p.$('.u-sum') == null, 'summary collapses');
 // a course with no units and no confidence, long name
 await p.evaluate(async () => { await window.__mockDb.doc('courses/z').set({ name: 'קורס בלי יחידות עם שם ארוך מאוד מאוד מאוד שצריך לשבור שורה', order: 4 }); });
 await wait(200); await p.click('.c-head[data-id=z]'); await wait(150);

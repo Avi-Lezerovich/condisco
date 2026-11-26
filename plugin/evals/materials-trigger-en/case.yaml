@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: materials-trigger-en
+description: trigger check for study-materials
+tags: [study-materials, trigger]
+execution:
+  prompt: "I added new slides to my Complexity folder in Google Drive, update my units from Drive."
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-materials
+    tool: Skill
+    input_match: "study-materials"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "If Drive is reachable, the reply refreshes only new or changed files and keeps each unit linked to its Drive file. If Drive or the app is not reachable, it says so plainly and offers a fallback such as uploading the files. In every case it does not invent file contents or claim units were updated, and it does not change Drive files."

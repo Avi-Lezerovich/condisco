@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: sync-no-trigger
+description: no check for study-sync
+tags: [study-sync, no]
+execution:
+  prompt: "How do I sync my iPhone contacts with my Mac?"
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: not-fired-study-sync
+    tool: Skill
+    input_match: "study-sync"
+    min: 0
+    max: 0
+  - type: llm
+    name: behaviour
+    criteria: "The reply gives a usable answer about syncing iPhone contacts with a Mac (for example iCloud or Finder). It does not start a Moodle or Piazza sync."
