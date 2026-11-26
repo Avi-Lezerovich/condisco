@@ -15,4 +15,4 @@ graders:
     arm: with-only
   - type: llm
     name: behaviour
-    criteria: "The reply starts the Condisco setup: it asks the student at most 4 questions in one message (name, courses, wake/best time, where materials live) and does not invent any courses, dates or grades."
+    criteria: "The reply starts the Condisco setup: it asks the student at most 4 questions in one message (name, courses, wake/best time, where materials live) and does not invent any courses, dates or grades. The reply is in Hebrew and, since the student has not shown a grammatical gender, does not address them with masculine-only or feminine-only verb forms (e.g. תגיד, שתדע, תכתבי) or slash forms (מוכן/ה)."
