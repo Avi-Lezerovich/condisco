@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: feedback-trigger-en
+description: trigger check for study-feedback (English bug report)
+tags: [study-feedback, trigger]
+execution:
+  prompt: "Something in Condisco is broken: the focus timer stopped when I switched tabs."
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-feedback
+    tool: Skill
+    input_match: "study-feedback"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply is in English, does not ask for a 1-5 rating or a wish, does not ask again what broke (one optional follow-up such as which screen is fine), and gives a short copyable feedback summary that includes the timer bug and tells the student to send it themselves."
