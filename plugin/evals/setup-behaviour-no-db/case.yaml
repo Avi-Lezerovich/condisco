@@ -1,7 +1,7 @@
 schema_version: "1.0"
 name: setup-behaviour-no-db
-description: trigger check for study-setup
-tags: [study-setup, trigger]
+description: study-setup stops cleanly when artifact storage is unavailable
+tags: [study-setup, behaviour]
 execution:
   prompt: "Set up Condisco. My name is Dana, courses: Calculus 1 (exam 2027-01-20), Linear Algebra. I wake at 7, best in the morning, materials on Google Drive. Note: on this account artifacts cannot use storage/db at all."
   max_turns: 8

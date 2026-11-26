@@ -1,6 +1,6 @@
 schema_version: "1.0"
 name: setup-no-trigger
-description: no check for study-setup
+description: study-setup does not fire on an unrelated "set up" request
 tags: [study-setup, no]
 execution:
   prompt: "Can you set up a Python virtual environment for my Django project?"

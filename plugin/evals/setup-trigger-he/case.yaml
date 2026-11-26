@@ -1,6 +1,6 @@
 schema_version: "1.0"
 name: setup-trigger-he
-description: trigger check for study-setup
+description: study-setup fires on a setup request
 tags: [study-setup, trigger]
 execution:
   prompt: "התקנתי עכשיו את Condisco. תגדיר לי אותו."
