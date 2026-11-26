@@ -1,6 +1,6 @@
 schema_version: "1.0"
 name: exam-mock-no-source
-description: trigger check for exam-mode
+description: behaviour check for exam-mode, no past exams means style practice only
 tags: [exam-mode, trigger]
 execution:
   prompt: "Make me a full mock exam for my Data Structures final. I don't have any past exams."
