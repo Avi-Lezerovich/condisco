@@ -21,7 +21,7 @@ All study data stays in the student's own private Condisco artifact on claude.ai
 A paid Claude plan (Pro or higher) with code execution on, and artifact storage (web or desktop).
 
 ## Install
-Customize > Plugins > Add > Upload plugin, then choose `condisco-0.3.0.zip`. Then say "set up Condisco".
+Customize > Plugins > Add > Upload plugin, then choose `condisco-0.3.1.zip`. Then say "set up Condisco".
 
 ## Build
 From the repository root: `npm run build:plugin` writes `dist/condisco-<version>.zip`. It copies the app from `app/` into `skills/study-setup/assets/app/`, so do not edit that folder by hand.

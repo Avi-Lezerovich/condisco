@@ -2,6 +2,14 @@
 
 All notable changes to Condisco. Versions follow the plugin version in `plugin/.claude-plugin/plugin.json`.
 
+## [0.3.1] - 2026-11-26
+
+### App
+- New recordings: Chopin, Nocturne Op. 9 No. 2 (public domain), and a sea loop (CC BY 3.0, Luftrum, credited in the app and in NOTICE.md).
+
+### Repository
+- NOTICE.md for third-party audio licenses.
+
 ## [0.3.0] - 2026-11-26
 
 Pilot release: the first version a student installs alone.

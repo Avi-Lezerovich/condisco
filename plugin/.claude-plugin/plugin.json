@@ -2,7 +2,7 @@
   "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
   "name": "condisco",
   "displayName": "Condisco",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A study partner for university students: sets up a private Condisco study app, plans each day, runs evidence-based study sessions with a hint ladder and closed-book recall, and checks in every evening. Respects each course's AI policy.",
   "author": { "name": "Condisco" },
   "license": "MIT",
