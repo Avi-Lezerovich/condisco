@@ -13,7 +13,7 @@ const out = process.argv[2] || null, PORT = process.argv[3] || 8811;
       const squeezed = links.some(a => a.getBoundingClientRect().width < 40 || a.scrollWidth > a.clientWidth + 1);
       let overlap = squeezed; for (let i = 0; i < as.length; i++) for (let j = i + 1; j < as.length; j++) { const a = as[i], c = as[j]; if (a.left < c.right - 1 && c.left < a.right - 1 && a.top < c.bottom - 1 && c.top < a.bottom - 1) overlap = true; }
       const v = document.querySelector('#view').getBoundingClientRect(), n = nav.getBoundingClientRect();
-      return { overlap, sideScroll: document.documentElement.scrollWidth > innerWidth + 1, viewL: Math.round(v.left), viewR: Math.round(v.right), navL: Math.round(n.left), navR: Math.round(n.right), cutoff: v.left < -1, coversNav: v.right > n.left + 1 && v.left < n.right - 1 && innerWidth >= 1100 };
+      return { overlap, sideScroll: document.documentElement.scrollWidth > innerWidth + 1, viewL: Math.round(v.left), viewR: Math.round(v.right), navL: Math.round(n.left), navR: Math.round(n.right), cutoff: v.left < -1, coversNav: v.right > n.left + 1 && v.left < n.right - 1 && innerWidth >= 600 };
     });
     const fail = r.overlap || r.sideScroll || r.cutoff || r.coversNav || errs.length; if (fail) bad++;
     console.log(w + 'x' + h + ' ' + scheme, fail ? 'FAIL' : 'ok', JSON.stringify(r), errs.join('|'));

@@ -41,7 +41,7 @@ Condisco reads the courses (from Moodle or from syllabi), then 4 short questions
 ## Step 1 — Publish the app
 Publish `assets/app/` **unchanged** as one artifact titled **"Condisco"**:
 `assets/app/index.html` is the page, and every other file under `assets/app/`
-(every file and folder, e.g. app.js, css/, core/, scenes/) goes along as a supporting file at
+(every file and folder, e.g. app.js, ds/, css/, core/, scenes/) goes along as a supporting file at
 the same relative path (e.g. `core/store.js`). Do not rewrite, restyle, merge or
 shorten any file. Keep it private (not shared). Declare these capabilities:
 

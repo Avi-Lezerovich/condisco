@@ -5,7 +5,8 @@ The student-facing app of Condisco: a private claude.ai artifact with owner-only
 - Data model: `SCHEMA.md`.
 
 ## Files
-- `index.html`: shell, design tokens (`--bg --surface --ink --muted --line --accent --win --course-1..8`, `--s1..--s8`, scene tokens), all via `light-dark()`.
+- `index.html`: markup only (band, header, view, navigation, focus/idle layers) and the stylesheet links.
+- `ds/`: the design system in code: `tokens.css` (generated from `ds/tokens.json`), `base.css`, `shell.css` (tab bar under 600px, navigation rail from 600px, scene band), `components.css`, `palettes.css`. See `ds/README.md`.
 - `app.js`: boot, routing (`#today #gaps #deadlines #checkin #prefs`), rendering, events, desktop install and dock icon.
 - `core/store.js`: the only module that calls `claude.use("db")`: no-db notice, 10-s load timeout, one write per doc at a time, schema version and migrations, session pruning, export snapshot.
 - `core/model.js`: pure rules (ladder, priority, mocks, Leitner, pruning). `core/util.js`: escaping, dates, the app clock. `core/mock.js`: `?mock=1` fake db with fictional sample data (`?mock=empty` for first run, `&now=ISO` fake clock).
@@ -21,7 +22,7 @@ Publish `index.html` as the page and every other file above with `files` (relati
 From the repository root (`npm ci` once, which also installs Playwright's Chromium via `npx playwright install chromium`):
 ```
 npm run test:unit       # pure tests: engine, Leitner, mocks, priority, pruning, migrations, Gaps rules
-npm run test:browser    # every browser suite against ?mock=1, served by tests/serve.mjs on :8811
+npm run test:browser    # every browser suite against ?mock=1, served by tests/serve.mjs on :8811 (incl. tests/matrix.mjs: device matrix, no side scroll, 44px targets, no text under 12.5px)
 npm test                # both
 npm run serve           # http://localhost:8811/index.html?mock=1 (fake data), ?mock=empty for first run, &now=ISO for a fake clock
 ```

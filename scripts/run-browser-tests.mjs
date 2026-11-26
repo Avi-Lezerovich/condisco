@@ -18,6 +18,7 @@ const SUITES = {
   sound: ['tests/sound.mjs'],
   exam: ['tests/exam.mjs', PORT],
   layout: ['tests/layout.mjs'],
+  matrix: ['tests/matrix.mjs', '--quick'],
 };
 const wanted = process.argv.slice(2).length ? process.argv.slice(2) : Object.keys(SUITES);
 for (const w of wanted) if (!SUITES[w]) { console.error(`Unknown suite "${w}". Known: ${Object.keys(SUITES).join(', ')}`); process.exit(2); }

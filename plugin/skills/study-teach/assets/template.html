@@ -14,16 +14,11 @@
    for what must be remembered. Every picture explains something; nothing is decoration. */
 :root{color-scheme:light dark;
 --c:#3a60d8; /* KIT: the course colour from courses/{id}.color, else keep */
---bg:light-dark(#f2f5f7,#121820);--surface:light-dark(#ffffff,#1a222c);--sunk:light-dark(#e8edf1,#161d26);
---ink:light-dark(#1b2532,#e2e7ec);--muted:light-dark(#5b6876,#9ba7b4);--line:light-dark(#dbe2e8,#2c3744);
---accent:light-dark(#3a60d8,#93abf5);--cc:light-dark(var(--c),color-mix(in srgb,var(--c) 58%,#ffffff));
---mark:light-dark(#f7d04a,#e6c25c);--mark-ink:#1f1b08;
---idea:light-dark(#fff6d6,#2b2717);--idea-line:light-dark(#e9c94a,#6d5f2a);
---core:light-dark(#e9efff,#1b2539);--core-line:light-dark(#9db2f0,#3a4f86);
---ex:light-dark(#e6f4ec,#16271f);--ex-line:light-dark(#8cc9a6,#2f6b4a);
---trap:light-dark(#fdebe7,#2d1c1a);--trap-line:light-dark(#eea596,#7a3b31);
---add:light-dark(#f1ecfa,#231d2e);--add-line:light-dark(#c3b0e6,#56467a);
---r:16px;--f-d:"Secular One","Assistant",system-ui,sans-serif;--f-b:"Assistant",system-ui,sans-serif}
+/* DS:TOKENS start — generated from app/ds/tokens.json by scripts/build-tokens.mjs; do not edit */
+--bg:light-dark(#f2f5f7,#121820);--surface:light-dark(#ffffff,#1a222c);--sunk:light-dark(#e8edf1,#161d26);--ink:light-dark(#1b2532,#e2e7ec);--muted:light-dark(#5b6876,#9ba7b4);--line:light-dark(#dbe2e8,#28323e);--accent:light-dark(#3a60d8,#93abf5);--mark:light-dark(#f7d04a,#e6c25c);--mark-ink:#1f1b08;--idea:light-dark(#fff6d6,#2b2717);--idea-line:light-dark(#e9c94a,#6d5f2a);--core:light-dark(#e9efff,#1b2539);--core-line:light-dark(#9db2f0,#3a4f86);--ex:light-dark(#e6f4ec,#16271f);--ex-line:light-dark(#8cc9a6,#2f6b4a);--trap:light-dark(#fdebe7,#2d1c1a);--trap-line:light-dark(#eea596,#7a3b31);--add:light-dark(#f1ecfa,#231d2e);--add-line:light-dark(#c3b0e6,#56467a);--ok:light-dark(#1f7a4c,#6fcf9b);--warn:light-dark(#a14f27,#eea27e);--f-d:"Secular One", "Assistant", system-ui, sans-serif;--f-b:"Assistant", system-ui, -apple-system, "Segoe UI", sans-serif;
+/* DS:TOKENS end */
+--cc:light-dark(var(--c),color-mix(in srgb,var(--c) 58%,#ffffff));
+--r:16px}
 *{box-sizing:border-box;min-width:0}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 var(--f-b)}
