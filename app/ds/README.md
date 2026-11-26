@@ -14,6 +14,11 @@ Source of truth: the **Condisco Design System** artifact, https://claude.ai/arti
 
 Load order (index.html): tokens → base → shell → components → palettes → `css/<screen>.css`.
 
+## Logo
+The logo lives in `brand/` at the repo root ("the C that is also a page": a half-sun C beside a notes page; wordmark `[C]ondisco`). See `brand/README.md` for files, colours and rules, and the **Logos** group in the design-system artifact.
+- `index.html` carries `brand/favicon.svg` inline as its favicon (data URI), so the published page needs no extra file. Regenerate it from `brand/` if the mark changes.
+- In the UI use `brand/condisco-icon.svg` (tile) on glass over scenes, never the bare mark on a scene. The C opens to the right and the wordmark stays LTR inside RTL layouts.
+
 ## Change a token
 1. Change it in the design-system artifact (tokens.json), so the reference and the code agree.
 2. Copy the artifact's `tokens.json` to `app/ds/tokens.json`.
