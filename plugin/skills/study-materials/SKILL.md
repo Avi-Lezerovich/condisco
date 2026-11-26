@@ -12,13 +12,18 @@ Match the student's grammatical gender once they show it; until then use
 gender-neutral forms, never slash forms. Keep identifiers in English.
 
 ## Before you start
-- Find the Condisco artifact as `study-coach` does and read `courses/*`,
-  `units/*` and `settings/main`. Read `references/schema.md` for unit fields.
+- Find the student's Condisco artifact: project memory or instructions, else the
+  artifact list (title "Condisco", or older "Study Hub"). Read `courses/*`,
+  `units/*` and `settings/main`. Read `references/schema.md` for field meanings.
   No artifact → say so in one line and offer `study-setup`.
 - This needs the Google Drive connector. Not connected → say so in one line and
   offer the fallback: upload files to the chat. Do not guess file contents.
 - Drive is read-only here. Never create, move, rename, share or trash a Drive
-  file, even if it looks messy. Tidying is the student's call.
+  file, even if it looks messy or the student asks: say it is read-only and, if
+  useful, list the suggested new names for the student to apply.
+- Scope: this skill links files to units and writes the short `units.summary`.
+  A full study summary of a week or topic for the student to learn from is a
+  separate job; do not write it into `units.summary`.
 
 ## Step 1 — Map folders (once per course, then remembered)
 - `courses/{id}.driveFolderId` set → use it. Otherwise search Drive for a folder
@@ -53,13 +58,15 @@ Read each matched file with the Drive connector and write to the unit:
   suggest uploading that file to the chat for a fuller summary.
 - Unreadable file (scan, protected, too large) → no summary, `summary` left
   empty, one line telling the student which file and why.
-Batch: at most 10 files per turn. Then show progress ("12 מתוך 31") and continue
-on "כן"/"continue". Summaries are reference only: they never change `status` or
+Batch: at most 10 files per turn, so one turn stays short and a failure loses
+little. Then show progress ("12 מתוך 31") and continue on "כן"/"continue". Summaries are reference only: they never change `status` or
 `confidence`.
 
 ## Refresh ("I added new material")
 Compare each file's modified time to `units.fileModified`. Re-summarise only
-changed or new files. Report one line: new, updated, unchanged, unreadable.
+changed or new files. A unit whose `fileId` is no longer in the folder → tell the
+student and keep the unit; never delete it. Report one line: new, updated,
+unchanged, missing, unreadable.
 
 ## Rules
 - Every write to an existing doc needs its current version: read, then write.
