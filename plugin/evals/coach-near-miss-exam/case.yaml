@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: coach-near-miss-exam
+description: near-miss no check for study-coach (a single exam plan belongs to exam-mode)
+tags: [study-coach, no]
+execution:
+  prompt: "I have my probability final in 3 weeks. Build me a backward study plan for it."
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: not-fired-study-coach
+    tool: Skill
+    input_match: "study-coach"
+    min: 0
+    max: 0
+  - type: llm
+    name: behaviour
+    criteria: "The reply works on a plan toward that one exam (or asks for the exam date/materials it needs) and does not invent an exam date, syllabus topics or past-exam content."

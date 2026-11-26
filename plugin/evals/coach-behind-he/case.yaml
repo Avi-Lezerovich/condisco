@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: coach-behind-he
+description: trigger check for study-coach (student is behind, Hebrew)
+tags: [study-coach, trigger]
+execution:
+  prompt: "אני מאחרת בחומר בכל הקורסים, מה עכשיו?"
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-coach
+    tool: Skill
+    input_match: "study-coach"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply is in Hebrew, warm and without guilt, and addresses the student in feminine forms (she wrote 'מאחרת'), with no slash forms like 'את/ה'. It looks for the student's data first instead of inventing a plan, deadlines or grades."

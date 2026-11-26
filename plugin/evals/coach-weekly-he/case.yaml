@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: coach-weekly-he
+description: trigger check for study-coach (weekly review, Hebrew)
+tags: [study-coach, trigger]
+execution:
+  prompt: "בוא נעשה סיכום שבועי"
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-coach
+    tool: Skill
+    input_match: "study-coach"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply is in Hebrew and tries to read the student's Condisco/Study Hub data first, or says in a short line that it cannot find it and offers setup. It does not invent course names, unit statuses, mock scores or deadlines."
