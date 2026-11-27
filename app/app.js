@@ -98,16 +98,15 @@ document.addEventListener('submit', e => {
 });
 
 // ---- desktop: dock icon inside the installed app, install button elsewhere; downloads for export ----
-function drawIcon() {
-  const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d'), k = 4;
-  const bg = g.createLinearGradient(0, 0, 0, 256); bg.addColorStop(0, '#2a5176'); bg.addColorStop(1, '#12212f');
-  g.fillStyle = bg; g.beginPath(); if (g.roundRect) g.roundRect(0, 0, 256, 256, 64); else g.rect(0, 0, 256, 256); g.fill();
-  const gl = g.createRadialGradient(128, 140, 0, 128, 140, 68); gl.addColorStop(0, 'rgba(240,201,90,.45)'); gl.addColorStop(1, 'rgba(240,201,90,0)');
-  g.fillStyle = gl; g.beginPath(); g.arc(128, 140, 68, 0, Math.PI * 2); g.fill();
-  g.fillStyle = '#f0c95a'; g.beginPath(); g.arc(32 * k, 37 * k, 11 * k, Math.PI, 0); g.closePath(); g.fill();
-  g.strokeStyle = '#eef3f6'; g.lineCap = 'round'; g.lineJoin = 'round';
-  const wave = (x0, y, w, dip, lw, a) => { g.globalAlpha = a; g.lineWidth = lw * k; g.beginPath(); g.moveTo(x0 * k, y * k); g.quadraticCurveTo((x0 + w / 2) * k, (y - dip) * k, (x0 + w) * k, y * k); g.quadraticCurveTo((x0 + w * 1.5) * k, (y - dip) * k, (x0 + w * 2) * k, y * k); g.stroke(); g.globalAlpha = 1; };
-  wave(10, 41, 22, 5.5, 3.2, 1); wave(14, 48, 18, 4, 2.6, .55);
+function drawIcon() { // the Condisco tile (brand/condisco-icon.svg) drawn in 100 units
+  const c = document.createElement('canvas'); c.width = c.height = 256; const g = c.getContext('2d'); g.scale(2.56, 2.56);
+  const bg = g.createLinearGradient(0, 0, 100, 100); bg.addColorStop(0, '#4a72e6'); bg.addColorStop(1, '#2a49b4');
+  g.fillStyle = bg; g.beginPath(); if (g.roundRect) g.roundRect(0, 0, 100, 100, 23); else g.rect(0, 0, 100, 100); g.fill();
+  g.fillStyle = '#f7d04a'; g.beginPath(); g.moveTo(48, 24); g.arc(48, 50, 26, -Math.PI / 2, Math.PI / 2, true); g.closePath(); g.fill();
+  g.fillStyle = '#ffffff'; g.beginPath(); g.moveTo(53, 27); g.bezierCurveTo(61, 24.5, 69, 24.5, 78, 27.5); g.lineTo(78, 72.5); g.bezierCurveTo(69, 69.5, 61, 69.5, 53, 72); g.closePath(); g.fill();
+  g.strokeStyle = '#3a60d8'; g.lineWidth = 3.6; g.lineCap = 'round';
+  [[38.5, 72, 1], [47.5, 70, .75], [56.5, 66, .5]].forEach(([y, x2, a]) => { g.globalAlpha = a; g.beginPath(); g.moveTo(59, y); g.lineTo(x2, y); g.stroke(); });
+  g.globalAlpha = 1;
   return c.toDataURL('image/png');
 }
 async function capabilities() {
