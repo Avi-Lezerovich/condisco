@@ -5,6 +5,7 @@ import { ensureAudio, beep, Pad, Music } from './sound.js';
 import { soundPicker, bindSound } from './music-ui.js'; // sound thread hook
 import { breathBody, createBreathLive, breathEnd } from './breath.js';
 import { timerBody, timerLive, paintMini as miniPaint, createCues } from './timer.js'; // timer thread
+import { createFocusScene, isWide, WIDE } from './scene.js';
 
 const ZONE = {
   block: [['dnd', 'הטלפון על "נא לא להפריע", ורחוק מהיד'], ['one', 'פתוח רק החומר של המשימה'], ['water', 'בקבוק מים בהישג יד'], ['seat', 'במקום הקבוע ללמידה, לא במיטה']],
@@ -21,7 +22,11 @@ const STEP_LABEL = { zone: 'אזור למידה', breathe: 'נשימה', music: 
 
 export function createFocus({ store, onChange = () => {} }) {
   const FZ = $('#focus'), MINI = $('#mini');
-  bindSound(FZ); // sound thread hook
+  // desktop (>= 1024px): the scene fills the screen and the steps sit on a glass panel; phone: a full-screen sheet
+  FZ.innerHTML = '<div class="fz-scene" aria-hidden="true"></div><div class="fz-box"></div>';
+  const SCN = FZ.querySelector('.fz-scene'), BOX = FZ.querySelector('.fz-box');
+  const SC = createFocusScene(SCN);
+  bindSound(BOX); // sound thread hook: content re-renders inside BOX
   let F = null, loop = 0;
   const BL = createBreathLive(Pad);
   const CU = createCues({ now: () => clock.now() }); // timer thread: leader tab, bells, music cues
@@ -61,7 +66,7 @@ export function createFocus({ store, onChange = () => {} }) {
     if (wasOpen) paint(); else if (E.timerShowing(F)) { F = { ...F, min: true }; paint(); } else MINI.hidden = true;
     CU.arm(F); ensureLoop(); onChange();
   }
-  function drop() { F = null; CU.cancel(); ensureLoop(); Pad.stop(); try { Music.stop(); } catch (e) { /* ignore */ } hide(); MINI.hidden = true; onChange(); }
+  function drop() { F = null; SC.forget(); CU.cancel(); ensureLoop(); Pad.stop(); try { Music.stop(); } catch (e) { /* ignore */ } hide(); MINI.hidden = true; onChange(); }
   function step() {
     if (!F || !sync()) return;
     const prev = F, { state, events } = E.tick(F, now());
@@ -80,14 +85,21 @@ export function createFocus({ store, onChange = () => {} }) {
     commit(E.create({ mode, task: t || null, now: now(), sound: soundPref(), pattern: safeLS.get('condisco.pattern') || '45/10', pace: safeLS.get('condisco.breathPace') || 'calm' }));
     setTimeout(() => { const b = FZ.querySelector('button'); if (b) b.focus(); }, 30);
   }
-  function close() { CU.cancel(); Pad.stop(); Music.stop(); /* sound thread hook */ F = null; safeLS.del(E.KEY); ensureLoop(); hide(); MINI.hidden = true; onChange(); }
-  function hide() { BL.release(); FZ.classList.remove('open', 'calm'); FZ.innerHTML = ''; document.body.classList.remove('locked'); }
+  function close() { SC.forget(); CU.cancel(); Pad.stop(); Music.stop(); /* sound thread hook */ F = null; safeLS.del(E.KEY); ensureLoop(); hide(); MINI.hidden = true; onChange(); }
+  function hide() { BL.release(); SC.stop(); FZ.classList.remove('open', 'calm', 'scenic', 'brk'); BOX.innerHTML = ''; document.body.classList.remove('locked'); }
+  // the scene holds in every step except the break, so it never swaps mid-focus
+  function scene() {
+    const wide = isWide() && !!F && !F.min;
+    FZ.classList.toggle('scenic', wide);
+    if (wide) SC.start(F.state !== 'break'); else SC.stop();
+  }
+  matchMedia(WIDE).addEventListener('change', () => { if (F && !F.min && FZ.classList.contains('open')) scene(); });
   function minimize() { if (!F) return; commit(E.dispatch(F, 'minimize', null, now()), { render: false }); hide(); paintMini(); }
   function restore() { if (!F) return; ensureAudio(); commit(E.dispatch(F, 'restore', null, now())); }
 
   async function finalize(s) {
     const t = now(), keep = s, tk = keep.taskId ? store.S.tasks.find(x => x.id === keep.taskId) : null;
-    F = null; CU.cancel(); ensureLoop(); Pad.stop(); Music.stop(1); /* sound thread hook */ hide(); MINI.hidden = true; onChange();
+    F = null; SC.forget(); CU.cancel(); ensureLoop(); Pad.stop(); Music.stop(1); /* sound thread hook */ hide(); MINI.hidden = true; onChange();
     const log = E.sessionLog(keep, t);
     if (keep.mode !== 'music') await store.write('sessions/' + keep.id, log, 'set'); // id from start time: two tabs write the same doc
     const ts = new Date(t).toISOString();
@@ -103,7 +115,9 @@ export function createFocus({ store, onChange = () => {} }) {
     MINI.hidden = true;
     FZ.classList.add('open'); document.body.classList.add('locked');
     FZ.classList.toggle('calm', F.state === 'breathe');
-    FZ.innerHTML = `<div class="fz">${head()}${body()}</div>`;
+    FZ.classList.toggle('brk', F.state === 'break');
+    scene();
+    BOX.innerHTML = `<div class="fz" data-step="${F.state}">${head()}${body()}</div>`;
     BL.reset(); live();
   }
   function head() {
@@ -134,7 +148,7 @@ export function createFocus({ store, onChange = () => {} }) {
         <div class="music">${PLAYLIST_OK(pl) ? `<a href="${esc(pl)}" target="_blank" rel="noopener">הפלייליסט שלי <small>קישור שמור</small></a>` : ''}
         ${MUSIC.filter(m => m[2]).map(([n, d, u]) => u ? `<a href="${u}" target="_blank" rel="noopener">${n} <small>${d}</small></a>` : `<button class="mlink" data-f="${solo ? 'finish' : 'next'}">${n} <small>${d}</small></button>`).join('')}</div>
         <div class="q"><label for="fz-pl"><span>${PLAYLIST_OK(pl) ? 'להחליף את הפלייליסט שלי' : 'לשמור פלייליסט משלי'}</span></label><small>קישור מ-YouTube Music או Spotify</small><div class="inrow"><input class="f" id="fz-pl" inputmode="url" placeholder="https://music.youtube.com/playlist?list=..."><button class="btn" data-f="savepl">שמירה</button></div></div>
-        <div class="foot">${solo ? '<button class="btn primary" data-f="finish">סיום</button>' : '<button class="btn primary" data-f="next">המשך לטיימר</button>'}</div>`;
+        <div class="foot">${solo ? '<button class="btn primary" data-f="finish">סיום</button>' : '<button class="btn primary" data-f="next">המשך</button>'}</div>`;
     }
     if (s === 'focus' || s === 'break') return timerBody(F, { taskLine: taskLine(), audioOk: CU.audioOk() }); // timer thread
     if (s === 'ready') {

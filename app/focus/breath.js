@@ -44,7 +44,7 @@ export function breathBody(F, sndBtn) {
     <p>אם יש סחרחורת או חוסר נוחות, פשוט לחזור לנשימה רגילה. זה תמיד בסדר.</p></details>`;
   const foot = run
     ? `<button class="btn" data-f="next">${solo ? 'סיום' : 'דילוג'}</button>`
-    : `<button class="btn primary" data-f="bstart">להתחיל לנשום</button>${solo ? '' : '<button class="btn" data-f="next">דילוג</button>'}`;
+    : `<button class="btn primary" data-f="bstart">התחלה</button>${solo ? '' : '<button class="btn" data-f="next">דילוג</button>'}`;
   return `<h2>נשימה</h2>${intro}${pond}${setup}<div class="center bsnd">${sndBtn(B.sound)}${B.sound ? volumeRow() : ''}</div>${why}<div class="foot">${foot}</div>`;
 }
 

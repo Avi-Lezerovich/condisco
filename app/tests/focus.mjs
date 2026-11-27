@@ -56,7 +56,7 @@ await p1.screenshot({ path: 'tests/shots/desk-idle-timer.png' });
 await p1.mouse.move(10, 10); await p1.clock.runFor(2000);
 ok(!(await p1.isVisible('#ambient.on')), 'input hides idle screen');
 // break → recall: stop during break from tab 2, tab 1 follows
-await p2.bringToFront(); await p2.mouse.move(5, 5); await p2.clock.runFor(300); await p2.click('#mini'); await p2.clock.runFor(300);
+await p2.bringToFront(); await p2.mouse.move(40, 40); await p2.clock.runFor(300); await p2.click('#mini'); await p2.clock.runFor(300); // the wake move goes past the 14px nudge filter (the page may already know the pointer at 0,0)
 await p2.click('[data-f=stop]'); await p2.click('[data-f=stop]'); await p2.clock.runFor(500); // second tap confirms
 s = await st(p2); ok(s.state === 'recall' && s.focusMs === 25 * 60000, 'break → recall, no extra focus');
 await p1.bringToFront(); await p1.clock.runFor(500); s = await st(p1); ok(s && s.state === 'recall', 'first tab follows to recall');

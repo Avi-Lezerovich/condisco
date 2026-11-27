@@ -7,7 +7,9 @@
   --scene-shade-ltr:radial-gradient(120% 90% at 0% 100%,rgba(8,14,22,.55) 0%,rgba(8,14,22,.28) 32%,rgba(8,14,22,0) 62%);
   --calm-accent:light-dark(#4c7aa0,#9ec7e2)}
 /* focus timer ring */
-#focus{--t-focus:var(--accent);--t-brk:light-dark(#3f86b3,#9ec7e2);--t-track:light-dark(#dfe6ec,#26303c)}
+/* focus timer ring and plan: progress in win yellow, breaks in break blue (light mode uses a deeper shade of each
+   so the ring still reads on the pale sheet) */
+#focus{--t-focus:light-dark(#e3b520,var(--win));--t-brk:light-dark(#5d9cc6,var(--break));--t-track:light-dark(#dfe6ec,#26303c)}
 /* breathing: a lake at dawn (light), a night lake (dark) */
 #focus.calm{
   --calm-ink:#1d2a36;--calm-mute:#4f6070;--calm-line:rgba(29,42,54,.18);--calm-on:rgba(76,122,160,.16);--calm-on-line:rgba(76,122,160,.55);
@@ -24,3 +26,10 @@
   --calm-ring:rgba(158,199,226,.45);--calm-guide:rgba(158,199,226,.22);--calm-track:rgba(228,237,243,.08);--calm-prog:rgba(158,199,226,.55);
   --orb-a:#d9ecf6;--orb-b:#8fc0dc;--orb-c:#4b88b0;--orb-d:#2f6489;--orb-glow:rgba(143,192,220,.30);--orb-shade:rgba(12,32,52,.35);
   background:radial-gradient(130% 75% at 50% 0%,#24415a 0%,#162a3b 45%,#0f1b27 100%)}
+/* desktop focus (#focus.scenic): breathing sits on the glass panel over the scene, so it always uses the night-lake set.
+   :root raises the specificity above the two dark blocks above; order does the rest. */
+:root #focus.scenic.calm{
+  --calm-ink:#e4edf3;--calm-mute:#b9c9d6;--calm-line:rgba(228,237,243,.24);--calm-on:rgba(158,199,226,.22);--calm-on-line:rgba(158,199,226,.6);
+  --calm-ring:rgba(158,199,226,.45);--calm-guide:rgba(158,199,226,.26);--calm-track:rgba(228,237,243,.10);--calm-prog:rgba(158,199,226,.6);
+  --orb-a:#d9ecf6;--orb-b:#8fc0dc;--orb-c:#4b88b0;--orb-d:#2f6489;--orb-glow:rgba(143,192,220,.30);--orb-shade:rgba(12,32,52,.35);
+  background:var(--scene-night);color:var(--calm-ink)}
