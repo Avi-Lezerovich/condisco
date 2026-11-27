@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: setup-update-he
+description: study-setup fires on an update request in Hebrew
+tags: [study-setup, trigger]
+execution:
+  prompt: "עדכן את Condisco. האפליקציה שלי נמצאת ב-https://claude.ai/artifact/AbC123exampleXyz"
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-setup
+    tool: Skill
+    input_match: "study-setup"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply is in Hebrew and uses gender-neutral forms. It treats this as an update of the existing app at the given link: it republishes to that same artifact, or, if this session cannot update an existing artifact, says so and publishes nothing. It never creates a second, new Condisco artifact. It does not re-run the course scan or the profile interview, and does not invent course counts or data."

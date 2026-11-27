@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: setup-update-en
+description: study-setup update keeps the existing artifact and its data
+tags: [study-setup, behaviour]
+execution:
+  prompt: "Condisco says a new version is ready. Please update Condisco for me; my app is at https://claude.ai/artifact/AbC123exampleXyz and I don't want to lose my courses."
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-setup
+    tool: Skill
+    input_match: "study-setup"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply updates the app at the given link in place (same URL), or says plainly that this session cannot update an existing artifact and publishes nothing. It never publishes a second Condisco artifact and never offers substitute storage. Any result is reported in one short line; if data was not checked or the update failed, it says so instead of claiming success. It does not invent course, deadline or task counts."

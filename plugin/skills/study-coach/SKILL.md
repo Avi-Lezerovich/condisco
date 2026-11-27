@@ -17,6 +17,10 @@ Short, warm, concrete. No guilt: a missed day is a restart, not a failure.
    the last 2 timed `mocks` per course, `habits` + `habitlog/{today}`.
    Read `references/schema.md` when you need a field's meaning.
 3. Today = the student's timezone (`settings/main.timezone`, else ask once).
+If `meta/install.pluginVersion` is missing or older than this plugin (Condisco 0.5.0),
+add one line at the end of the daily plan only (not the check-in): a new Condisco version is ready, write "עדכן את Condisco"
+/ "update Condisco" to update the app (the data stays). Never update it yourself here.
+
 If no artifact or no data: say so in one line and offer `study-setup`. Do not plan
 from memory alone.
 
