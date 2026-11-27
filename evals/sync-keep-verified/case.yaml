@@ -1,0 +1,22 @@
+schema_version: "1.0"
+name: sync-keep-verified
+description: behaviour check for study-sync - a re-sync keeps confirmed deadlines confirmed and flags a changed date
+tags: [study-sync, behaviour]
+execution:
+  prompt: |
+    No Chrome here, so here is the Moodle upcoming events paste for a re-sync:
+    Probability - Homework 4 is due - Thursday, 3 December 2026, 23:59
+    Complexity - Problem set 5 is due - Monday, 7 December 2026, 23:59
+    For context, my Condisco app already has: Probability Homework 4 due 2026-12-03 23:59 (verified: true, I confirmed it), and Complexity Problem set 5 due 2026-12-06 23:59 (verified: true).
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-sync
+    tool: Skill
+    input_match: "study-sync"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply treats Probability Homework 4 as unchanged and keeps it confirmed (it does not mark it unverified or propose rewriting it). It flags Complexity Problem set 5 as a possible date change (6 Dec in the app vs 7 Dec on Moodle), does not overwrite it without asking, and says that if the new date is saved it will be unverified until confirmed."

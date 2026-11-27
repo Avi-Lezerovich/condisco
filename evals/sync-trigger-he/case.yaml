@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: sync-trigger-he
+description: trigger check for study-sync
+tags: [study-sync, trigger]
+execution:
+  prompt: "תעשה סנכרון עכשיו, תבדוק במודל אם יש דדליינים חדשים"
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-sync
+    tool: Skill
+    input_match: "study-sync"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply treats Moodle as read-only (it says or clearly acts as if it will only read pages, never submit or post). Any deadline it reports as new is marked unverified ('לא מאומת' or verified false) and no dates are invented. If it cannot use the browser, it offers pasting the Moodle upcoming-events page or a screenshot instead."

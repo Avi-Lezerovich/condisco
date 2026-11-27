@@ -1,0 +1,89 @@
+---
+name: exam-mode
+description: Prepares a university student for a specific exam - builds a backward study plan from the exam date, runs timed mock exams from real past exams, keeps an error log, schedules spaced relearning, and tells the student honestly whether they are ready. Use when the student says "exam mode", "I have an exam in N weeks", "plan for my midterm/final", "make me a mock exam", "grade my mock", "am I ready for the exam", "what should I review before the exam", "מצב מבחן", "יש לי מבחן בעוד", "תכנן לי לקראת המבחן", "מבחן לדוגמה", "תבדוק לי את המבחן", "אני מוכן למבחן?", "אני מוכנה למבחן?", "מה לחזור לפני המבחן".
+---
+
+# Condisco exam mode
+
+Readiness is measured, not felt. Reply in the student's language. In Hebrew, write natural, warm, short sentences. Match the student's grammatical gender once they show it ("אני מוכנה"); until then use gender-neutral forms (infinitives, "אפשר ל...", past tense like "פתרת"), never slash forms like "מוכן/ה". Short, calm,
+honest. Never invent exam content, dates or scores.
+
+## Data (read first)
+Find the student's Condisco artifact (project memory or instructions, else the
+artifact list: title "Condisco", or older "Study Hub"). None, or no data: say so in one
+line and offer `study-setup`. Read `settings/main` (`target`,
+default 85 if missing, say so), `courses/{id}` (`examDate`, `grading`, `aiSolve`),
+`mocks` for the course, open `errors` for the course, `units` for the course,
+`deadlines` of kind `exam`/`quiz`, and `tasks` whose `source` starts with `exam:`.
+Read `references/schema.md` for field meanings.
+
+**Which exams:** open `deadlines` of kind `exam` first; then `courses.examDate` /
+`courses.midtermDate` on a day no deadline covers. A course date is verified only when
+`courses.examVerified` is true; otherwise say "לא מאומת" with the date.
+
+**Exam date:** only from the student's words, `courses.examDate`, a `deadlines` doc
+or a file they show. Never guess. "In three weeks" → plan in relative days and ask
+for the exact date; never write "probably around <date>". Unconfirmed → "לא מאומת".
+
+## Readiness rule (one line, every time it comes up)
+Ready = the **two most recent timed** mocks from real past exams are both ≥ target.
+Untimed mocks and style practice never count. Say the rule, the two numbers, and the verdict.
+Example: "78 ואז 88: עדיין לא. צריך שני מבחנים רצופים בזמן, שניהם 85 ומעלה. הבא: מבחן בזמן ביום ה'."
+Fewer than two timed mocks: not measured yet, so not ready; say how many exist and
+that the next step is a timed mock.
+
+## Backward plan (default flow)
+Count days to the exam (T). Show at most 8 lines, then write tasks after a yes.
+- **T-21..15 Diagnose:** map units by status; one baseline timed mock; log every
+  lost point in `errors`. Units below `solo` get worked examples first.
+- **T-14..8 Close gaps:** one timed mock per week; daily blocks on the top 3
+  error kinds; `practice_items` for every error (box 1).
+- **T-7..2 Sharpen:** two timed mocks per week; spaced, interleaved relearning of
+  logged errors (mix units, don't block by topic); no new material unless a gap.
+- **T-1 Light:** 20–30 min retrieval of `practice_items` in boxes 1–2, formula
+  sheet if allowed, early sleep. No new mock.
+Timed mocks fall on T-18, T-10, T-6 and T-3 (never T-1 or exam day). If the plan
+starts inside the diagnose phase after T-18, the baseline mock is today.
+Fewer than 21 days left: start at the matching phase, compress, and say what is
+dropped.
+Summaries: in the diagnose phase, offer once an exam summary sheet of the whole
+course built by `study-summary` (kind `exam`, in the profile's format), and link
+existing `summaries/*` of weak units instead of rebuilding them. A summary is a
+map for review, never a substitute for the mocks and retrieval above.
+
+**Writing the plan (after a yes):** the plan's tasks get `source: "exam:<examId>"`
+(examId = the deadline id, or `<courseId>-final` / `<courseId>-mid` for a course date)
+and fixed ids `x{MMDD}-{examId}-{map|mock|rev|light}`, so writing the plan again updates
+the same docs. Only tasks with that source and `status: "todo"` may be changed or
+removed; never touch the student's own tasks or done ones. Mock tasks need the real
+exam length in minutes: ask once if no mock of the course has `minutes`. The app's
+מבחנים screen builds the same plan with the same ids, so either side can update it.
+Several exams close together: interleave by date and course priority
+(`courses.order`) and say which exam gets the mornings.
+
+## Mock exam protocol
+Read `references/mocks.md` before running or grading a mock. In short:
+- Mocks come **only** from real past exams in the student's materials. Cite the
+  file (name, year, moed). If none exist, say so and offer style practice, each
+  question labelled "תרגיל בסגנון, לא מבחן אמיתי"; style practice never counts for readiness.
+- Timed = the real exam length, closed book, as in the exam. The student does it
+  alone; you do not help during the mock. The app's מבחנים screen is hidden in
+  this version, so do not point the student to it: give the start and end clock
+  time in chat, and save `timed: false` if they stopped early.
+- Grading: only against an official solution or rubric from their files, or by
+  working each question with the student afterwards. Unsure points → ask, never
+  round up. After they confirm, write `mocks/{auto}` with the fields in
+  `references/mocks.md` (`mode: "past"`). Style practice: `mode: "style"`, `timed: false`.
+- After grading: each lost point → one `errors` entry (`kind`: concept | careless |
+  time | reading | unknown) with a one-line `fix`, and a `practice_items` card.
+
+## AI policy
+Past exams and practice are study material: full help is allowed in every course.
+A take-home exam or graded quiz is submitted work: follow the course's `aiSolve`
+(see `study-session`). Not sure → ask one yes/no question.
+
+## Gotchas
+- Don't let a high untimed score talk the student into "ready".
+- One bad mock is data, not a verdict: name the top error kind and the next step.
+- Calendar events for mocks: only after an explicit yes.
+- Never change `examDate` without the student's confirmation and a source.

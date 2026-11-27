@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: materials-no-trigger
+description: no check for study-materials
+tags: [study-materials, no]
+execution:
+  prompt: "How much storage does a free Google Drive account have?"
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: not-fired-study-materials
+    tool: Skill
+    input_match: "study-materials"
+    min: 0
+    max: 0
+  - type: llm
+    name: behaviour
+    criteria: "The reply answers the storage question and does not start summarising course materials."

@@ -1,0 +1,28 @@
+/* sound: owned by the sound thread. Loaded after the main <style> in index.html, so rules here override it. */
+.sp{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-2)}
+.sp-o{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:64px;padding:10px 14px;border:1px solid var(--line);border-radius:var(--radius-md);background:var(--surface);color:var(--ink);text-align:start;font:inherit;cursor:pointer;transition:border-color .2s,box-shadow .2s,background-color .2s}
+.sp-o span{display:grid;gap:2px;min-width:0}.sp-o b{font-weight:700}.sp-o small{color:var(--ink-2);font-size:var(--fs-caption);line-height:1.35}
+.sp-quiet{grid-column:1/-1;min-height:56px}
+.sp-o[aria-checked=true]{border-color:var(--accent);box-shadow:0 0 0 1.5px var(--accent) inset;background:color-mix(in srgb,var(--accent) 8%,var(--surface))}
+.sp-eq{flex:none;display:inline-flex;gap:3px;align-items:flex-end;height:16px;opacity:.35}
+.sp-eq b{display:block;width:3px;height:5px;border-radius:2px;background:currentColor}
+.sp-o.playing .sp-eq{opacity:1;color:var(--accent)}
+.sp-o.playing .sp-eq b{animation:sp-eq 1.6s ease-in-out infinite}
+.sp-o.playing .sp-eq b:nth-child(2){animation-delay:-.5s}.sp-o.playing .sp-eq b:nth-child(3){animation-delay:-1s}
+@keyframes sp-eq{0%,100%{height:4px}50%{height:15px}}
+@media(prefers-reduced-motion:reduce){.sp-o.playing .sp-eq b{animation:none;height:10px}}
+.sp-foot{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-2) var(--space-4);margin-top:var(--space-2)}
+.sp-now{color:var(--ink-2);font-size:var(--fs-small)}
+.svol{display:inline-flex;align-items:center;gap:var(--space-2);min-height:44px;color:var(--ink-2)}
+.svol svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.svol input{width:min(200px,46vw);accent-color:var(--accent);height:28px;margin:0;cursor:pointer}
+
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media(max-width:380px){.sp{grid-template-columns:minmax(0,1fr)}}
+.sp-tip{margin:0;color:var(--ink-2);font-size:var(--fs-caption)}
+.sp-cred{color:var(--ink-2);font-size:var(--fs-caption)}.sp-cred summary{cursor:pointer;min-height:32px;display:flex;align-items:center}
+.sp-cred ul{margin:4px 0 0;padding-inline-start:18px;display:grid;gap:4px}.sp-cred a{color:inherit}
+/* breathing screen: follow the calm palette in both themes (the breath thread defines the --calm-* tokens) */
+#focus.calm .svol{color:var(--calm-mute,currentColor)}
+#focus.calm .svol input{accent-color:var(--calm-accent)}
+.sp>.sp-o:last-child:nth-child(even){grid-column:1/-1}

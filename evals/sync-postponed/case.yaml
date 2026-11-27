@@ -1,0 +1,21 @@
+schema_version: "1.0"
+name: sync-postponed
+description: behaviour check for study-sync - a deadline postponed by a week is flagged as a change, not added twice
+tags: [study-sync, behaviour]
+execution:
+  prompt: |
+    No Chrome on this computer, here is my Moodle upcoming events for a re-sync:
+    Algorithms - Homework 3 is due - Thursday, 10 December 2026, 23:59
+    For context, my Condisco app already has: Algorithms Homework 3 due 2026-12-03 23:59 (verified: true).
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-sync
+    tool: Skill
+    input_match: "study-sync"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply treats Algorithms Homework 3 as the same deadline whose date moved (3 Dec in the app vs 10 Dec on Moodle). It flags this as a possible change and asks before changing the date. It does not propose adding Homework 3 as a second, new deadline, and it does not silently overwrite the date."

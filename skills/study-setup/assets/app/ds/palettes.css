@@ -1,0 +1,35 @@
+/* Condisco illustration palettes: colours that belong to a picture rather than to the UI (the breathing pond,
+   the timer ring, the idle screen over a photographic scene). Exempt from the CSS lint like tokens.css; keep every
+   UI colour in tokens.json instead. Light first, then the two dark blocks (system dark, explicit dark). */
+/* idle screen and anything drawn over a full-bleed scene: always light-on-dark (scenes are pictures in both themes) */
+:root{--scene-night:#0f1b27;--on-scene:#f3f6f8;--on-scene-line:rgba(255,255,255,.16);--on-scene-track:rgba(255,255,255,.15);--on-scene-done:#a8d5b0;
+  --scene-shade-rtl:radial-gradient(120% 90% at 100% 100%,rgba(8,14,22,.55) 0%,rgba(8,14,22,.28) 32%,rgba(8,14,22,0) 62%);
+  --scene-shade-ltr:radial-gradient(120% 90% at 0% 100%,rgba(8,14,22,.55) 0%,rgba(8,14,22,.28) 32%,rgba(8,14,22,0) 62%);
+  --calm-accent:light-dark(#4c7aa0,#9ec7e2)}
+/* focus timer ring */
+/* focus timer ring and plan: progress in win yellow, breaks in break blue (light mode uses a deeper shade of each
+   so the ring still reads on the pale sheet) */
+#focus{--t-focus:light-dark(#e3b520,var(--win));--t-brk:light-dark(#5d9cc6,var(--break));--t-track:light-dark(#dfe6ec,#26303c)}
+/* breathing: a lake at dawn (light), a night lake (dark) */
+#focus.calm{
+  --calm-ink:#1d2a36;--calm-mute:#4f6070;--calm-line:rgba(29,42,54,.18);--calm-on:rgba(76,122,160,.16);--calm-on-line:rgba(76,122,160,.55);
+  --calm-ring:rgba(76,122,160,.42);--calm-guide:rgba(76,122,160,.28);--calm-track:rgba(29,42,54,.08);--calm-prog:rgba(76,122,160,.55);
+  --orb-a:#ffffff;--orb-b:#cfe3f1;--orb-c:#86b2d2;--orb-d:#5b8db4;--orb-glow:rgba(120,170,210,.30);--orb-shade:rgba(30,60,90,.18);
+  background:radial-gradient(120% 70% at 50% 0%,#fbf3e8 0%,#eef0f2 42%,#d9e4ee 100%);color:var(--calm-ink)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) #focus.calm{
+  --calm-ink:#e4edf3;--calm-mute:#a6bacb;--calm-line:rgba(228,237,243,.22);--calm-on:rgba(158,199,226,.22);--calm-on-line:rgba(158,199,226,.6);
+  --calm-ring:rgba(158,199,226,.45);--calm-guide:rgba(158,199,226,.22);--calm-track:rgba(228,237,243,.08);--calm-prog:rgba(158,199,226,.55);
+  --orb-a:#d9ecf6;--orb-b:#8fc0dc;--orb-c:#4b88b0;--orb-d:#2f6489;--orb-glow:rgba(143,192,220,.30);--orb-shade:rgba(12,32,52,.35);
+  background:radial-gradient(130% 75% at 50% 0%,#24415a 0%,#162a3b 45%,#0f1b27 100%)}}
+:root[data-theme=dark] #focus.calm{
+  --calm-ink:#e4edf3;--calm-mute:#a6bacb;--calm-line:rgba(228,237,243,.22);--calm-on:rgba(158,199,226,.22);--calm-on-line:rgba(158,199,226,.6);
+  --calm-ring:rgba(158,199,226,.45);--calm-guide:rgba(158,199,226,.22);--calm-track:rgba(228,237,243,.08);--calm-prog:rgba(158,199,226,.55);
+  --orb-a:#d9ecf6;--orb-b:#8fc0dc;--orb-c:#4b88b0;--orb-d:#2f6489;--orb-glow:rgba(143,192,220,.30);--orb-shade:rgba(12,32,52,.35);
+  background:radial-gradient(130% 75% at 50% 0%,#24415a 0%,#162a3b 45%,#0f1b27 100%)}
+/* desktop focus (#focus.scenic): breathing sits on the glass panel over the scene, so it always uses the night-lake set.
+   :root raises the specificity above the two dark blocks above; order does the rest. */
+:root #focus.scenic.calm{
+  --calm-ink:#e4edf3;--calm-mute:#b9c9d6;--calm-line:rgba(228,237,243,.24);--calm-on:rgba(158,199,226,.22);--calm-on-line:rgba(158,199,226,.6);
+  --calm-ring:rgba(158,199,226,.45);--calm-guide:rgba(158,199,226,.26);--calm-track:rgba(228,237,243,.10);--calm-prog:rgba(158,199,226,.6);
+  --orb-a:#d9ecf6;--orb-b:#8fc0dc;--orb-c:#4b88b0;--orb-d:#2f6489;--orb-glow:rgba(143,192,220,.30);--orb-shade:rgba(12,32,52,.35);
+  background:var(--scene-night);color:var(--calm-ink)}

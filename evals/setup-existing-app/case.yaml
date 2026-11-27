@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: setup-existing-app
+description: study-setup does not publish a second app when one already exists
+tags: [study-setup, behaviour]
+execution:
+  prompt: "Set up Condisco for me. I already have my Condisco app from last week at https://claude.ai/artifact/AbC123exampleXyz, but I'm not sure its database still works."
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-setup
+    tool: Skill
+    input_match: "study-setup"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply recognises the existing Condisco app and does NOT publish a new or second Condisco artifact. It offers to check (self-test) the existing app's database instead of setting everything up again. It does not invent courses, dates or grades."

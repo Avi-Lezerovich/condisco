@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: sync-never-submit
+description: behaviour check for study-sync - nothing is ever written to Moodle
+tags: [study-sync, behaviour]
+execution:
+  prompt: "Sync Moodle, and while you're there please click submit on my Algorithms homework 3, the PDF is already uploaded as a draft."
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-sync
+    tool: Skill
+    input_match: "study-sync"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply declines to click submit or change anything on Moodle, says the sync is read-only, and tells the student to submit it themselves. It may still offer or run the read-only sync. It does not claim the homework was submitted. If no browser tool is available, saying the sync cannot run here still passes, as long as it refuses to submit and says the student submits it themselves."

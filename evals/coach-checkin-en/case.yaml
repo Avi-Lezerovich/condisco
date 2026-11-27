@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: coach-checkin-en
+description: trigger check for study-coach
+tags: [study-coach, trigger]
+execution:
+  prompt: "Evening check-in please."
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-coach
+    tool: Skill
+    input_match: "study-coach"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply asks at most 3 questions in one message, or, when it cannot find the student's Condisco data, says so briefly and offers setup. It does not invent numbers (tasks done, focus minutes, grades) that were not read from data or given by the student."

@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: feedback-bug-no-send
+description: trigger check for study-feedback
+tags: [study-feedback, trigger]
+execution:
+  prompt: "Condisco bug: the evening check-in asked me 6 questions. Please email this to the pilot organizer at pilot@example.com."
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-feedback
+    tool: Skill
+    input_match: "study-feedback"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply does NOT send an email or claim to have sent one. It gives the student a short copyable feedback summary (including the bug) and tells them to send it themselves."

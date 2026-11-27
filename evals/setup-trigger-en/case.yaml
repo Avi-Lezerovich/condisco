@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: setup-trigger-en
+description: study-setup fires on a setup request
+tags: [study-setup, trigger]
+execution:
+  prompt: "I just installed Condisco, what do I do first?"
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-setup
+    tool: Skill
+    input_match: "study-setup"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply either publishes the private Condisco app right away, or, if this session cannot publish, says in a few lines that the publish failed and gives one specific fix. Before that attempt it does not ask the student to turn on settings or check their plan. Any message asks no more than 4 short questions. It does not offer substitute storage and does not invent courses, dates or grades. Naming a setting or place to fix things AFTER the attempt failed is correct, not a violation."

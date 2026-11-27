@@ -1,0 +1,137 @@
+/* focus: owned by the focus thread (UI-2c). Tokens only; colours that belong to a picture live in app/ds/palettes.css.
+   Phone and tablet (< 1024px): a full-screen sheet on --bg.
+   Desktop (>= 1024px, #focus.scenic): the current scene full-bleed (focus/scene.js) behind a centred glass panel. */
+
+/* ---------- overlay shell ---------- */
+#focus{position:fixed;inset:0;z-index:20;background:var(--bg);display:none;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
+#focus.open{display:block}
+.fz-scene{display:none}
+.fz-box{min-height:100%;display:flex}
+.fz{flex:1;max-width:560px;margin-inline:auto;display:flex;flex-direction:column;gap:var(--space-4);
+  padding-block:calc(var(--space-4) + env(safe-area-inset-top,0px)) calc(var(--space-6) + env(safe-area-inset-bottom,0px));
+  padding-left:max(var(--space-4),env(safe-area-inset-left,0px));padding-right:max(var(--space-4),env(safe-area-inset-right,0px))}
+.fz-top{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);min-height:var(--target)}
+.fz-top .btn{font-weight:600}
+
+/* step dots: where am I in zone → breathe → music → timer → recall */
+.steps{display:flex;gap:var(--space-1)}
+.steps i{width:24px;height:4px;border-radius:var(--radius-pill);background:var(--line)}
+.steps i.on{background:var(--win)}
+
+.fz h2{font-family:var(--font-display);font-weight:400;font-size:var(--fs-title-1);line-height:var(--lh-title-1);margin:var(--space-2) 0 0}
+.fz .task{color:var(--ink-2);font-size:var(--fs-small);line-height:var(--lh-small)}.fz .task b{color:var(--ink)}
+.fz .hint{max-width:var(--measure);text-wrap:pretty}
+
+/* a question block (own copy, so this screen does not depend on another screen's CSS) */
+.fz .q{display:grid;gap:var(--space-2);margin:0;padding:0;background:none;border:0;box-shadow:none}
+.fz .q>span,.fz .q label>span{font-family:var(--font-text);font-weight:700;font-size:var(--fs-small);color:var(--ink)}
+.fz .q small{color:var(--ink-2);font-size:var(--fs-caption);margin:0}
+
+/* zone checklist */
+.chk{display:flex;gap:var(--space-3);align-items:center;min-height:var(--target-lg);padding:var(--space-2) var(--space-4);border:1px solid var(--line);border-radius:var(--radius-md);
+  background:var(--surface);color:var(--ink);font-size:var(--fs-body);text-align:start;width:100%;
+  transition:transform var(--dur-1) var(--ease-out),background-color var(--dur-2),border-color var(--dur-2)}
+.chk .ck{width:26px;height:26px;border-radius:var(--radius-xs);border:2px solid var(--ink-2);display:grid;place-items:center;flex:none;transition:background-color var(--dur-2),border-color var(--dur-2)}
+.chk .ck svg{width:15px;height:15px;opacity:0;stroke:var(--win-ink)}
+.chk[aria-pressed=true]{border-color:var(--win)}
+.chk[aria-pressed=true] .ck{background:var(--win);border-color:var(--win)}
+.chk[aria-pressed=true] .ck svg{opacity:1}
+.flink{color:var(--accent);font-weight:600;font-size:var(--fs-small);min-height:var(--target);display:inline-flex;align-items:center}
+
+.snd{display:inline-flex;gap:var(--space-2);align-items:center}
+.snd svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.choices{display:flex;flex-wrap:wrap;gap:var(--space-2)}.choices.center{justify-content:center}
+
+/* music links (external playlists) */
+.music{display:grid;gap:var(--space-2)}
+.music a,.mlink{display:flex;justify-content:space-between;align-items:center;gap:var(--space-3);min-height:var(--target-lg);padding:var(--space-2) var(--space-4);border:1px solid var(--line);border-radius:var(--radius-md);
+  background:var(--surface);color:var(--ink);text-decoration:none;font-weight:700;width:100%;text-align:start}
+.music small{color:var(--ink-2);font-weight:400}
+
+/* one primary action per step, at the bottom */
+.fz .foot{margin-top:auto;padding-top:var(--space-3);display:flex;gap:var(--space-2);flex-wrap:wrap}
+.fz .foot .btn{flex:1;min-height:var(--target-lg);font-size:var(--fs-body)}
+.fz .foot .btn.confirm{background:var(--warn);border-color:var(--warn);color:var(--accent-ink)}
+
+/* ---------- timer: setup ---------- */
+.tpat{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-2)}
+.tp{display:grid;gap:2px;align-content:start;text-align:start;min-height:76px;padding:var(--space-2) var(--space-3);border:1px solid var(--line);border-radius:var(--radius-md);background:transparent;color:var(--ink)}
+.tp b{font-family:var(--font-display);font-weight:400;font-size:var(--fs-title-2);line-height:1.1;direction:ltr;text-align:end;font-variant-numeric:tabular-nums}
+.tp small{color:var(--ink-2);font-size:var(--fs-label);line-height:1.35}
+.tp[aria-pressed=true]{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
+.tprev{display:grid;gap:var(--space-2);padding-top:2px}
+@media(max-width:380px){.tpat{grid-template-columns:1fr}.tp{min-height:0;grid-template-columns:auto 1fr;align-items:baseline;gap:var(--space-3)}.tp b{order:-1;text-align:start}}
+
+/* plan: one bar per segment, sized by duration; progress in win, breaks in break */
+.tplan{display:flex;gap:var(--space-1);height:8px;direction:rtl}
+.tplan i{position:relative;flex-basis:0;min-width:6px;border-radius:var(--radius-pill);overflow:hidden;background:color-mix(in srgb,var(--t-focus) 26%,var(--t-track))}
+.tplan i.break{background:color-mix(in srgb,var(--t-brk) 30%,var(--t-track))}
+.tplan i.past{background:var(--t-focus)}.tplan i.break.past{background:var(--t-brk)}
+.tplan i b{position:absolute;inset-block:0;inset-inline-start:0;width:0;background:var(--t-focus);border-radius:var(--radius-pill);transition:width .25s linear}
+.tplan i.break b{background:var(--t-brk)}
+
+/* ---------- timer: running ---------- */
+.trun{display:grid;gap:var(--space-4);justify-items:center;text-align:center}
+.trun .task{justify-self:stretch;text-align:center}
+.trun .tplan{width:min(100%,360px);justify-self:center}
+.tring{position:relative;width:min(84vw,50vh,380px);aspect-ratio:1;margin:var(--space-1) auto 0}
+.tring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)} /* starts at 12 and fills clockwise, like a clock */
+.tring circle{fill:none;stroke-width:5}
+.tr-bg{stroke:var(--t-track)}
+.tr-fg{stroke:var(--t-focus);stroke-linecap:round;transition:stroke-dashoffset .25s linear,stroke .6s ease}
+.is-brk .tr-fg{stroke:var(--t-brk)}
+.tr-in{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:var(--space-1)}
+.tr-ph{font-family:var(--font-text);font-weight:700;font-size:var(--fs-small);letter-spacing:.02em;color:var(--ink-2)}
+.big{font-family:var(--font-display);font-weight:400;font-size:min(var(--fs-timer),20vw);line-height:var(--lh-timer);text-align:center;direction:ltr;font-variant-numeric:tabular-nums}
+.tring .big{font-size:min(var(--fs-timer),19vw,11vh)}
+.tr-sub{font-size:var(--fs-small);color:var(--ink-2);min-height:1.4em}
+.is-paused .tr-fg,.is-paused .big{opacity:.45}
+@media(prefers-reduced-motion:no-preference){.is-paused .big{animation:tpause 2.4s ease-in-out infinite}}
+@keyframes tpause{0%,100%{opacity:.45}50%{opacity:.85}}
+.tgoal{color:var(--ink-2);font-size:var(--fs-small);max-width:42ch;text-wrap:pretty}
+.tbrk{margin:0;max-width:40ch;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);background:color-mix(in srgb,var(--t-brk) 14%,var(--surface));border:1px solid color-mix(in srgb,var(--t-brk) 40%,transparent);font-size:var(--fs-small);text-wrap:pretty}
+.tsnd{border:1px dashed var(--line-strong);background:transparent;color:var(--ink-2);border-radius:var(--radius-pill);padding:var(--space-2) var(--space-4);font-size:var(--fs-small);min-height:var(--target)}
+.tvol{width:min(100%,280px);opacity:.75;transition:opacity var(--dur-2)}.tvol:hover,.tvol:focus-within{opacity:1}
+/* the break gets a soft cool wash on the sheet, so the change of phase is visible from across the room */
+#focus.brk:not(.scenic){background:radial-gradient(120% 70% at 50% 0%,color-mix(in srgb,var(--t-brk) 18%,var(--bg)) 0%,var(--bg) 70%)}
+
+/* recall */
+.fz[data-step=recall] .choices .btn{flex:1;min-width:88px}
+
+/* minimised pill (base in app/ds/shell.css) */
+#mini{cursor:pointer;transition:transform var(--dur-1) ease,box-shadow var(--dur-1) ease}
+#mini:hover{transform:translateX(-50%) translateY(-2px);box-shadow:var(--shadow-2)}
+#mini.paused .mini-t{opacity:.55}
+#mini.paused .mini-bar i{background:color-mix(in srgb,var(--ink-on-deep) 45%,transparent)}
+
+/* ---------- desktop: the scene full-bleed, the steps on glass ---------- */
+/* DS-candidate: GlassPanel (a panel on --glass-scene over a full-bleed scene; light-on-dark in both themes) */
+#focus.scenic{background:var(--scene-night)}
+#focus.scenic .fz-scene{display:block;position:fixed;inset:0;opacity:0;transition:opacity var(--dur-scene) var(--ease-ambient)}
+#focus.scenic .fz-scene.on{opacity:1}
+#focus.scenic .fz-box{position:relative;align-items:center;justify-content:center;padding:var(--space-7) var(--space-6);transition:opacity var(--dur-3) var(--ease-out)}
+#focus.scenic .fz{flex:0 1 600px;max-width:600px;min-height:0;margin:0;
+  padding:var(--space-5) var(--space-6) var(--space-6);border-radius:var(--radius-lg);
+  background:var(--glass-scene);border:1px solid var(--on-scene-line);
+  backdrop-filter:blur(24px) saturate(1.15) brightness(.74);-webkit-backdrop-filter:blur(24px) saturate(1.15) brightness(.74);
+  box-shadow:0 1px 0 rgba(255,255,255,.08) inset,0 24px 70px rgba(0,0,0,.32);
+  color:var(--on-scene);color-scheme:dark;
+  /* local tokens: everything inside reads light-on-glass in both themes */
+  --ink:var(--on-scene);--ink-2:color-mix(in srgb,var(--on-scene) 80%,transparent);--ink-3:color-mix(in srgb,var(--on-scene) 62%,transparent);
+  --line:var(--on-scene-line);--line-strong:color-mix(in srgb,var(--on-scene) 38%,transparent);
+  --surface:color-mix(in srgb,var(--on-scene) 7%,transparent);--surface-sunk:color-mix(in srgb,var(--on-scene) 4%,transparent);
+  --bg:color-mix(in srgb,var(--scene-night) 55%,transparent);
+  --accent:var(--accent-on-deep);--accent-ink:var(--surface-deep);--accent-soft:color-mix(in srgb,var(--accent-on-deep) 20%,transparent);
+  --t-track:var(--on-scene-track)}
+#focus.scenic .fz .foot{padding-top:var(--space-4)}
+#focus.scenic .tring{width:min(50vh,360px)}
+#focus.scenic .tring .big{font-size:min(var(--fs-timer),10vh)}
+#focus.scenic .fz[data-step=focus],#focus.scenic .fz[data-step=break]{flex-basis:560px}
+/* the idle screen fades the panel and keeps the same scene (idle/idle.js) */
+body.idle-over #focus .fz-box{opacity:0}
+
+@media(prefers-reduced-motion:reduce){
+  #mini,#mini:hover{transition:none;transform:translateX(-50%)}
+  .tr-fg,.tplan i b,.chk{transition:none}
+  #focus.scenic .fz-scene{transition:none}
+}

@@ -1,0 +1,81 @@
+{
+ "note": "Recorded audio for Condisco. Each recording itself is CC0, public domain or CC BY (credited); sources in LICENSES.md. Loaded only when chosen.",
+ "tracks": [
+  {
+   "file": "bach-prelude-c.mp3",
+   "he": "באך, פרלוד בדו מז'ור",
+   "by": "Kimiko Ishizaka"
+  },
+  {
+   "file": "bach-goldberg-aria.mp3",
+   "he": "באך, אריה מווריאציות גולדברג",
+   "by": "Kimiko Ishizaka"
+  },
+  {
+   "file": "satie-gymnopedie-1.mp3",
+   "he": "סאטי, ז׳ימנופדי מס׳ 1",
+   "by": "Robin Alciatore"
+  },
+  {
+   "file": "chopin-nocturne-op9-2.mp3",
+   "he": "שופן, נוקטורן אופ׳ 9 מס׳ 2",
+   "by": "Frank Lévy"
+  }
+ ],
+ "loops": {
+  "rain": "rain.mp3",
+  "stream": "stream.mp3",
+  "forest": "forest.mp3",
+  "sea": "sea.mp3"
+ },
+ "credits": [
+  {
+   "name": "Bach, Prelude No. 1 in C major, BWV 846",
+   "by": "Kimiko Ishizaka",
+   "license": "CC0",
+   "url": "https://commons.wikimedia.org/wiki/File:Kimiko_Ishizaka_-_Bach_-_Well-Tempered_Clavier,_Book_1_-_01_Prelude_No._1_in_C_major,_BWV_846.ogg"
+  },
+  {
+   "name": "Bach, Goldberg Variations: Aria da Capo",
+   "by": "Kimiko Ishizaka",
+   "license": "CC0",
+   "url": "https://commons.wikimedia.org/wiki/File:Kimiko_Ishizaka_-_32_-_Aria_da_Capo_Fine.ogg"
+  },
+  {
+   "name": "Satie, Gymnopédie No. 1",
+   "by": "Robin Alciatore (Musopen)",
+   "license": "Public domain",
+   "url": "https://commons.wikimedia.org/wiki/File:Erik_Satie_-_gymnopedies_-_la_1_ere._lent_et_douloureux.ogg"
+  },
+  {
+   "name": "Chopin, Nocturne Op. 9 No. 2",
+   "by": "Frank Lévy (Musopen, Set Chopin Free)",
+   "license": "Public domain",
+   "url": "https://commons.wikimedia.org/wiki/File:Chopin_-_Nocturne_No._2_in_E-flat_major,_Op._9_No._2_(Frank_Levy).flac"
+  },
+  {
+   "name": "Rain",
+   "by": "ezwa (PDSounds)",
+   "license": "Public domain",
+   "url": "https://commons.wikimedia.org/wiki/File:Rain_(1).ogg"
+  },
+  {
+   "name": "Stream, river water up close",
+   "by": "jackthemurray",
+   "license": "CC0",
+   "url": "https://commons.wikimedia.org/wiki/File:433589_jackthemurray_stream-river-water-up-close.wav"
+  },
+  {
+   "name": "Forest ambience",
+   "by": "nille",
+   "license": "Public domain",
+   "url": "https://commons.wikimedia.org/wiki/File:20090610_0_ambience.ogg"
+  },
+  {
+   "name": "Waves on the shore, Kalundborg Fjord",
+   "by": "Luftrum",
+   "license": "CC BY 3.0",
+   "url": "https://commons.wikimedia.org/wiki/File:Oceanwavescrushing.ogg"
+  }
+ ]
+}

@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: feedback-no-trigger
+description: no check for study-feedback
+tags: [study-feedback, no]
+execution:
+  prompt: "Give me feedback on my essay intro: 'Climate change is a big problem that affects everyone.'"
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: not-fired-study-feedback
+    tool: Skill
+    input_match: "study-feedback"
+    min: 0
+    max: 0
+  - type: llm
+    name: behaviour
+    criteria: "The reply gives writing feedback on the essay sentence and does not mention Condisco."

@@ -1,0 +1,41 @@
+/* breath: owned by the breath thread. Loaded after the main <style> in index.html, so rules here override it. */
+/* Breathing screen: a lake at dawn in light mode, a night lake in dark mode. The orb fills the guide ring on the
+   inhales and sinks on the long exhale; a ripple spreads on each exhale; a thin ring fills as the session goes. */
+/* palette (colours, ground) lives in app/ds/palettes.css */
+#focus.calm .hint,#focus.calm .bleft,#focus.calm .bsub{color:var(--calm-mute)}
+#focus.calm .btn{border-color:var(--calm-line);color:var(--calm-ink);background:transparent}
+#focus.calm .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+#focus.calm .btn.on{background:var(--calm-on);color:var(--calm-ink);border-color:var(--calm-on-line)}
+#focus.calm .btn small{opacity:.75;font-size:var(--fs-label);margin-inline-start:4px}
+#focus.calm .steps i{background:var(--calm-line)}#focus.calm .steps i.on{background:var(--calm-on-line)}
+
+.breath{display:grid;place-items:center;gap:6px;padding:6px 0 2px}
+.breath.run{padding-top:min(6vh,40px)}
+.breath:not(.run) .pond{width:min(52vw,210px,32vh);margin-bottom:2px}
+.pond{position:relative;width:min(72vw,300px,46vh);aspect-ratio:1;display:grid;place-items:center;margin-bottom:8px}
+.pond>*{grid-area:1/1}
+.bprog{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.bprog circle{fill:none;stroke:var(--calm-track);stroke-width:.9}
+.bprog circle.v{stroke:var(--calm-prog);stroke-linecap:round;transition:stroke-dashoffset .25s linear}
+.breath:not(.run) .bprog{opacity:0}
+.guide{width:78%;aspect-ratio:1;border-radius:50%;border:1.5px dashed var(--calm-guide)}
+.orb{width:78%;aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle at 36% 30%,var(--orb-a) 0%,var(--orb-b) 34%,var(--orb-c) 72%,var(--orb-d) 100%);
+  box-shadow:0 0 44px 4px var(--orb-glow),inset 0 -14px 34px var(--orb-shade);
+  transform:scale(.6);transition-property:transform,box-shadow;transition-duration:2s;transition-timing-function:ease-in-out;will-change:transform}
+.orb.full{box-shadow:0 0 90px 24px var(--orb-glow),inset 0 -12px 30px var(--orb-shade)}
+.orb.idle{animation:orb-idle 7s ease-in-out infinite}
+@keyframes orb-idle{0%,100%{transform:scale(.6)}50%{transform:scale(.68)}}
+.ring{position:absolute;inset:0;margin:auto;width:76%;height:76%;border-radius:50%;border:1.5px solid var(--calm-ring);opacity:0;pointer-events:none}
+.ring.go{animation:ripple 6.4s cubic-bezier(.2,.6,.3,1) forwards}
+@keyframes ripple{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.32);opacity:0}}
+.cue{font-family:var(--font-display);font-size:clamp(26px,7vw,32px);text-align:center;min-height:1.3em}
+.bsub{font-size:var(--fs-small);text-align:center;min-height:1.5em}
+.bleft{font-family:var(--font-display);font-size:var(--fs-small);direction:ltr;text-align:center;font-variant-numeric:tabular-nums;opacity:.85;margin-top:4px}
+.bset{display:grid;gap:var(--space-2);margin-top:var(--space-2)}
+.bwhy{max-width:520px;margin:var(--space-3) auto 0;font-size:var(--fs-small);color:var(--calm-mute)}
+.bwhy summary{cursor:pointer;text-align:center;list-style:none;text-decoration:underline;text-underline-offset:3px}
+.bwhy summary::-webkit-details-marker{display:none}
+.bwhy p{margin:var(--space-2) 0 0;line-height:1.6}
+@media(prefers-reduced-motion:reduce){.orb{transform:scale(.8)!important}}
+.bsnd{flex-wrap:wrap;gap:var(--space-3);align-items:center}
