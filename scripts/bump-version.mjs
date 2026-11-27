@@ -16,6 +16,8 @@ const FILES = [
   'package-lock.json',
   'plugin/README.md',
   'plugin/skills/study-feedback/SKILL.md',
+  'plugin/skills/study-setup/SKILL.md',
+  'plugin/skills/study-coach/SKILL.md',
   'docs/install.md',
   'docs/pilot-guide.md',
 ];

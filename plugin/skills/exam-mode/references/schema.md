@@ -25,6 +25,7 @@ Capabilities: `{db: {rules: [{path: "", read: "owner", write: "owner"}]}, user: 
 - `courses/{id}` + exam mode: midtermDate (YYYY-MM-DD, already present in Study Hub data), examVerified (bool; a date on the course is verified only when true, else "לא מאומת"). An open `deadlines` doc of kind exam on the same day wins.
 - `tasks/{id}` from the exam plan (app מבחנים screen or exam-mode skill): source "exam:<examId>", id `x{MMDD}-{examId}-{map|mock|rev|light}`; examId = the deadline id, or `<courseId>-final` / `<courseId>-mid`. Regenerating changes or removes only that source's tasks still in status todo.
 - `meta/open`: items[]
+- + `meta/install`: pluginVersion (the plugin release that last published the app), publishedAt (ISO, first publish), updatedAt (ISO, last update), url (the artifact link). Written by the `study-setup` skill; the app ignores it.
 - + `practice_items/{id}`: courseId, unitId, prompt, source, box (1–4), due (YYYY-MM-DD), lastResult (right | wrong | null), createdAt, updatedAt, + errorId (exam mode: the error that created it). Leitner: wrong → box 1, due +1 day; right → next box, due +3 / +7 / +14 days.
 - + `errors/{auto}`: courseId, unitId?, taskId?, mockId?, what, kind (concept | careless | time | reading | unknown), fix, resolved, createdAt
 - + `feedback/{auto}` (pilot): date, skill ("app" from the app's settings form, or a skill name), rating (1–5), worked, broke, wish, createdAt

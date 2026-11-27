@@ -18,8 +18,8 @@ Screenshots use the fictional sample data from `?mock=1`.
 ## Install (students)
 
 1. You need a paid Claude plan (Pro or higher). In claude.ai, turn on **Settings > Capabilities > Code execution**.
-2. Download `condisco-<version>.zip` from the latest [release](../../releases/latest) (or the file you were sent). Do not unzip it.
-3. In claude.ai (browser or desktop app): **Customize > Plugins > Add > Upload plugin**, and choose the ZIP.
+2. In claude.ai (browser or desktop app): **Customize > Plugins > Add > Add marketplace**, enter `Avi-Lezerovich/condisco`, and install **Condisco** from it. Installed this way, the plugin updates by itself. (Got a ZIP instead? **Customize > Plugins > Add > Upload plugin**; a ZIP does not update by itself.)
+3. Later, to bring your app up to the new version: write **עדכן את Condisco** (or "update Condisco"). The app is republished at the same link with all its data.
 4. Open a new project, start a chat, and write **להתקין לי Condisco** (or "set up Condisco").
 5. Condisco publishes your private app (`בדיקת db: עברה ✓`), reads your courses and syllabi from Moodle (read only) or from uploaded syllabi, and asks four short questions plus three about how you like to learn. Bookmark the app link.
 
@@ -42,8 +42,8 @@ The app has one source, `app/`. The plugin ships a copy of it under `skills/stud
 
 ## How it works
 
-1. The student uploads the plugin ZIP to claude.ai and says "להתקין לי Condisco" (or "set up Condisco").
-2. `study-setup` publishes the app as a private artifact with its own database, runs a database self-test, reads the courses and syllabi from Moodle (read only, through Claude in Chrome) or from uploaded syllabi, and saves them after the student confirms. `study-profile` then asks four short questions and three about how the student likes to learn, and keeps the learner profile (`profile/main`) that every skill reads.
+1. The student installs the plugin from this repository's marketplace (or uploads the ZIP) in claude.ai and says "להתקין לי Condisco" (or "set up Condisco").
+2. `study-setup` publishes the app as a private artifact (and later, on "update Condisco", republishes it in place at the same link) with its own database, runs a database self-test, reads the courses and syllabi from Moodle (read only, through Claude in Chrome) or from uploaded syllabi, and saves them after the student confirms. `study-profile` then asks four short questions and three about how the student likes to learn, and keeps the learner profile (`profile/main`) that every skill reads.
 3. From then on the other skills read and write that database: `study-coach` for the daily plan and evening check-in, `study-session` for a study session (retrieval first, a hint ladder, a closed-book recall question at the end), `exam-mode` for backward exam plans and timed mocks from real past exams, `study-materials` for one-line summaries of each unit's Google Drive file, `study-sync` for a read-only "sync now" of Moodle and Piazza, `study-summary` for a summary of a week, unit or topic in the student's preferred form (by default a visual page with diagrams and a recall quiz), and `study-teach` for a short visual lesson on a topic, ending with an explain-back.
 4. The app shows Today, Gaps, Deadlines, Check-in and Settings (an Exams tab is built but hidden for now; `?exam=1` shows it), plus a focus timer with breathing, music and a desktop idle screen.
 
@@ -83,7 +83,12 @@ CI runs all of this on every push and pull request, and attaches the plugin ZIP 
 2. Add an entry to [`CHANGELOG.md`](CHANGELOG.md).
 3. `npm test && npm run build:plugin`, then tag `vX.Y.Z` and attach `dist/condisco-X.Y.Z.zip` to a GitHub release.
 
-## Privacy
+## Data and privacy
+
+- **Where data lives:** in the student's own private Condisco artifact on claude.ai, in its owner-only database. Only the student's account can read or write it.
+- **What Condisco sends:** nothing of its own. The plugin is skills (instructions) and a static web app: no server, no analytics, no tracking, and nothing reaches the developer. The app loads its fonts from Google Fonts and nothing else from outside; links to Drive files or music open only when the student clicks them.
+- **What Claude reads, and only when the student asks:** Moodle and Piazza pages through Claude in Chrome (read only: nothing is submitted, posted or changed), Google Drive files through the student's own Drive connector (read only), and files the student uploads. This is processed by Claude inside the student's account, like any other chat.
+- **What Claude writes:** only to the student's own app. Calendar events, emails and messages are never created without an explicit yes, and feedback is never sent anywhere: the student copies and sends it themselves.
 
 This repository holds code and fictional sample data only. Real study data lives in each student's private artifact and is never committed. See [CONTRIBUTING.md](CONTRIBUTING.md#personal-data).
 
