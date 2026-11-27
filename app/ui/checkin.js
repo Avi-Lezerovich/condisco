@@ -34,14 +34,15 @@ function load(day, cur) {
 }
 
 const STATUS = [['done', 'בוצע'], ['min', 'מינימום'], ['skipped', 'דילוג']];
+// one compact row per task: title with the course dot, then done · minimum · skip
 function tasksCard(S, day) {
   const td = S.tasks.filter(t => t.date === day).sort((a, b) => (a.start || '99').localeCompare(b.start || '99'));
   if (!td.length) return '';
   const wins = td.filter(t => WIN(t.status)).length;
   const course = id => S.courses.find(c => c.id === id);
-  const line = wins === 0 ? 'עוד לא סומן ניצחון. גם מינימום נחשב.' : wins === td.length ? 'כל המשימות סומנו כניצחון. יפה מאוד.' : `${wins === 1 ? 'ניצחון אחד' : wins + ' ניצחונות'} מתוך ${td.length} משימות. כל צעד נחשב.`;
-  return `<section class="q ci-tasks" aria-labelledby="ci-tasks-h"><div class="ci-h"><h3 id="ci-tasks-h">המשימות של ${day === todayStr() ? 'היום' : 'אתמול'}</h3><span class="ci-count num" aria-hidden="true">${wins}/${td.length}</span></div>
-  <p class="hint">${line} אפשר לסמן כאן מה קרה בפועל.</p>
+  const line = wins === 0 ? 'עוד לא סומן ניצחון. גם מינימום נחשב.' : wins === td.length ? 'כל המשימות סומנו כניצחון. יפה מאוד.' : `${wins === 1 ? 'ניצחון אחד' : wins + ' ניצחונות'} מתוך ${td.length}. כל צעד נחשב.`;
+  return `<section class="q ci-tasks" aria-labelledby="ci-tasks-h"><div class="ci-h"><h3 id="ci-tasks-h">מה קרה עם המשימות ${day === todayStr() ? 'היום' : 'אתמול'}</h3><span class="ci-count num" aria-hidden="true">${wins}/${td.length}</span></div>
+  <p class="hint">${line}</p>
   <ul class="ci-tl">${td.map(t => {
     const c = course(t.courseId);
     return `<li class="${WIN(t.status) ? 'win' : t.status === 'skipped' ? 'skip' : ''}" ${c ? `style="${cvar(c)}"` : ''}><span class="ci-tt">${c ? '<i class="cdot" aria-hidden="true"></i>' : ''}<span>${t.warmup ? '<small>חימום · </small>' : ''}${esc(t.title || 'משימה')}</span></span>
@@ -70,25 +71,25 @@ export function render({ store }) {
   const ta = (k, label, hint, ph) => `<label class="fld" for="ci-${k}"><span>${label}</span>${hint ? `<small>${hint}</small>` : ''}<textarea id="ci-${k}" rows="2" maxlength="2000"${ph ? ` placeholder="${ph}"` : ''}>${esc(d[k])}</textarea></label>`;
   const sleepV = d.sleep;
   return `<div class="ci-wrap">
-  <header class="ci-top"><div><h2 class="ci-day">${esc(dayLabel(day))}</h2><p class="hint">כמה דקות של סיכום, ומחר מתחיל ברור יותר.</p></div>
+  <header class="ci-top"><div><h2 class="ci-day">${esc(dayLabel(day))}</h2><p class="hint">שתי דקות של סיכום, ומחר מתחיל ברור יותר.</p></div>
   <span class="ci-badge ${saved && !dirty && !view.restored ? 'ok' : ''}" id="ci-state" role="status">${saved && !dirty && !view.restored ? CHECK : ''}${esc(state)}</span></header>
-  ${tasksCard(S, day)}
   <form class="ci" id="ci" novalidate>
-  <section class="q" aria-labelledby="ci-g1"><h3 id="ci-g1">היום</h3>
+  ${tasksCard(S, day)}
+  <section class="q ci-body" aria-label="גוף וראש">
+    <div class="ci-line"><span class="ci-lbl" id="ci-en-l">אנרגיה היום</span><div class="energy" role="group" aria-labelledby="ci-en-l">${[1, 2, 3, 4, 5].map(n => `<button type="button" class="btn ${view.energy === n ? 'on' : ''}" data-act="energy" data-v="${n}" aria-pressed="${view.energy === n}" aria-label="אנרגיה ${n} מתוך 5">${n}</button>`).join('')}</div></div>
+    <div class="ci-line"><label class="ci-lbl" for="ci-sleep">שעות שינה בלילה</label><div class="stepper"><button type="button" class="btn" data-act="sleep" data-d="-0.5" aria-label="חצי שעה פחות">−</button><input class="f num" id="ci-sleep" type="number" inputmode="decimal" min="0" max="${SLEEP_MAX}" step="0.5" placeholder="7" value="${esc(sleepV)}"><button type="button" class="btn" data-act="sleep" data-d="0.5" aria-label="חצי שעה יותר">+</button></div></div>
+  </section>
+  <section class="q" aria-labelledby="ci-g1"><h3 id="ci-g1">במילים</h3>
     ${ta('did', 'מה עשיתי היום?', '', 'משפט אחד מספיק')}
     ${doneTitles.length && !d.did.trim() ? `<button type="button" class="btn ci-fill" data-act="cifill">הוספת המשימות שבוצעו</button>` : ''}
     ${ta('wentWell', 'מה הלך טוב?', 'גם דבר קטן נחשב')}
     ${ta('blocked', 'מה תקע אותי?', 'בלי שיפוטיות, רק כדי לתכנן טוב יותר')}
   </section>
-  <section class="q" aria-labelledby="ci-g2"><h3 id="ci-g2">גוף וראש</h3>
-    <div class="fld"><span id="ci-en-l">אנרגיה היום</span><div class="energy" role="group" aria-labelledby="ci-en-l">${[1, 2, 3, 4, 5].map(n => `<button type="button" class="btn ${view.energy === n ? 'on' : ''}" data-act="energy" data-v="${n}" aria-pressed="${view.energy === n}" aria-label="אנרגיה ${n} מתוך 5">${n}</button>`).join('')}</div><div class="ci-ends" aria-hidden="true"><span>אין כוח</span><span>הרבה כוח</span></div></div>
-    <div class="fld"><label for="ci-sleep"><span>כמה שעות ישנתי בלילה שעבר?</span></label><div class="stepper"><button type="button" class="btn" data-act="sleep" data-d="-0.5" aria-label="חצי שעה פחות">−</button><input class="f num" id="ci-sleep" type="number" inputmode="decimal" min="0" max="${SLEEP_MAX}" step="0.5" placeholder="7" value="${esc(sleepV)}"><button type="button" class="btn" data-act="sleep" data-d="0.5" aria-label="חצי שעה יותר">+</button></div></div>
-  </section>
   <section class="q" aria-labelledby="ci-g3"><h3 id="ci-g3">מחר</h3>
     ${ta('tomorrow', 'מה התוכנית למחר?', 'Claude יבנה ממנה את היום, עם ניצחון פתיחה קטן בהתחלה')}
     <div class="fld"><span>המשימה הראשונה מחר</span><small>כשהשעה... ואני ב... מתחילים. ככה קל יותר להתחיל.</small><div class="row2"><label>מתי<input class="f" id="ci-firstWhen" type="time" value="${esc(d.firstWhen)}"></label><label>איפה<input class="f" id="ci-firstWhere" maxlength="60" placeholder="בית, ספרייה" value="${esc(d.firstWhere)}"></label></div></div>
   </section>
-  <div class="ci-save"><button class="btn primary" type="submit">${saved ? "עדכון הצ'ק-אין" : "שמירת הצ'ק-אין"}</button></div>
+  <div class="ci-save"><button class="btn primary" type="submit">${saved ? 'עדכון' : 'שמירה'}</button></div>
   </form>
   ${hist.length ? '<h3 class="sec">ימים קודמים</h3><div class="hist">' + hist.map(histItem).join('') + '</div>' : ''}
   </div>`;
