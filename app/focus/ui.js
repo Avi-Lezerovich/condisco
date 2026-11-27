@@ -86,7 +86,7 @@ export function createFocus({ store, onChange = () => {} }) {
     setTimeout(() => { const b = FZ.querySelector('button'); if (b) b.focus(); }, 30);
   }
   function close() { SC.forget(); CU.cancel(); Pad.stop(); Music.stop(); /* sound thread hook */ F = null; safeLS.del(E.KEY); ensureLoop(); hide(); MINI.hidden = true; onChange(); }
-  function hide() { BL.release(); SC.stop(); FZ.classList.remove('open', 'calm', 'scenic', 'brk'); BOX.innerHTML = ''; document.body.classList.remove('locked'); }
+  function hide() { delete FZ.dataset.step; BL.release(); SC.stop(); FZ.classList.remove('open', 'calm', 'scenic', 'brk'); BOX.innerHTML = ''; document.body.classList.remove('locked'); }
   // the scene holds in every step except the break, so it never swaps mid-focus
   function scene() {
     const wide = isWide() && !!F && !F.min;
@@ -118,11 +118,14 @@ export function createFocus({ store, onChange = () => {} }) {
     FZ.classList.toggle('brk', F.state === 'break');
     scene();
     BOX.innerHTML = `<div class="fz" data-step="${F.state}">${head()}${body()}</div>`;
+    // a new step starts at its top: on short screens (iPhone landscape, SE) the tap on "next" sits low, and the next step kept that scroll
+    const stepKey = F.state + (F.state === 'breathe' && F.breath && F.breath.run ? '-run' : '');
+    if (FZ.dataset.step !== stepKey) { FZ.dataset.step = stepKey; FZ.scrollTop = 0; }
     BL.reset(); live();
   }
   function head() {
     const steps = F.steps, i = steps.indexOf(F.state === 'break' ? 'focus' : F.state);
-    const dots = steps.length > 1 ? `<div class="steps" aria-label="שלב ${i + 1} מתוך ${steps.length}: ${STEP_LABEL[F.state === 'break' ? 'focus' : F.state] || ''}">${steps.map((_, k) => `<i class="${k <= i ? 'on' : ''}"></i>`).join('')}</div>` : '<span></span>';
+    const dots = steps.length > 1 ? `<div class="steps" role="img" aria-label="שלב ${i + 1} מתוך ${steps.length}: ${STEP_LABEL[F.state === 'break' ? 'focus' : F.state] || ''}">${steps.map((_, k) => `<i class="${k <= i ? 'on' : ''}"></i>`).join('')}</div>` : '<span></span>';
     return `<div class="fz-top">${dots}${E.timerShowing(F) ? '<button class="btn" data-f="minimize">חזרה לאפליקציה</button>' : '<button class="btn" data-f="close">סגירה</button>'}</div>`;
   }
   function taskLine() {

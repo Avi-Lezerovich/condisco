@@ -96,7 +96,7 @@
 .gaps .nx{margin-top:auto;width:100%;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:2px var(--space-3);
   white-space:normal;text-align:start;padding-block:var(--space-2);font-weight:600;font-size:var(--fs-small);line-height:var(--lh-small)}
 .gaps .nx b{font-weight:800}
-.gaps .nx em{font-style:normal;font-size:var(--fs-caption);opacity:.85}
+.gaps .nx em{font-style:normal;font-size:var(--fs-caption)}
 .gaps p.nx.done{margin-top:auto;margin-bottom:0;padding:var(--space-2) var(--space-3);border-radius:var(--radius-sm);background:var(--win-soft);color:var(--ink);font-weight:700}
 
 /* expanded body */
