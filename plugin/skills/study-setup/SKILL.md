@@ -25,18 +25,21 @@ Before sending a Hebrew message, check every word aimed at the student, error me
 At most 4 questions in one message, multiple choice where possible.
 
 ## Before you start
+- Assume everything is already on and **try first**. If this skill is running, code
+  execution is on, and code execution is also what artifacts need, so do NOT open
+  with a list of settings to enable, plan checks or questions about the account.
+  The first visible action is the publish in step 1.
 - Look for an existing Condisco or Study Hub artifact (project memory, project
   instructions, or the artifact list). If one exists, do NOT publish a second one:
   say which one you found and offer to run only the self-test (step 2) on it, or
   only the parts that are missing (courses in step 3, interview in step 4).
   A Study Hub db is fine to reuse: the app migrates it to the Condisco layout when it opens.
-- Custom skills and artifact storage need a paid plan (Pro or higher) and code
-  execution turned on. If the skill folder or tools are missing, say so in one line.
 - If the student already wrote their courses, name or times in the first message,
   keep them: they are confirmed answers, do not ask again.
 
-Tell the student the plan in 3 short lines: the app is published first, then
-Condisco reads the courses (from Moodle or from syllabi), then 4 short questions.
+Say one short line ("מתקינים את Condisco…" / "Installing Condisco…") and publish.
+Tell the plan (courses from Moodle or syllabi, then 4 short questions) only after
+the app is up.
 
 ## Step 1 — Publish the app
 Publish `assets/app/` **unchanged** as one artifact titled **"Condisco"**:
@@ -51,10 +54,11 @@ shorten any file. Keep it private (not shared). Declare these capabilities:
 The root rule (`path: ""`) makes every collection owner-only. `downloads` powers
 the JSON export in the app's Settings.
 
-**If publishing with `db` fails or the option is not available: stop.** Tell the
-student plainly what failed (quote the error), that Condisco needs artifact
-storage (Pro or higher, web or desktop), and do not improvise other storage
-(no localStorage, no project files, no Google Sheets).
+**Only if the publish fails**, read `references/troubleshooting.md` and follow it:
+match the exact error to one cause, and send at most 3 short lines: what failed,
+the one fix, and "write 'continue setup' when it's done". No report of what you
+checked, no menu of options. Publish again once they say it is done. Never improvise other storage (no
+localStorage, no project files, no Google Sheets).
 
 ## Step 2 — Seed and self-test (report in ONE line)
 Read `references/schema.md` first. Write with the artifact data tools this chat
@@ -121,15 +125,10 @@ ask its questions here and do not ask for courses again. After it, set
 
 ## Gotchas
 - Publishing a second Condisco splits the student's data. Always check first.
+- Asking the student to check settings before trying wastes their first minutes and is
+  usually wrong: try, then diagnose from the real error.
 - The student's answers are personal data: they go into the db only, never into
   the plugin files or the page source.
-- Capability rule format can differ by platform version. If the publish rejects the
-  rules, report the exact error instead of guessing a new format more than once.
-- The app is many files. If this chat's publish tool accepts only one HTML file,
-  do not merge or rewrite the app: stop, say exactly that, and point the student to
-  `study-feedback` so the organizer hears about it.
-- If publishing fails only on the audio files (`audio/`), publish again without
-  `audio/`: the app works without it (music shows as unavailable). Say so in one line.
 - Moodle: nothing is ever clicked that changes anything (submit, attempt, enrol,
   post, settings). Calendar events and emails: never in setup.
 - The app also has its own first-run screen for an empty db. If the student filled

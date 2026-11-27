@@ -13,6 +13,9 @@ UI/UX overhaul, part 1: the Condisco Design System in code. No behaviour change.
 - Targets of at least 44px and no text under 12.5px on every screen.
 - `scripts/lint-css.mjs` (in `npm run check`) blocks raw colours, px font sizes and radii, and physical left/right in app CSS. `tests/matrix.mjs` checks 10 device sizes in light and dark.
 
+### Plugin
+- `study-setup`: "install Condisco" now publishes the app right away instead of first listing settings to enable (if the skill runs, code execution, which artifacts need, is already on). Only a failed publish opens the new `references/troubleshooting.md`: one cause from the exact error, one fix, then publish again. New eval `setup-try-first-he`.
+
 ### Visual kit
 - The summary template takes its colour block from the same tokens (`DS:TOKENS` markers), so summaries and the app can no longer drift.
 

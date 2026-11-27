@@ -39,6 +39,7 @@ Rule: only what the official pages say. "not stated" = the docs do not say it �
 - A plugin or skill containing an artifact/app: **not stated** (לא מאומת).
 
 ## Artifacts
+- Artifacts need "Code execution and file creation" ("Create and edit files" in the newer layout) in Settings > Capabilities; Team/Enterprise: Organization settings [A, checked 2026-11-27]. Skills need code execution too [S] → if a skill runs, artifacts are allowed.
 - Create/edit on all plans; web + desktop; mobile can view/edit, sharing settings only on web/desktop [A].
 - Persistent storage: Pro, Max, Ultra, Team, Enterprise on web and Desktop. Personal ("everyone keeps their own private data") or shared; the builder decides. Default 100 MB and 25,000 documents. Legacy artifacts (pre 16 Sep 2026): 20 MB, text only [A].
 - Uploads: ≤20 MB per file, ≤5,000 files, 1 GB [A].
