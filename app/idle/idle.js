@@ -48,6 +48,12 @@ export function createIdle({ store, focus }) {
     + '<div class="amb-timer" id="ambTimer" role="status"><div class="at-row"><span class="at-phase" id="atPhase"></span><span class="at-min" id="atMin"></span></div><div class="at-goal" id="atGoal"></div><div class="at-bar"><i id="atBar"></i></div></div>';
   const manifestUrl = new URL('scenes/manifest.json', location.href).href;
   const host = createSceneHost($('#sceneBox'), { manifestUrl, palette, now: () => clock.now() });
+  // Desktop focus already shows a scene behind its glass panel: the idle screen then lays itself over that same
+  // scene (fades the panel, shows the strip) instead of starting a second, different scene.
+  const overFocus = () => !!document.querySelector('#focus.open.scenic');
+  let own = false; // this screen's own scene host is running
+  const startOwn = () => { if (!own) { own = true; host.start(); } };
+  function over(v) { AMB.classList.toggle('over', v); document.body.classList.toggle('idle-over', v && on); }
   let on = false, live = false, idleT = 0, tick = 0, grace = 0, stopT = 0, origin = null, last = null;
 
   function strip() {
@@ -78,6 +84,7 @@ export function createIdle({ store, focus }) {
     if (focus.state) focus.step();
     // scenes never change mid-focus: a swap due during focus waits for the break
     if (host.hold) host.hold(!!focus.state && focus.state.state === 'focus');
+    const o = overFocus(); over(o); if (!o) startOwn();
     if (strip()) { info(false); return; }
     const u = upcoming(store.S.tasks, todayStr(), nowMin());
     info(!!u);
@@ -98,17 +105,18 @@ export function createIdle({ store, focus }) {
     clearTimeout(stopT); origin = last && [...last];
     const fresh = !live;
     on = true; live = true;
-    if (fresh) { AMB.classList.add('first'); host.start(); }
+    if (fresh) AMB.classList.add('first');
+    if (!overFocus()) startOwn();
     update(); clearInterval(tick); tick = setInterval(update, 1000);
     AMB.getBoundingClientRect();                       // commit the start state so the fade-in runs
     AMB.classList.add('on'); AMB.setAttribute('aria-hidden', 'false');
     if (fresh) setTimeout(() => AMB.classList.remove('first'), 120);
   }
-  function stopNow() { clearTimeout(stopT); if (!live) return; live = false; host.stop(); }
+  function stopNow() { clearTimeout(stopT); if (!live) return; live = false; if (own) { own = false; host.stop(); } }
   function hide(now) {
     if (!on) return;
     on = false; origin = null; clearInterval(tick);
-    AMB.classList.remove('on'); AMB.setAttribute('aria-hidden', 'true');
+    AMB.classList.remove('on'); AMB.setAttribute('aria-hidden', 'true'); document.body.classList.remove('idle-over');
     if (now) stopNow(); else { clearTimeout(stopT); stopT = setTimeout(stopNow, OUT_MS + 100); }
   }
   function arm() { clearTimeout(idleT); if (isDesk()) idleT = setTimeout(show, IDLE_MS); }

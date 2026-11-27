@@ -67,17 +67,18 @@ function nextUp(S, cm, today) {
     else if (diff > -LATE) cd = '<span class="cd">עכשיו</span>';
     else { cd = `<span>תוכנן ל-<span class="num">${esc(t.start)}</span>. אפשר להתחיל עכשיו</span>`; showStart = false; }
   }
+  // two actions only: start the block (primary) or settle for the minimum; "done" lives on the timeline row
   const more = todo.length - 1;
-  return `<section class="next" style="${cvar(c)}" aria-label="הבא בתור"><div class="lbl">${t.warmup ? 'ניצחון פתיחה' : 'הבא בתור'}${c ? ' · ' + esc(c.name) : ''}</div>
+  return `<section class="next" style="${cvar(c)}" aria-label="הבא בתור"><div class="lbl"><span>${t.warmup ? 'ניצחון פתיחה' : 'הבא בתור'}${c ? ' · ' + esc(c.name) : ''}</span>${more ? `<span class="after">${more === 1 ? 'ואחריה עוד אחת' : `ואחריה עוד ${more}`}</span>` : ''}</div>
     <h2>${esc(t.title)}</h2><div class="row">${showStart ? `<span class="num">${esc(t.start)}</span>` : ''}${t.minutes ? `<span>${dur(+t.minutes)}</span>` : ''}${cd}</div>
-    ${t.minVersion ? `<div class="min">גרסת מינימום: ${esc(t.minVersion)}</div>` : ''}
-    <div class="acts"><button class="btn primary" data-act="focus" data-mode="block" data-id="${esc(t.id)}">כניסה לבלוק</button><button class="btn" data-act="task" data-s="done" data-id="${esc(t.id)}">בוצע</button>${t.minVersion ? `<button class="btn" data-act="task" data-s="min" data-id="${esc(t.id)}">מינימום</button>` : ''}</div>
-    ${more ? `<div class="after">${more === 1 ? 'ואחריה עוד משימה אחת' : `ואחריה עוד ${more} משימות`}</div>` : ''}</section>`;
+    ${t.minVersion ? `<div class="min"><b>מינימום:</b> ${esc(t.minVersion)}</div>` : ''}
+    <div class="acts"><button class="btn primary" data-act="focus" data-mode="block" data-id="${esc(t.id)}">כניסה לבלוק</button>${t.minVersion ? `<button class="btn" data-act="task" data-s="min" data-id="${esc(t.id)}" aria-label="מינימום: ${esc(t.minVersion)}">מינימום</button>` : ''}</div></section>`;
 }
 
-function tools(firstId) {
-  return `<div class="tools" aria-label="כלים">
-    <button class="tool" data-act="focus" data-mode="block" data-id="${esc(firstId || '')}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg>כניסה לבלוק</button>
+// the tools never repeat the hero: when the hero already opens a block, the block tool steps aside (three tools)
+function tools(firstId, heroBlock) {
+  const block = heroBlock ? '' : `<button class="tool" data-act="focus" data-mode="block" data-id="${esc(firstId || '')}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg>כניסה לבלוק</button>`;
+  return `<div class="tools${heroBlock ? ' three' : ''}" aria-label="כלים">${block}
     <button class="tool" data-act="focus" data-mode="class"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M7 9.5V15c0 1.5 2.2 3 5 3s5-1.5 5-3V9.5"/></svg>לפני שיעור</button>
     <button class="tool" data-act="focus" data-mode="breathe"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h10a3 3 0 1 0-3-3M4 15h14a3 3 0 1 1-3 3M4 12h8"/></svg>נשימה</button>
     <button class="tool" data-act="focus" data-mode="music"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>מוזיקה</button></div>`;
@@ -99,7 +100,8 @@ function shelf(S, cm, today) {
     .map(d => {
       const n = dayDiff(d.due, today), c = cm[d.courseId], when = DOW[parse(d.due).getDay()] + ' ' + dm(d.due);
       const big = n === 0 ? 'היום' : n === 1 ? 'מחר' : n;
-      return `<a class="due ${n <= 3 ? 'hot' : ''}" href="#deadlines" style="${cvar(c)}"><b class="${n > 1 ? 'n' : 'w'}">${big}${n > 1 ? '<i>ימים</i>' : ''}</b><span>${esc(d.title)}<small>${c ? esc(c.name) + ' · ' : ''}${when}</small></span></a>`;
+      // the number speaks about time (clay when 3 days or less, ink otherwise); the course is only a dot
+      return `<a class="due ${n <= 3 ? 'hot' : ''}" href="#deadlines" style="${cvar(c)}" aria-label="${esc(d.title)}, ${n === 0 ? 'היום' : n === 1 ? 'מחר' : 'בעוד ' + n + ' ימים'}, ${c ? esc(c.name) + ', ' : ''}${when}"><b class="${n > 1 ? 'n' : 'w'}">${big}${n > 1 ? '<i>ימים</i>' : ''}</b><span>${esc(d.title)}<small>${c ? `<i class="dot" aria-hidden="true"></i>${esc(c.name)} · ` : ''}${when}</small></span></a>`;
     }).join('');
   return (pills ? `<h4 class="mini">שגרה היום</h4><div class="shelf wrapw" role="group" aria-label="שגרה היום">${pills}</div>` : '')
     + (dues ? `<h4 class="mini">דדליינים קרובים</h4><div class="dues" aria-label="דדליינים קרובים">${dues}</div>` : '');
@@ -136,7 +138,7 @@ function reviewBox(S, cm, today) {
   const it = due[0], c = cm[it.courseId], open = !!view.reveal[it.id];
   return `<section class="rev" style="${cvar(c)}" aria-label="חזרה מרווחת"><div class="lbl">חזרה מרווחת · ${due.length} ${due.length === 1 ? 'שאלה' : 'שאלות'} להיום</div>
     <div class="t-title">${esc(it.prompt)}</div>${it.source ? `<div class="meta"><span>מקור: ${esc(it.source)}</span></div>` : ''}
-    <div class="acts">${open ? '<span class="hint">ענית בלי להציץ?</span><button class="btn" data-act="rev" data-v="right" data-id="' + esc(it.id) + '">צדקתי</button><button class="btn" data-act="rev" data-v="wrong" data-id="' + esc(it.id) + '">טעיתי</button>' : '<button class="btn primary" data-act="revopen" data-id="' + esc(it.id) + '">עניתי בראש</button>'}</div></section>`;
+    <div class="acts">${open ? '<span class="hint">ענית בלי להציץ?</span><button class="btn" data-act="rev" data-v="right" data-id="' + esc(it.id) + '">צדקתי</button><button class="btn" data-act="rev" data-v="wrong" data-id="' + esc(it.id) + '">טעיתי</button>' : '<button class="btn" data-act="revopen" data-id="' + esc(it.id) + '">עניתי בראש</button>'}</div></section>`;
 }
 
 export function render({ store, focus }) {
@@ -161,7 +163,12 @@ export function render({ store, focus }) {
   view.just = '';
   const pct = counted ? done / counted : 0, C = 2 * Math.PI * 14;
   const ring = `<span class="ring-p" aria-label="${done} מתוך ${counted} משימות"><svg viewBox="0 0 34 34" aria-hidden="true"><circle class="bg" cx="17" cy="17" r="14"/><circle class="fg" cx="17" cy="17" r="14" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C * (1 - pct)).toFixed(1)}"/></svg><span><b>${done}/${counted}</b> · ${dur(total)}</span></span>`;
-  return `<div class="todaygrid"><aside class="side-top">${isToday ? (focus && isRunning(focus.state) ? running(focus.state, S, cm) : nextUp(S, cm, today)) + tools(firstTodo && firstTodo.id) : ''}</aside><section class="main">
+  let top = '';
+  if (isToday) {
+    const live = focus && isRunning(focus.state), hero = live ? running(focus.state, S, cm) : nextUp(S, cm, today);
+    top = hero + tools(firstTodo && firstTodo.id, /data-mode="block"/.test(hero));
+  }
+  return `<div class="todaygrid"><aside class="side-top">${top}</aside><section class="main">
     <div class="days" role="group" aria-label="בחירת יום">${dayBtns}</div>
     <div class="dayhead"><h2>יום ${DOW[L.getDay()]} ${dm(view.day)}</h2>${list.length ? ring : ''}</div>
     ${list.length ? `<div class="tl">${rows}</div>` : empty("אין משימות ליום הזה. בצ'ק-אין של הערב נתכנן אותו.")}
