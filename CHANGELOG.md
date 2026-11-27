@@ -2,6 +2,12 @@
 
 All notable changes to Condisco. Versions follow the plugin version in `plugin/.claude-plugin/plugin.json`.
 
+## [Unreleased]
+
+### Distribution
+- The repository is a plugin marketplace: add `Avi-Lezerovich/condisco` in claude.ai (Customize > Plugins > Add > Add marketplace) and installed copies update by themselves when the version rises.
+- CI publishes the built plugin to the `release` branch and creates the GitHub release with the ZIP whenever `main` carries a new version.
+
 ## [0.5.0] - 2026-11-27
 
 UI/UX overhaul: the Condisco Design System in code, every screen redesigned on it, the new logo, and cross-device QA.

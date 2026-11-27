@@ -1,0 +1,20 @@
+{
+  "name": "condisco",
+  "description": "Condisco: a study partner for university students inside Claude. Plans each day, runs evidence-based study sessions and keeps a private study app.",
+  "owner": {
+    "name": "Condisco",
+    "url": "https://github.com/Avi-Lezerovich"
+  },
+  "plugins": [
+    {
+      "name": "condisco",
+      "description": "A study partner for university students: sets up a private Condisco study app, plans each day, runs evidence-based study sessions with a hint ladder and closed-book recall, and checks in every evening.",
+      "category": "education",
+      "source": {
+        "source": "github",
+        "repo": "Avi-Lezerovich/condisco",
+        "ref": "release"
+      }
+    }
+  ]
+}

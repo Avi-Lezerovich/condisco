@@ -18,8 +18,9 @@ Screenshots use the fictional sample data from `?mock=1`.
 ## Install (students)
 
 1. You need a paid Claude plan (Pro or higher). In claude.ai, turn on **Settings > Capabilities > Code execution**.
-2. Download `condisco-<version>.zip` from the latest [release](../../releases/latest) (or the file you were sent). Do not unzip it.
-3. In claude.ai (browser or desktop app): **Customize > Plugins > Add > Upload plugin**, and choose the ZIP.
+2. In claude.ai (browser or desktop app): **Customize > Plugins > Add > Add marketplace**, enter `Avi-Lezerovich/condisco`, then install **Condisco**. New versions arrive by themselves.
+   No marketplace? Download `condisco-<version>.zip` from the latest [release](../../releases/latest) (or the file you were sent), do not unzip it, and use **Customize > Plugins > Add > Upload plugin** instead. An uploaded ZIP does not update.
+3. Claude Code users: `/plugin install condisco --marketplace Avi-Lezerovich/condisco`.
 4. Open a new project, start a chat, and write **להתקין לי Condisco** (or "set up Condisco").
 5. Condisco publishes your private app (`בדיקת db: עברה ✓`), reads your courses and syllabi from Moodle (read only) or from uploaded syllabi, and asks four short questions plus three about how you like to learn. Bookmark the app link.
 
@@ -35,7 +36,8 @@ Full guide: [Hebrew](docs/pilot-guide.md) · [English](docs/install.md). Somethi
 | [`app/scenes/`](app/scenes/) | 31 procedural SVG landscapes for the desktop idle screen. |
 | [`app/audio/`](app/audio/) | Eight recordings for focus blocks (piano, rain, stream, forest, sea). All are CC0 or public domain except `sea.mp3` (CC BY 3.0, Luftrum). See [sources and licenses](app/audio/LICENSES.md) and [NOTICE](NOTICE.md). |
 | [`docs/`](docs/) | Student install guides ([Hebrew](docs/pilot-guide.md), [English](docs/install.md)), Hebrew style guide, research notes. |
-| [`scripts/`](scripts/) | Checks, the browser test runner and the plugin ZIP builder. |
+| [`scripts/`](scripts/) | Checks, the browser test runner, the plugin ZIP builder and the release publisher. |
+| [`.claude-plugin/`](.claude-plugin/) | The marketplace file students add in claude.ai (`Avi-Lezerovich/condisco`). |
 | [`tools/hebrew/`](tools/hebrew/) | The Hebrew copy map and the script that applies it. |
 
 The app has one source, `app/`. The plugin ships a copy of it under `skills/study-setup/assets/app/`, which `npm run build:plugin` creates, so the two cannot drift.
@@ -73,15 +75,17 @@ URL options: `?mock=1` fake database with sample data, `?mock=empty` first-run s
 | `npm run test:kit` | The visual kit page on a phone and a desktop, light and dark: no horizontal scroll, figures ≤ 480 units with titles, no hard-coded colours, stepper and quiz work. |
 | `npm run sync:shared` | Copies the shared skill files (kit, schema, Moodle rules) into every skill that uses them. `npm run check` fails when a copy drifts. |
 | `npm run test:browser [suite...]` | Playwright suites against the mock app: `smoke today gaps-ui checkin focus timer breath idle sound exam layout`. |
-| `npm run build:plugin` | Builds `dist/condisco-<version>.zip`, ready to upload. |
+| `npm run build:plugin` | Builds `dist/condisco-<version>.zip`, ready to upload, and `dist/condisco/` (what the `release` branch holds). |
 
 CI runs all of this on every push and pull request, and attaches the plugin ZIP to the run.
 
 ## Releasing
 
-1. `node scripts/bump-version.mjs X.Y.Z` (plugin.json, package.json, feedback skill, install guides).
-2. Add an entry to [`CHANGELOG.md`](CHANGELOG.md).
-3. `npm test && npm run build:plugin`, then tag `vX.Y.Z` and attach `dist/condisco-X.Y.Z.zip` to a GitHub release.
+The marketplace file [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json) on `main` points at the `release` branch, which holds the **built** plugin (`plugin/` plus the app bundled into `study-setup`). CI writes that branch; never edit it by hand.
+
+1. `node scripts/bump-version.mjs X.Y.Z` (plugin.json, package.json, feedback skill, install guides). **Raise the version on every release**: installed copies update only when the version changes, so a change merged without a new version never reaches students.
+2. Add an entry to [`CHANGELOG.md`](CHANGELOG.md) under `## [X.Y.Z]`.
+3. Merge to `main`. When the tests pass, CI builds the plugin, validates it (`claude plugin validate`), pushes it to `release` ([`scripts/publish-release.mjs`](scripts/publish-release.mjs)) and creates the GitHub release `vX.Y.Z` with the ZIP and the changelog entry. Pushes that keep the same version publish nothing.
 
 ## Privacy
 

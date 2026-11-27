@@ -26,6 +26,17 @@ for (const f of files.filter((f) => f.endsWith('.json') && !f.endsWith('package-
 
 const plugin = JSON.parse(fs.readFileSync(path.join(ROOT, 'plugin/.claude-plugin/plugin.json'), 'utf8'));
 for (const k of ['name', 'version', 'description', 'license']) if (!plugin[k]) errors.push(`plugin.json: missing "${k}"`);
+// marketplace: one entry for this plugin, pointing at the built plugin on the release branch.
+// The version lives in plugin.json only (setting it in both is ambiguous for updates).
+const market = JSON.parse(fs.readFileSync(path.join(ROOT, '.claude-plugin/marketplace.json'), 'utf8'));
+const entry = (market.plugins || []).find((p) => p.name === plugin.name);
+if (!market.name || !market.owner?.name) errors.push('marketplace.json: needs "name" and "owner.name"');
+if (!entry) errors.push(`marketplace.json: no entry named "${plugin.name}"`);
+else {
+  if (entry.version) errors.push('marketplace.json: remove "version" from the entry (plugin.json holds it)');
+  const src = entry.source || {};
+  if (src.source !== 'github' || src.repo !== 'Avi-Lezerovich/condisco' || src.ref !== 'release') errors.push('marketplace.json: source must be github Avi-Lezerovich/condisco at ref "release" (see scripts/publish-release.mjs)');
+}
 for (const s of fs.readdirSync(path.join(ROOT, 'plugin/skills'))) {
   const md = path.join(ROOT, 'plugin/skills', s, 'SKILL.md');
   if (!fs.existsSync(md)) { errors.push(`skill ${s}: no SKILL.md`); continue; }

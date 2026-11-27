@@ -48,8 +48,8 @@ Rule: only what the official pages say. "not stated" = the docs do not say it �
 - Install as app: beta, all plans, Mac + Windows desktop, from the Share menu; needs online sign-in [IA].
 - "Copy" a published artifact into your own chat: only for legacy artifacts; "Your version is separate" [A]. Whether a copy gets its own storage: not stated.
 - Whether a viewer of a shared artifact gets personal storage: not stated.
-- Whether Claude can read/write artifact data from chat: not stated in support docs. **Observed in Avi's account**: Study Hub uses `db` with owner-only rules and Claude reads/writes it from chat (db_get/db_write). Observed ≠ documented.
-- Whether a skill can make Claude publish a bundled HTML file as an artifact with storage: **not stated** (לא מאומת). Natalie test dropped by Avi on 2026-11-25.
+- Whether Claude can read/write artifact data from chat: not stated in support docs. **Observed in the maintainer's account**: Study Hub uses `db` with owner-only rules and Claude reads/writes it from chat (db_get/db_write). Observed ≠ documented.
+- Whether a skill can make Claude publish a bundled HTML file as an artifact with storage: **not stated** (לא מאומת). A separate test with another user was dropped on 2026-11-25.
 
 ## Projects and memory
 - Projects: instructions + knowledge; paid plans get RAG (up to ~10× capacity) [PR]. Sharing projects: Team/Enterprise only [PR].
@@ -71,8 +71,8 @@ Rule: only what the official pages say. "not stated" = the docs do not say it �
 - Storage: 100 MB [A, newer] vs 20 MB [older copy]. → use 100 MB (newer); 20 MB = legacy.
 - Public artifact links: allowed [CA] vs "cannot be made public" (Claude Code blog, Jun 2026). → treat public as unverified; design for "Anyone with the link".
 
-## Observed during WS-1 (2026-11-25, Claude Code cloud session in Avi's account, NOT claude.ai chat)
+## Observed during WS-1 (2026-11-25, Claude Code cloud session in the maintainer's account, NOT claude.ai chat)
 - Publishing an HTML artifact with `{db:{rules:[{path:"",read:"owner",write:"owner"}]},user:{},desktop:{}}` was accepted; stored as "root read owner write owner". The root path `""` is valid (also stated in the runtime's own db type definitions, contract 0.2.99).
 - Claude wrote meta/schema, settings/main, courses/* from the session and read them back (pass). Reading at access level `admin` returned nothing → owner-only holds even for editors.
 - Test artifact (test data only): https://claude.ai/artifact/1CVq1bb19RaAEtpi7hQvQY
-- Still open: whether a skill running in a claude.ai **chat** (uploaded plugin) can do the same. Closed by Avi's install test (claude/build/INSTALL-TEST.md).
+- Still open: whether a skill running in a claude.ai **chat** (uploaded plugin) can do the same. Closed by the maintainer's install test on claude.ai.
