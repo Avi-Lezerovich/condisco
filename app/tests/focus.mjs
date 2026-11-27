@@ -64,5 +64,14 @@ await p2.click('[data-f=recall][data-v=yes]'); await p2.click('[data-f=mark][dat
 const res = await p2.evaluate(() => { const S = window.__condisco.store.S; const t = S.tasks.find(x => x.id === 't1'); return { status: t.status, recall: t.recall, sess: S.sessions.filter(x => x.kind === 'block' && x.focusMin === 25).length }; });
 ok(res.status === 'done' && res.recall === 'yes' && res.sess === 1, 'task marked, session logged: ' + JSON.stringify(res));
 await p1.clock.runFor(500); ok((await st(p1)) === null, 'first tab closes when the block finishes elsewhere');
+// short screen (iPhone landscape): each new step opens at its top, not at the scroll left by the "next" tap
+{ const c2 = await b.newContext({ viewport: { width: 852, height: 393 }, hasTouch: true, timezoneId: 'Asia/Jerusalem' }); const q = await c2.newPage();
+  q.on('pageerror', e => errs.push(e.message)); await q.clock.install({ time: T0 });
+  await q.goto(URL0 + '#today'); await q.clock.runFor(1500); await q.click('.next [data-act=focus]'); await q.clock.runFor(300);
+  await q.click('[data-f=next]'); await q.clock.runFor(300); // the tap scrolls the zone step down first
+  ok(await q.evaluate(() => document.getElementById('focus').scrollTop === 0), 'short screen: breathing step opens at its top');
+  await q.click('[data-f=bstart]'); await q.clock.runFor(300);
+  ok(await q.evaluate(() => document.getElementById('focus').scrollTop === 0), 'short screen: running breath opens at its top');
+  await c2.close(); }
 ok(errs.length === 0, 'no console errors ' + errs.join(' | '));
 await b.close(); console.log(`${n - bad}/${n} passed`); process.exit(bad ? 1 : 0);
