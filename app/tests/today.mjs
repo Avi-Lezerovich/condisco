@@ -22,6 +22,30 @@ const settle = p => p.waitForTimeout(250);
   const fit = await p.$eval('.days', e => e.scrollWidth <= e.clientWidth + 1); ok(fit, 'day switcher fits 390px');
   ok(!p.errs.length, 'no console errors ' + p.errs.join('|'));
 }
+{ // UI-2a layout rules: next-up has two actions and fits 220px at 393px, tools never repeat the hero, one primary, deadline digits by meaning
+  const p = await open('2026-11-26T08:05:00', 393);
+  const acts = await p.$$eval('.next .acts .btn', bs => bs.map(b => b.textContent.trim()));
+  ok(acts.join('|') === 'כניסה לבלוק|מינימום', 'next-up actions are start + minimum only: ' + acts.join('|'));
+  const h = await p.$eval('.next', e => e.getBoundingClientRect().height); ok(h <= 220, 'next-up ≤ 220px tall at 393px: ' + Math.round(h));
+  const tl = await p.$$eval('.tools .tool', bs => bs.map(b => b.dataset.mode)); ok(tl.join() === 'class,breathe,music', 'tools skip the block when the hero starts one: ' + tl.join());
+  ok((await p.$$('#view .btn.primary')).length === 1, 'one primary action on the screen');
+  const tone = v => p.evaluate(v => { const d = document.createElement('i'); d.style.color = `var(${v})`; document.body.append(d); const c = getComputedStyle(d).color; d.parentNode.removeChild(d); return c; }, v);
+  const ink = await tone('--ink'), warn = await tone('--warn');
+  const dues = await p.$$eval('.due b', bs => bs.map(b => [b.closest('.due').classList.contains('hot'), getComputedStyle(b).color, getComputedStyle(b.closest('.due')).getPropertyValue('--c').trim()]));
+  ok(dues.length && dues.every(([hot, col]) => col === (hot ? warn : ink)), 'deadline digits: clay when ≤ 3 days, ink otherwise');
+  ok(await p.$$eval('.due small .dot', d => d.length) === dues.filter(d => d[2]).length, 'course shown as a dot on each deadline');
+  for (const id of ['w1', 't1', 't2', 't3']) await W(p, 'tasks/' + id, { status: 'done' }); await settle(p);
+  const tl2 = await p.$$eval('.tools .tool', bs => bs.map(b => b.dataset.mode)); ok(tl2[0] === 'block' && tl2.length === 4, 'calm hero keeps the block tool: ' + tl2.join());
+  ok((await p.$$('#view .btn.primary')).length === 1, 'calm hero: still one primary');
+  ok(!p.errs.length, 'no console errors ' + p.errs.join('|'));
+}
+{ // desktop: start column 380px holds next-up, tools and the week; the day sits beside it; nothing wider than 1200px
+  const p = await open('2026-11-26T08:05:00', 1440);
+  const r = await p.evaluate(() => { const q = s => document.querySelector(s).getBoundingClientRect(); return { top: q('.side-top').width, week: q('.week').width, main: q('.main'), next: q('.next'), wk: q('.week'), grid: q('.todaygrid').width }; });
+  ok(Math.round(r.top) === 380 && Math.round(r.week) === 380, 'start column is 380px with the week in it');
+  ok(r.main.right <= r.next.left + 1 && r.main.top < r.wk.top, 'timeline on the other column, beside next-up (RTL)');
+  ok(r.grid <= 1200, 'grid ≤ 1200px: ' + Math.round(r.grid));
+}
 { // late: no "now" five hours after the start
   const p = await open('2026-11-26T13:05:00');
   ok((await txt(p, '.next')).includes('תוכנן ל-'), 'late start says planned for');

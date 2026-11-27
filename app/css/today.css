@@ -8,7 +8,7 @@
 .shelf{display:flex;gap:var(--space-2);overflow-x:auto;scrollbar-width:none;padding:2px 0 4px;margin-bottom:var(--space-3)}
 .shelf.wrapw{flex-wrap:wrap;overflow:visible}
 .due{flex:none;display:flex;align-items:center;gap:10px;padding:8px 14px 8px 12px;border-radius:var(--radius-sm);background:var(--surface-sunk);font-size:var(--fs-small)}
-.due b{font-family:var(--font-display);font-weight:400;font-size:var(--fs-title-2);line-height:1;color:var(--c)}
+.due b{font-family:var(--font-display);font-weight:400;font-size:var(--fs-title-2);line-height:1;color:var(--ink)}
 .due.hot b{color:var(--warn)}
 .due span{display:grid;line-height:1.25}.due small{color:var(--ink-2);font-size:var(--fs-label)}
 
@@ -28,12 +28,13 @@
 .sg{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--space-3);align-items:center;background:var(--surface);border:1px dashed var(--line);border-inline-start:4px solid var(--c);border-radius:var(--radius-md);padding:10px 14px}
 /* tools row */
 .tools{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-2);margin:0 0 14px}
+.tools.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:599px){.tools .tool{min-height:56px}.tools.three .tool{grid-auto-flow:column;justify-content:center;gap:var(--space-2)}}
 .tool{min-height:64px;border:1px solid var(--line);background:var(--surface);border-radius:var(--radius-md);display:grid;place-items:center;gap:2px;font-size:var(--fs-caption);font-weight:700;padding:8px 4px;text-align:center}
 .tool svg{width:22px;height:22px;fill:none;stroke:var(--accent);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .todaygrid{display:grid;gap:0 var(--space-6);grid-template-areas:"top" "main" "more"}
 .side-top{grid-area:top}.main{grid-area:main}.side-more{grid-area:more}
 .more-h{display:block}
-@media(min-width:1024px){.todaygrid{grid-template-columns:420px minmax(0,1fr);grid-template-areas:"top main" "more main";grid-template-rows:auto 1fr;align-items:start}.more-h{display:none}.main{grid-row:1/span 2}}
 .ring-p{display:inline-flex;align-items:center;gap:10px;color:var(--ink-2);font-size:var(--fs-small);white-space:nowrap}
 .ring-p svg{width:34px;height:34px;transform:rotate(-90deg)}
 .ring-p circle{fill:none;stroke-width:4}
@@ -41,8 +42,9 @@
 .ring-p b{font-family:var(--font-display);font-weight:400;color:var(--ink);font-size:var(--fs-body)}
 .main .days{margin-top:0}
 @media(max-width:519px){.sg{grid-template-columns:minmax(0,1fr)}}
-.week b{font-size:var(--fs-number)}
 
+/* expanded (≥ 1024px): next-up, tools and the week on the inline-start column (380px), the day on the other.
+   .wrap already stops at --content (1200px), so nothing stretches further. */
 @media(min-width:1024px){.todaygrid{grid-template-columns:380px minmax(0,1fr);grid-template-areas:"top main" "more main";grid-template-rows:auto 1fr;align-items:start}.more-h{display:none}.main{grid-row:1/span 2}}
 
 .week,.tool,.rev,.sg{border-color:var(--line);box-shadow:var(--shadow-1)}
@@ -55,10 +57,26 @@
 
 /* hero: calm states use page colours, so buttons must too (the hero rules assume a dark card) */
 .next.calm .btn{color:var(--ink);border-color:var(--line)}
-.next.calm .btn.primary{background:var(--win);color:var(--win-ink);border-color:var(--win)}
+.next.calm .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);box-shadow:none}
 .next.calm .acts{margin-top:12px}
 .next .sub{margin:2px 0 0;font-size:var(--fs-small);color:var(--ink-2);max-width:44ch}
-.next .after{margin-top:12px;font-size:var(--fs-caption);opacity:.7}
+/* next-up on a phone: label row (with "and N more") · title (2 lines max) · time row · minimum · two actions.
+   Target ≤ 220px tall at 393px. */
+.next .lbl{display:flex;justify-content:space-between;gap:var(--space-3);align-items:baseline}
+.next .lbl>span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.next .after{flex:none;font-size:var(--fs-caption);opacity:.85}
+.next:not(.calm):not(.live) h2{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;margin:var(--space-1) 0}
+.next .min{margin-top:var(--space-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.next .min b{font-weight:700}
+@media(max-width:599px){
+  .next{padding:var(--space-3) var(--space-4) var(--space-4);margin-bottom:var(--space-3)}
+  .next:not(.calm):not(.live) h2{font-size:var(--fs-title-2);line-height:var(--lh-title-2)}
+  .next .row{gap:2px var(--space-3)}
+  .next .cd{font-size:var(--fs-title-2)}
+  .next .acts{margin-top:var(--space-3)}
+  .next .acts .btn{flex:1 1 0}
+  .next .acts .btn.primary{flex:2 1 0}
+}
 .next.eve{background:radial-gradient(120% 140% at 100% 0%,color-mix(in srgb,var(--win) 16%,transparent),transparent 60%),var(--surface)}
 .todaygrid a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
 
@@ -81,6 +99,7 @@ a.due:active{transform:scale(.97)}
 .due b.w{font-size:var(--fs-body)}
 .due b i{font-style:normal;font-family:var(--font-text);font-size:var(--fs-label);color:var(--ink-2);margin-top:2px}
 .due span{min-width:0}.due small{line-height:1.3}
+.due small .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-inline-end:5px;vertical-align:0}
 
 /* hero while a block is open: a soft pulse beside the label */
 .next .pulse{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--win);margin-inline-end:8px;vertical-align:1px;animation:livepulse 1.8s ease-in-out infinite}
