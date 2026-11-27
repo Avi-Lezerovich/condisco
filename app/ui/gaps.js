@@ -60,10 +60,10 @@ export function render({ store }) {
   const target = targetOf(store);
   const today = todayStr();
   if (view.open && !S.courses.some(c => c.id === view.open)) view.open = '';
+  // the target appears once on the screen, here; cards compare against it without repeating the number
   const goal = `<div class="goal"><b>${esc(target)}</b><span>זה היעד בכל מבחן. הסימן הכי אמין שהגעת: שני מבחני תרגול אחרונים, בזמן אמת, שניהם מעל היעד.</span></div>`;
-  const legend = `<div class="legend" aria-hidden="true">${LADDER.map(s => `<span><i class="sw" style="${s === 'not_started' ? '' : `--mix:${LADDER_MIX[s]}%`}" data-s="${s}"></i>${LADDER_HE[s]}</span>`).join('')}</div>`;
   const courses = [...S.courses].sort((a, b) => (+a.order || 99) - (+b.order || 99) || String(a.name).localeCompare(String(b.name), 'he'));
-  return `<div class="gaps">${goal}${legend}<div class="cgrid">${courses.map(c => course(S, c, target, today)).join('')}</div>${undoBar()}</div>`;
+  return `<div class="gaps">${goal}<div class="cgrid${view.open ? ' has-open' : ''}">${courses.map(c => course(S, c, target, today)).join('')}</div>${undoBar()}</div>`;
 }
 
 const targetOf = store => { const t = +store.settings().target; return t > 0 && t <= 100 ? t : 85; };
@@ -80,47 +80,48 @@ function course(S, c, target, today) {
   const nx = nextUnit(us);
   const hid = 'gc-' + esc(c.id);
 
-  // the bar fills from the start edge with the strongest stage first
+  // the bar fills from the start edge with the strongest stage first; the legend sits right under it, with counts
   const ladder = us.length ? [...LADDER].reverse().filter(s => s !== 'not_started').map(s => { const n = cnt(s); return n ? `<span style="width:${100 * n / us.length}%;--mix:${LADDER_MIX[s]}%"></span>` : ''; }).join('') : '';
+  const legend = us.length ? `<ul class="lg" aria-label="יחידות לפי שלב">${[...LADDER].reverse().map(s => { const n = cnt(s); return n || s === 'exam' ? `<li><i class="sw" data-s="${s}" style="${s === 'not_started' ? '' : `--mix:${LADDER_MIX[s]}%`}"></i>${LADDER_HE[s]} <b>${n}</b></li>` : ''; }).join('')}</ul>` : '';
 
   const pips = `<span class="pips" aria-hidden="true">${[0, 1].map(i => `<i class="${r.last2[i] == null ? '' : r.last2[i] >= target ? 'up' : 'down'}"></i>`).join('')}</span>`;
   const ready = r.state === 'ready' ? `<span class="rd ok">${pips}ברמת מבחן: ${r.last2.join(' ו-')}</span>`
-    : r.state === 'one' ? `<span class="rd ok">${pips}${r.last2.length === 1 ? `מבחן תרגול אחד: ${r.last2[0]}` : `האחרון ${r.last2[0]}`}, עוד אחד מעל ${esc(target)}</span>`
-    : r.state === 'below' ? `<span class="rd warn">${pips}${r.last2.length === 2 ? `שני האחרונים: ${r.last2.join(', ')}` : `מבחן תרגול אחד: ${r.last2[0]}`}, היעד ${esc(target)}</span>`
+    : r.state === 'one' ? `<span class="rd ok">${pips}${r.last2.length === 1 ? `מבחן תרגול אחד: ${r.last2[0]}` : `האחרון ${r.last2[0]}`}, עוד אחד מעל היעד</span>`
+    : r.state === 'below' ? `<span class="rd below">${pips}${r.last2.length === 2 ? `שני האחרונים: ${r.last2.join(', ')}` : `מבחן תרגול אחד: ${r.last2[0]}`}, עוד לא ביעד</span>`
     : `<span class="rd">${pips}עוד אין מבחן תרגול בזמן</span>`;
 
   const facts = [
     exam ? `<span class="${dayDiff(exam, today) <= 14 ? 'warn' : ''}">מבחן ${inDays(dayDiff(exam, today))} (${dm(exam)})</span>` : '',
-    us.length ? `<span>ברמת מבחן: ${cnt('exam')}/${us.length}</span>` : '<span>עוד אין יחידות</span>',
+    us.length ? '' : '<span>עוד אין יחידות</span>',
     missed ? `<span class="warn">${`פספסתי: ${missed}`}</span>` : '',
     errs.length ? `<span>טעויות פתוחות: ${errs.length}</span>` : '',
     Number.isFinite(+c.confidence) && c.confidence !== '' && c.confidence != null ? `<span>ביטחון ${esc(c.confidence)}/10</span>` : '',
   ].join('');
-  const next = nx ? `<span class="nx">הבא: <b>${esc(unitLabel(nx))}</b>${unitTitle(nx) ? ` ${esc(unitTitle(nx))}` : ''}<em>${nx.missed && norm(nx.status) === 'not_started' ? 'פספסתי' : esc(LADDER_HE[norm(nx.status)])}</em></span>`
-    : us.length ? '<span class="nx done">כל היחידות ברמת מבחן. עכשיו מבחנים קודמים בזמן אמת.</span>' : '';
+  // the one primary action of the card: go to the next unit and move it up the ladder
+  const next = nx ? `<button class="btn primary nx" data-act="next" data-id="${esc(c.id)}" data-u="${esc(nx.id)}"><span class="nx-l">הבא: <b>${esc(unitLabel(nx))}</b>${unitTitle(nx) ? ` ${esc(unitTitle(nx))}` : ''}</span><em>${nx.missed && norm(nx.status) === 'not_started' ? 'פספסתי' : esc(LADDER_HE[norm(nx.status)])}</em></button>`
+    : us.length ? '<p class="nx done">כל היחידות ברמת מבחן. עכשיו מבחנים קודמים בזמן אמת.</p>' : '';
 
   const head = `<button class="c-head" data-act="open" data-id="${esc(c.id)}" aria-expanded="${open}" aria-controls="${hid}">
     <span class="c-name"><i></i>${esc(c.name)}</span>
     <span class="pct" aria-label="התקדמות ${progress(us)} אחוז">${progress(us)}%<small>התקדמות</small></span>
-    <span class="ladder" aria-hidden="true">${ladder}</span>
-    ${ready}<span class="c-sub">${facts}</span>${next}
     <svg class="chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`;
-  if (!open) return `<section class="course" style="${cvar(c)}">${head}</section>`;
-  return `<section class="course open" style="${cvar(c)}">${head}<div class="c-body" id="${hid}">${mocksBox(c, r, target)}${errBox(errs)}${unitsBox(c, us)}</div></section>`;
+  const sum = `<div class="c-sum">${us.length ? `<span class="ladder" aria-hidden="true">${ladder}</span>` : ''}${legend}${ready}${facts ? `<span class="c-sub">${facts}</span>` : '<span class="c-sub"></span>'}${next}</div>`;
+  if (!open) return `<section class="course" style="${cvar(c)}">${head}${sum}</section>`;
+  return `<section class="course open" style="${cvar(c)}">${head}${sum}<div class="c-body" id="${hid}">${mocksBox(c, r, target)}${errBox(errs)}${unitsBox(c, us)}</div></section>`;
 }
 
 function mocksBox(c, r, target) {
   const today = todayStr();
   const list = r.list.slice(0, MOCK_SHOW).map(x => `<span class="mk ${+x.score >= target ? 'ok' : ''}${x.timed === false ? ' untimed' : ''}"><b>${esc(+x.score)}</b><span class="mk-t">${esc(x.title || 'מבחן תרגול')}${x.date ? ` · ${esc(dm(x.date))}` : ''}${x.timed === false ? ' · בלי זמן' : ''}</span><button class="x" data-act="mockdel" data-id="${esc(x.id)}" aria-label="מחיקת ${esc(x.title || 'מבחן תרגול')} (${esc(+x.score)})">×</button></span>`).join('');
   const more = r.list.length > MOCK_SHOW ? `<span class="more">ועוד ${r.list.length - MOCK_SHOW} מוקדמים יותר</span>` : '';
-  return `<div class="box"><h4 class="kind">מבחני תרגול <span>יעד ${esc(target)}, נספרים רק מבחנים בזמן אמת</span></h4>
+  return `<div class="box"><h4 class="kind">מבחני תרגול <span>נספרים רק מבחנים בזמן אמת</span></h4>
     ${r.list.length ? `<div class="mk-list">${list}${more}</div>` : '<p class="hint">פתרת מבחן קודם בזמן אמת? כאן רושמים את הציון. שני מבחנים אחרונים מעל היעד הם הסימן שהגעת.</p>'}
     <div class="mk-form" data-course="${esc(c.id)}">
       <input class="f mk-title" maxlength="80" placeholder="איזה מבחן (למשל 2024 מועד א')" aria-label="שם המבחן" enterkeyhint="next">
       <input class="f mk-score" type="number" inputmode="decimal" min="0" max="100" step="any" placeholder="ציון" aria-label="ציון, 0 עד 100" enterkeyhint="done">
       <input class="f mk-date" type="date" value="${today}" max="${today}" aria-label="תאריך">
       <label class="mk-tm"><input type="checkbox" class="mk-timed" checked> בזמן אמת</label>
-      <button class="btn primary" data-act="mock" data-id="${esc(c.id)}">רישום</button>
+      <button class="btn" data-act="mock" data-id="${esc(c.id)}">רישום</button>
     </div></div>`;
 }
 
@@ -187,6 +188,16 @@ export const actions = {
     const id = b.dataset.id; view.open = view.open === id ? '' : id; view.pick = ''; keep(); ctx.rerender();
     refocus(`.c-head[data-id="${CSS.escape(id)}"]`);
     if (view.open) requestAnimationFrame(() => { const h = $(`.c-head[data-id="${CSS.escape(id)}"]`); if (h && h.getBoundingClientRect().top < 0) h.scrollIntoView({ block: 'start', behavior: 'smooth' }); });
+  },
+  next(b, ctx) {
+    const id = b.dataset.id, uid = b.dataset.u;
+    view.open = id; view.pick = uid; keep(); ctx.rerender();
+    requestAnimationFrame(() => {
+      const on = $(`.picker [data-id="${CSS.escape(uid)}"].on`) || $(`.st[data-id="${CSS.escape(uid)}"]`);
+      if (!on) return;
+      on.closest('.unit').scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      on.focus({ preventScroll: true });
+    });
   },
   filter(b, ctx) { view.filter = b.dataset.v === 'gaps' ? 'gaps' : 'all'; keep(); ctx.rerender(); refocus(`[data-act=filter][data-v=${view.filter}]`); },
   sum(b, ctx) { const id = b.dataset.id; if (view.sums.has(id)) view.sums.delete(id); else view.sums.add(id); ctx.rerender(); refocus(`.u-sumbtn[data-id="${CSS.escape(id)}"]`); },
