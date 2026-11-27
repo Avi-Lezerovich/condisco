@@ -85,7 +85,7 @@ function calendar(list, cm) {
     const day = addDays(start, i), ds = byDay[day] || [], p = parse(day), n = dayDiff(day, today);
     const hot = ds.some(d => isOpen(d) && n <= 3), past = n < 0, first = p.getDate() === 1 || i === 0;
     const label = (first ? `${p.getDate()}.${p.getMonth() + 1}` : p.getDate());
-    const cls = ['cd', day === today && 'today', past && 'past', hot && 'hot', ds.length && 'has', day === view.day && 'sel'].filter(Boolean).join(' ');
+    const cls = ['cal-d', day === today && 'today', past && 'past', hot && 'hot', ds.length && 'has', day === view.day && 'sel'].filter(Boolean).join(' ');
     const dots = ds.slice(0, 3).map(d => `<i style="${cvar(cm[d.courseId])}"${isOpen(d) ? '' : ' class="x"'}></i>`).join('') + (ds.length > 3 ? '<b>+</b>' : '');
     const say = `${DOW[p.getDay()]} ${dm(day)}${ds.length ? ', ' + (ds.length === 1 ? 'דדליין אחד' : ds.length + ' דדליינים') : ''}${day === today ? ', היום' : ''}`;
     cells.push(ds.length

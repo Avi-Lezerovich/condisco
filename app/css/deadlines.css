@@ -40,7 +40,7 @@
 .dl .meta .src-link{color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:2px;min-height:var(--target);display:inline-flex;align-items:center;margin-block:-12px}
 /* "לא מאומת": a quiet dashed badge (DS .badge), aligned with the title */
 .dl .badge{vertical-align:2px;font-weight:600}
-.btn.quiet{color:var(--ink-2)}
+.dl .btn.quiet{color:var(--ink-2)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 
 /* DS-candidate: Calendar (month-like grid of WEEKS weeks, a dot per item in its course colour) */
@@ -51,17 +51,17 @@
 .cal-nav svg{width:18px;height:18px}
 .cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px}
 .cal-grid .dow{text-align:center;font-size:var(--fs-label);color:var(--ink-2);padding-block:var(--space-1)}
-.cd{min-height:52px;min-width:40px;display:grid;grid-template-rows:auto 10px;justify-items:center;align-content:center;gap:3px;border-radius:var(--radius-sm);border:1px solid transparent;background:transparent;padding:var(--space-1) 0;font-size:var(--fs-small);color:var(--ink);font-variant-numeric:tabular-nums}
-.cd.past{color:var(--ink-3)}
-.cd.has{background:var(--surface-sunk);font-weight:700;cursor:pointer}
-.cd.hot .dn{color:var(--warn)}
-.cd.today .dn{display:grid;place-items:center;min-width:28px;height:28px;border-radius:var(--radius-pill);box-shadow:inset 0 0 0 1.5px var(--accent);color:var(--accent);font-weight:700}
-.cd.sel{background:var(--accent-soft);border-color:var(--accent)}
-.cd .dots{display:flex;gap:3px;align-items:center;height:10px}
-.cd .dots i{width:7px;height:7px;border-radius:50%;background:var(--c)}
-.cd .dots i.x{opacity:.35}
-.cd .dots b{font-size:var(--fs-label);line-height:1;color:var(--ink-2)}
-@media(hover:hover){.cd.has:not(.sel):hover{border-color:var(--line-strong)}}
+.cal-d{min-height:52px;min-width:40px;display:grid;grid-template-rows:auto 10px;justify-items:center;align-content:center;gap:3px;border-radius:var(--radius-sm);border:1px solid transparent;background:transparent;padding:var(--space-1) 0;font-size:var(--fs-small);color:var(--ink);font-variant-numeric:tabular-nums}
+.cal-d.past{color:var(--ink-3)}
+.cal-d.has{background:var(--surface-sunk);font-weight:700;cursor:pointer}
+.cal-d.hot .dn{color:var(--warn)}
+.cal-d.today .dn{display:grid;place-items:center;min-width:28px;height:28px;border-radius:var(--radius-pill);box-shadow:inset 0 0 0 1.5px var(--accent);color:var(--accent);font-weight:700}
+.cal-d.sel{background:var(--accent-soft);border-color:var(--accent)}
+.cal-d .dots{display:flex;gap:3px;align-items:center;height:10px}
+.cal-d .dots i{width:7px;height:7px;border-radius:50%;background:var(--c)}
+.cal-d .dots i.x{opacity:.35}
+.cal-d .dots b{font-size:var(--fs-label);line-height:1;color:var(--ink-2)}
+@media(hover:hover){.cal-d.has:not(.sel):hover{border-color:var(--line-strong)}}
 .cal-day h4{margin:var(--space-4) 2px var(--space-2);font-size:var(--fs-small);font-weight:700}
 .cal-day .dlist{box-shadow:none}
 .cal-none{margin:var(--space-3) 2px 0;color:var(--ink-2);font-size:var(--fs-small)}
