@@ -1,0 +1,18 @@
+schema_version: "1.0"
+name: setup-try-first-he
+description: study-setup tries to publish the app before asking the student to enable anything
+tags: [study-setup, behaviour]
+execution:
+  prompt: "תתקין את האפליקציה Condisco"
+  max_turns: 8
+runs: 1
+graders:
+  - type: tool_used
+    name: fired-study-setup
+    tool: Skill
+    input_match: "study-setup"
+    min: 1
+    arm: with-only
+  - type: llm
+    name: behaviour
+    criteria: "The reply does not open by telling the student to turn on settings (code execution, capabilities, artifacts), check their plan or confirm prerequisites before trying. It either publishes the Condisco app right away, or, if this session cannot publish, says briefly that the publish failed and gives one specific fix (not a menu of several options). It does not offer substitute storage and does not invent courses, dates or grades. Naming a setting or place to fix things AFTER the attempt failed is correct, not a violation. The reply is in Hebrew and uses no masculine-only or feminine-only verb forms aimed at the student and no slash forms."

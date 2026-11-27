@@ -15,4 +15,4 @@ graders:
     arm: with-only
   - type: llm
     name: behaviour
-    criteria: "The reply begins the Condisco setup flow: it says the private app is published first, then the courses are read from Moodle or uploaded syllabi, then a short interview. Any message asks no more than 4 short questions. It does not invent courses, dates or grades. If this session has no artifact or db tools, it is enough that the reply says setup needs them and names publishing the private app as the first step."
+    criteria: "The reply either publishes the private Condisco app right away, or, if this session cannot publish, says in a few lines that the publish failed and gives one specific fix. Before that attempt it does not ask the student to turn on settings or check their plan. Any message asks no more than 4 short questions. It does not offer substitute storage and does not invent courses, dates or grades. Naming a setting or place to fix things AFTER the attempt failed is correct, not a violation."
