@@ -26,5 +26,7 @@ A paid Claude plan (Pro or higher) with code execution on, and artifact storage 
 ## Install
 Customize > Plugins > Add > Add marketplace, enter `Avi-Lezerovich/condisco`, and install Condisco (updates arrive automatically). Or Customize > Plugins > Add > Upload plugin with `condisco-0.5.0.zip` (no automatic updates). Then say "set up Condisco". After a plugin update, say "update Condisco" to bring the app to the new version.
 
+In Claude Code: `/plugin install condisco --marketplace Avi-Lezerovich/condisco`.
+
 ## Build
 From the repository root: `npm run build:plugin` writes `dist/condisco-<version>.zip`. It copies the app from `app/` into `skills/study-setup/assets/app/`, so do not edit that folder by hand.

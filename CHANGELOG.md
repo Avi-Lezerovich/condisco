@@ -4,6 +4,10 @@ All notable changes to Condisco. Versions follow the plugin version in `plugin/.
 
 ## [Unreleased]
 
+### Distribution
+- The repository is a plugin marketplace: add `Avi-Lezerovich/condisco` in claude.ai (Customize > Plugins > Add > Add marketplace) and installed copies update by themselves when the version rises.
+- CI publishes the built plugin to the `release` branch and creates the GitHub release with the ZIP whenever `main` carries a new version.
+
 ### Added
 - "Update Condisco" / "עדכן את Condisco": `study-setup` republishes the app in place at the student's existing artifact URL, keeps the db, records `meta/install`, and checks the course, deadline and task counts before and after. Never publishes a second app.
 - `meta/install` (pluginVersion, publishedAt, updatedAt, url), written at setup and on update. `study-coach` mentions once in the daily plan when the app is older than the plugin.

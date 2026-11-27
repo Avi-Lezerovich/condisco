@@ -34,6 +34,10 @@ jobs:
         run: npm run test:browser
       - name: Build plugin ZIP
         run: npm run build:plugin
+      - name: Validate marketplace and built plugin
+        run: |
+          npx --yes @anthropic-ai/claude-code@2.1.332 plugin validate .
+          npx --yes @anthropic-ai/claude-code@2.1.332 plugin validate dist/condisco
       - uses: actions/upload-artifact@v4
         with:
           name: condisco-plugin
@@ -45,3 +49,29 @@ jobs:
           name: screenshots
           path: app/tests/shots/
           if-no-files-found: ignore
+
+  # The marketplace (.claude-plugin/marketplace.json on main) points students at the `release` branch,
+  # which holds the BUILT plugin (plugin/ plus the bundled app). A new version is published only when
+  # plugin.json carries a version the release branch does not have yet: installed copies update only
+  # when the version changes, so every release must raise it (node scripts/bump-version.mjs X.Y.Z).
+  publish:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    concurrency:
+      group: publish-release
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build plugin
+        run: npm run build:plugin
+      - name: Publish to the release branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/publish-release.mjs
