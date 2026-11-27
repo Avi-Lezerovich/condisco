@@ -3,7 +3,7 @@
 Condisco is a study partner for university students that lives inside Claude. It sets up a private study app (an artifact with its own owner-only database), plans each day from real data, runs focused study sessions that make the student produce first (retrieval, a hint ladder, and a closed-book recall question at the end), runs a short evening check-in, and builds backward plans before exams. It never invents course content, dates or grades: anything unconfirmed is marked unverified.
 
 ## Skills
-- `study-setup`: publishes the private Condisco app, runs a database self-test, reads courses and syllabi from Moodle (read only) or uploaded syllabi, saves them after the student confirms, then hands over to the interview.
+- `study-setup`: publishes the private Condisco app, runs a database self-test, reads courses and syllabi from Moodle (read only) or uploaded syllabi, saves them after the student confirms, then hands over to the interview. On "update Condisco" it republishes the app in place (same link, same data) and checks that nothing was lost.
 - `study-profile`: the short first interview and the learner profile every skill reads (format, length, teaching order, techniques, dislikes). Stores preferences, never a "learning style" label; retrieval and the closing recall question never switch off.
 - `study-summary`: "summarize week 5": a summary of a week, unit, topic or course from the student's own files, in their preferred form; by default a visual page with a concept map, diagrams, a worked example and a recall quiz.
 - `study-teach`: "teach me X": one prior-knowledge question, a short visual lesson, and an explain-back in the student's own words.
@@ -18,17 +18,15 @@ Condisco is a study partner for university students that lives inside Claude. It
 Learning and explaining with AI is always allowed. Each course has one switch, `aiSolve`, that says whether Claude may solve questions that get submitted. It starts as `forbidden` until the student confirms it from the syllabus.
 
 ## Data
-All study data stays in the student's own private Condisco artifact on claude.ai, readable and writable only by its owner. The plugin itself holds no personal data and sends nothing elsewhere. Calendar events or messages are created only after an explicit yes.
+All study data stays in the student's own private Condisco artifact on claude.ai, readable and writable only by its owner. The plugin holds no personal data, has no server, and sends nothing to its developer or anyone else; the app loads only Google Fonts from outside. Claude reads Moodle and Piazza pages (through Claude in Chrome) and Google Drive files (through the student's connector) only when the student asks, read only, inside the student's own account. Calendar events or messages are created only after an explicit yes; feedback is copied and sent by the student.
 
 ## Requirements
 A paid Claude plan (Pro or higher) with code execution on, and artifact storage (web or desktop).
 
 ## Install
-From the marketplace, so new versions arrive by themselves: in claude.ai, Customize > Plugins > Add > Add marketplace, enter `Avi-Lezerovich/condisco`, then install Condisco. In Claude Code:
+Customize > Plugins > Add > Add marketplace, enter `Avi-Lezerovich/condisco`, and install Condisco (updates arrive automatically). Or Customize > Plugins > Add > Upload plugin with `condisco-0.5.0.zip` (no automatic updates). Then say "set up Condisco". After a plugin update, say "update Condisco" to bring the app to the new version.
 
-    /plugin install condisco --marketplace Avi-Lezerovich/condisco
-
-Or upload the ZIP (no automatic updates): Customize > Plugins > Add > Upload plugin, then choose `condisco-0.5.0.zip`. Then say "set up Condisco".
+In Claude Code: `/plugin install condisco --marketplace Avi-Lezerovich/condisco`.
 
 ## Build
 From the repository root: `npm run build:plugin` writes `dist/condisco-<version>.zip`. It copies the app from `app/` into `skills/study-setup/assets/app/`, so do not edit that folder by hand.

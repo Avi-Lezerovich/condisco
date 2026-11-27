@@ -1,6 +1,6 @@
 ---
 name: study-setup
-description: Sets up Condisco for a university student - publishes the private Condisco study app as an artifact with an owner-only database, runs a database self-test, reads the student's courses and syllabi from Moodle (read-only) or from uploaded syllabi, lets the student confirm them, and then hands over to the short study-profile interview. Use when the student says "set up Condisco", "install Condisco", "start Condisco", "התקן Condisco", "להתקין לי Condisco", "אני רוצה להתקין את Condisco", "תגדיר לי את Condisco", "להתחיל עם Condisco", or has just installed the plugin and asks what to do first. Also re-checks that an existing app and its database work. Not for a single course, deadline or check-in change, which other Condisco skills handle.
+description: Sets up and updates Condisco for a university student - publishes the private Condisco study app as an artifact with an owner-only database, runs a database self-test, reads the student's courses and syllabi from Moodle (read-only) or uploaded syllabi for them to confirm, then hands over to the study-profile interview. Also updates an existing app in place to the installed plugin version, keeping its data. Use when the student says "set up Condisco", "install Condisco", "update Condisco", "התקן Condisco", "להתקין לי Condisco", "תגדיר לי את Condisco", "עדכן את Condisco", "לעדכן את Condisco", or has just installed the plugin and asks what to do first. Also re-checks that an existing app and its database work. Not for a single course, deadline or check-in change, which other Condisco skills handle.
 ---
 
 # Condisco setup
@@ -31,8 +31,9 @@ At most 4 questions in one message, multiple choice where possible.
   The first visible action is the publish in step 1.
 - Look for an existing Condisco or Study Hub artifact (project memory, project
   instructions, or the artifact list). If one exists, do NOT publish a second one:
-  say which one you found and offer to run only the self-test (step 2) on it, or
-  only the parts that are missing (courses in step 3, interview in step 4).
+  say which one you found and offer to run only the self-test (step 2) on it,
+  only the parts that are missing (courses in step 3, interview in step 4), or
+  the update below when its `meta/install.pluginVersion` is missing or older than Condisco 0.5.0.
   A Study Hub db is fine to reuse: the app migrates it to the Condisco layout when it opens.
 - If the student already wrote their courses, name or times in the first message,
   keep them: they are confirmed answers, do not ask again.
@@ -65,8 +66,9 @@ Read `references/schema.md` first. Write with the artifact data tools this chat
 offers (names vary, e.g. db_write / write_db), never into the page source:
 - `meta/schema` = `{version: 2, app: "condisco", migratedAt: <now ISO>}`
 - `settings/main` = `{timezone (ask only if you cannot tell), onboarded: false}` plus anything the student already said
-Read both back and compare. Report exactly one line:
-- `בדיקת db: עברה ✓ (2/2 נקראו בחזרה)` / `db self-test: pass (2/2 read back)`, or
+- `meta/install` = `{pluginVersion: "0.5.0", publishedAt: <now ISO>, url: <artifact URL>}`
+Read all three back and compare. Report exactly one line:
+- `בדיקת db: עברה ✓ (3/3 נקראו בחזרה)` / `db self-test: pass (3/3 read back)`, or
 - `בדיקת db: נכשלה — <what failed>` / `db self-test: FAIL — <step and error>`.
 If chat cannot read or write the db at all, say so: the app still saves what the
 student enters in it, but Claude cannot plan from it. Do not hide a failure.
@@ -123,7 +125,33 @@ ask its questions here and do not ask for courses again. After it, set
 - Tell them three things to try first: "מה ללמוד היום?", "תסכם לי את שבוע 3 ב<course>",
   "תלמד אותי <topic>". Feedback any time: "פידבק על Condisco".
 
+## Update an existing app ("עדכן את Condisco")
+A plugin update (automatic from the marketplace, or a new ZIP) changes only the
+plugin. The student's app is a published copy and stays on its old version until
+it is republished. Updating means: the same artifact, the same URL, the same db.
+1. Find the existing artifact as in "Before you start". None: say so and offer the
+   full setup instead. More than one: list them and ask which one holds their data.
+2. Read `meta/install` (missing in apps set up before 0.5.0) and count the docs in
+   `courses`, `deadlines` and `tasks`. Already on Condisco 0.5.0: say it is up to date
+   and offer the self-test only.
+3. Publish `assets/app/` exactly as in step 1 (unchanged files, same supporting files,
+   same capabilities), **as an update of that artifact's URL**. Never publish it
+   without the URL: that creates a second, empty app. If this chat cannot update an
+   existing artifact, stop: say so in one line, publish nothing, point to `study-feedback`.
+   A failed publish: `references/troubleshooting.md`, as in step 1.
+4. Write `meta/install` = `{pluginVersion: "0.5.0", publishedAt (keep the old one),
+   updatedAt: <now ISO>, url}`, read it back, and count the three collections again.
+   Report exactly one line:
+   - `עדכון: הושלם ✓ (Condisco 0.5.0, הנתונים במקום: 6 קורסים, 14 דדליינים, 40 משימות)` /
+     `update: done (Condisco 0.5.0, data kept: 6 courses, 14 deadlines, 40 tasks)`, or
+   - `עדכון: נכשל — <what failed>` / `update: FAIL — <step and error>`. Fewer docs after
+     than before is a FAIL: say which collection, and do not write anything to fix it.
+5. Ask them to reload the app page once (the old version can stay in an open tab).
+Steps 3 to 5 of setup do not run on an update: courses, profile and the hand-off stay as they are.
+
 ## Gotchas
+- Official docs do not say whether republishing an artifact keeps its db. That is why
+  the update counts the docs before and after, and never "repairs" a mismatch itself.
 - Publishing a second Condisco splits the student's data. Always check first.
 - Asking the student to check settings before trying wastes their first minutes and is
   usually wrong: try, then diagnose from the real error.
