@@ -18,14 +18,14 @@ Reply in the student's language. In Hebrew, write natural, warm, short sentences
 2. Find their Condisco artifact (project memory or instructions, else the artifact
    list: title "Condisco", or older "Study Hub") and add one doc `feedback/{auto}`:
    `{date: "YYYY-MM-DD" (their local date), skill?: "<skill name>" | "app", rating?: 1–5,
-   worked?, broke?, wish?, pluginVersion: "0.4.0", createdAt: ISO}`.
+   worked?, broke?, wish?, pluginVersion: "0.5.0", createdAt: ISO}`.
    Only fields they answered, in their words. If their text holds grades, course
    content or other personal data, leave that part out and tell them in one line.
 3. Read the doc back to confirm it saved. Then give them this summary block to copy.
    Always use this structure, leave out lines they did not answer, and write the
    labels in their language (English: Rating / Worked / Broke / Wish):
    ```
-   Condisco 0.4.0 · פידבק · <date>
+   Condisco 0.5.0 · פידבק · <date>
    דירוג: <n>/5
    עבד: …
    נשבר: …

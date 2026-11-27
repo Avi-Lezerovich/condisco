@@ -2,10 +2,19 @@
 
 All notable changes to Condisco. Versions follow the plugin version in `plugin/.claude-plugin/plugin.json`.
 
-## [Unreleased] - 0.5.0-dev
+## [0.5.0] - 2026-11-27
 
-UI/UX overhaul, part 1: the Condisco Design System in code. No behaviour change.
+UI/UX overhaul: the Condisco Design System in code, every screen redesigned on it, the new logo, and cross-device QA.
 
+### Screens
+- Today: shorter next-up card ("enter block" + "minimum" only), tools row that never repeats the next-up action, deadline digits coloured by meaning, two columns from 1024px.
+- Check-in and Settings: compact check-in (tasks, energy + sleep, free text, tomorrow) with a sticky save on phones; settings in cards, two columns from 1024px; removing a course is immediate with a 7-second undo; first run is one welcome card.
+- Focus, breathing, idle: on desktop the current scene fills the screen behind a glass panel; timer, breathing and idle moved to tokens. Each focus step opens at its top on short screens (iPhone landscape, SE).
+- Deadlines and Gaps: deadline list plus a 5-week calendar (side by side from 1024px); gaps in a 1/2/3-column grid with the legend under the ladder.
+- New logo ("the C that is also a page") in the favicon, header, rail and desktop dock icon.
+- QA: 10 device sizes x light/dark clean (no side scroll, targets >= 44px, text >= 12.5px), axe-core WCAG 2.2 AA with no violations, 200% zoom and reduced motion checked.
+
+### Foundations
 ### App
 - One design system: `app/ds/tokens.css` is generated from the design-system artifact's tokens (scripts/build-tokens.mjs); 11 type styles replace 25 font sizes, 5 radii replace 14, every colour is a token.
 - New shell: bottom tab bar under 600px, navigation rail from 600px (iPad, phone landscape, half-window laptop), two-column Today from 1024px, content max 1200px on large and fullscreen screens. The 300px scene band and floating header become a 176px band (216px from 1024px) with the greeting on its edge.
