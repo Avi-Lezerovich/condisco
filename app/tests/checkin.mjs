@@ -72,6 +72,22 @@ const S = (p, c) => p.evaluate(c => window.__condisco.store.S[c], c);
   const cs = await S(p, 'courses'), oc = id => cs.find(c => c.id === id).order;
   ok(oc('c') === 2 && oc('b') === 3, 'move up swaps order');
   ok(cs.find(c => c.id === 'c').color && cs.find(c => c.id === 'a').color === before.a, 'colours pinned: ' + cs.map(c => c.id + c.color).join(','));
+  // remove a course: undo in a toast, never a confirm dialog
+  p.on('dialog', d => { ok(false, 'no dialogs: ' + d.message()); d.dismiss(); });
+  const rid = (await S(p, 'courses')).find(c => c.name === 'רשתות').id;
+  await p.click(`[data-act=rmcourse][data-id="${rid}"]`); await p.waitForTimeout(300);
+  ok(!(await S(p, 'courses')).some(c => c.id === rid) && await p.isVisible('.ps-undo'), 'course removed, undo offered');
+  await p.click('[data-act=psundo]'); await p.waitForTimeout(300);
+  const back = (await S(p, 'courses')).find(c => c.id === rid);
+  ok(back && back.name === 'רשתות' && back.aiSolve === 'forbidden' && !await p.isVisible('.ps-undo'), 'undo restores the course');
+  await p.click('[data-act=rmcourse][data-id=a]'); await p.waitForTimeout(300);
+  ok((await S(p, 'courses')).some(c => c.id === 'a') && (await p.textContent('#toast')).includes('נשאר'), 'a course with tasks or material is kept');
+  // look and sound: per device
+  await p.locator('#pf-vol').fill('40'); await p.waitForTimeout(100);
+  ok(await p.evaluate(() => localStorage.getItem('condisco.volume')) === '0.4', 'volume saved on the device');
+  await p.selectOption('#pf-music', 'rain');
+  ok(await p.evaluate(() => localStorage.getItem('condisco.music')) === 'rain', 'block music saved on the device');
+  ok(await p.locator('#view .btn.primary').count() === 1, 'one primary in settings');
   await p.click('[data-act=ai][data-id=b][data-v=allowed]'); await p.waitForTimeout(300);
   ok((await S(p, 'courses')).find(c => c.id === 'b').aiSolve === 'allowed', 'aiSolve toggle');
   await p.fill('#cn-a', ''); await p.locator('#cn-a').blur(); await p.waitForTimeout(200);
@@ -85,5 +101,25 @@ const S = (p, c) => p.evaluate(c => window.__condisco.store.S[c], c);
   await p.click('[data-act=rate][data-v="5"]'); await p.fill('#fb-wish', 'עוד'); await p.click('#fb-form [type=submit]'); await p.waitForTimeout(300);
   ok((await S(p, 'feedback')).some(f => f.rating === 5 && f.wish === 'עוד' && f.skill === 'app'), 'feedback saved');
   ok(!p.errs.length, 'no page errors ' + p.errs);
+}
+// layout: sticky save on phone, in the flow from 600px; check-in one 720px column; settings two columns from 1024px
+{ const p = await page('2026-11-26T21:30:00', 'checkin');
+  ok(await p.$eval('.ci-save', e => getComputedStyle(e).position) === 'sticky', 'phone: save is sticky');
+  const r = await p.$eval('.ci-save .btn', e => e.getBoundingClientRect().bottom), tab = await p.$eval('nav.tabs', e => e.getBoundingClientRect().top);
+  ok(r <= tab + 1, 'phone: save sits above the tab bar');
+  ok(await p.locator('#view .btn.primary').count() === 1, 'one primary in the check-in');
+  await p.setViewportSize({ width: 1440, height: 900 }); await p.waitForTimeout(200);
+  ok(await p.$eval('.ci-save', e => getComputedStyle(e).position) === 'static', 'desktop: save in the flow');
+  ok(await p.$eval('.ci-wrap', e => e.getBoundingClientRect().width) <= 720, 'desktop: check-in is one 720px column');
+  await p.evaluate(() => location.hash = '#prefs'); await p.waitForTimeout(300);
+  const cols = await p.$$eval('.prefs > .ps-col', es => es.map(e => e.getBoundingClientRect()).map(r => [Math.round(r.top), Math.round(r.left)]));
+  ok(cols.length === 2 && cols[0][0] === cols[1][0] && cols[0][1] !== cols[1][1], 'desktop: settings in two columns ' + JSON.stringify(cols));
+}
+// first run: one welcome card, one primary
+{ const ctx = await b.newContext({ viewport: { width: 393, height: 852 } }); const p = await ctx.newPage();
+  await p.goto('http://localhost:8811/index.html?mock=empty'); await p.waitForTimeout(600);
+  ok(await p.locator('#view .card-sec').count() === 1 && await p.locator('#view .btn.primary').count() === 1, 'first run: one card, one primary');
+  await p.fill('#fr-name', 'נועה'); await p.fill('#fr-courses', 'הסתברות'); await p.click('#first-form [type=submit]'); await p.waitForTimeout(600);
+  ok(await p.evaluate(() => window.__condisco.store.S.courses.length) === 1 && !(await p.$('#first-form')), 'first run saves and opens the app');
 }
 await b.close(); process.exit(fail ? 1 : 0);
